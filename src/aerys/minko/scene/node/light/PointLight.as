@@ -1,8 +1,8 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.scene.visitor.data.IWorldData;
 	import aerys.minko.scene.visitor.data.LightData;
 	import aerys.minko.scene.visitor.data.TransformManager;
-	import aerys.minko.scene.visitor.data.IWorldData;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
@@ -57,7 +57,7 @@ package aerys.minko.scene.node.light
 			var worldPosition : Vector4 = worldMatrix.multiplyVector(_position);
 			
 			// fill LightData object
-			var ld : LightData = LIGHT_DATA.create(true);
+			var ld : LightData = LIGHT_DATA.create(true) as LightData;
 			ld.reset();
 			ld.type				= LightData.TYPE_POINT;
 			ld.position			= worldPosition;

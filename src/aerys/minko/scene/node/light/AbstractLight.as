@@ -1,10 +1,10 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.common.Factory;
-	import aerys.minko.scene.visitor.data.LightData;
 	import aerys.minko.scene.node.AbstractScene;
 	import aerys.minko.scene.visitor.data.IWorldData;
+	import aerys.minko.scene.visitor.data.LightData;
 	import aerys.minko.scene.visitor.data.TransformManager;
+	import aerys.minko.type.Factory;
 	
 	public class AbstractLight extends AbstractScene implements ILight
 	{
