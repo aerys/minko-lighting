@@ -2,7 +2,7 @@ package aerys.minko.scene.node.light
 {
 	import aerys.minko.scene.visitor.data.IWorldData;
 	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.TransformManager;
+	import aerys.minko.scene.visitor.data.LocalData;
 
 	public class AmbientLight extends AbstractLight
 	{
@@ -21,12 +21,13 @@ package aerys.minko.scene.node.light
 			_ambient = ambient;
 		}
 		
-		override public function getData(transformManager : TransformManager) : IWorldData
+		override public function getData(localData : LocalData) : IWorldData
 		{
 			if (isNaN(_ambient) || _ambient == 0)
 				return null;
 			
 			var ld : LightData = LIGHT_DATA.create(true) as LightData;
+			
 			ld.reset();
 			ld.type				= LightData.TYPE_AMBIENT;
 			ld.color			= _color;

@@ -1,6 +1,6 @@
 package aerys.minko.render.shader.node.reflection
 {
-	import aerys.minko.effect.reflection.ReflectionStyle;
+	import aerys.minko.render.effect.reflection.ReflectionStyle;
 	import aerys.minko.render.shader.node.Components;
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;

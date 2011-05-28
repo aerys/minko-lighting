@@ -3,7 +3,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.scene.node.AbstractScene;
 	import aerys.minko.scene.visitor.data.IWorldData;
 	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.TransformManager;
+	import aerys.minko.scene.visitor.data.LocalData;
 	import aerys.minko.type.Factory;
 	
 	public class AbstractLight extends AbstractScene implements ILight
@@ -19,7 +19,7 @@ package aerys.minko.scene.node.light
 			return false;
 		}
 		
-		public function getData(transformManager : TransformManager) : IWorldData
+		public function getData(localData : LocalData) : IWorldData
 		{
 			throw new Error('Must be overriden');
 		}

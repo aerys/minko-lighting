@@ -2,7 +2,7 @@ package aerys.minko.scene.node.light
 {
 	import aerys.minko.scene.visitor.data.IWorldData;
 	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.TransformManager;
+	import aerys.minko.scene.visitor.data.LocalData;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 
@@ -61,14 +61,14 @@ package aerys.minko.scene.node.light
 			_outerRadius			= outerRadius;
 		}
 		
-		override public function getData(transformManager : TransformManager) : IWorldData
+		override public function getData(localData : LocalData) : IWorldData
 		{
 			if ((isNaN(_diffuse) || _diffuse == 0) &&
 				(isNaN(_specular) || _specular == 0))
 				return null;
 			
 			// compute world space position & direction
-			var worldMatrix : Matrix4x4	= transformManager.world;
+			var worldMatrix : Matrix4x4	= localData.world;
 			var worldPosition : Vector4 = worldMatrix.multiplyVector(_position);
 			var worldDirection: Vector4 = worldMatrix.deltaMultiplyVector(_direction).normalize();
 			

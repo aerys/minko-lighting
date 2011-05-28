@@ -1,7 +1,7 @@
 package aerys.minko.scene.visitor.data
 {
-	import aerys.minko.effect.light.LightingStyle;
 	import aerys.minko.ns.minko;
+	import aerys.minko.render.effect.light.LightingStyle;
 	import aerys.minko.type.math.ConstVector4;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
@@ -65,7 +65,7 @@ package aerys.minko.scene.visitor.data
 		public static const LOCAL_TO_UV				: String = 'localToUv';
 		
 		protected var _styleStack		: StyleStack;
-		protected var _transformData	: TransformData;
+		protected var _localData		: LocalData;
 		
 		// Light definition
 		minko var _type						: uint	 = 0x0;
@@ -224,7 +224,7 @@ package aerys.minko.scene.visitor.data
 
 		public function get localPosition() : Vector4
 		{
-			var worldInverseMatrix : Matrix4x4 = _transformData.worldInverse;
+			var worldInverseMatrix : Matrix4x4 = _localData.worldInverse;
 			
 			if (_localPosition_worldInverseVersion != worldInverseMatrix.version)
 			{
@@ -237,7 +237,7 @@ package aerys.minko.scene.visitor.data
 
 		public function get localDistance():Number
 		{
-			var worldInverseMatrix : Matrix4x4 = _transformData.worldInverse;
+			var worldInverseMatrix : Matrix4x4 = _localData.worldInverse;
 			
 			if (_localDistance_worldInverseVersion != worldInverseMatrix.version)
 			{
@@ -257,7 +257,7 @@ package aerys.minko.scene.visitor.data
 
 		public function get localDirection():Vector4
 		{
-			var invertedWorldMatrix : Matrix4x4 = _transformData.worldInverse;
+			var invertedWorldMatrix : Matrix4x4 = _localData.worldInverse;
 			
 			if (_localDirection_worldInverseVersion != invertedWorldMatrix.version)
 			{
@@ -357,7 +357,7 @@ package aerys.minko.scene.visitor.data
 		
 		public function get localToView() : Matrix4x4
 		{
-			var worldMatrix	: Matrix4x4 = _transformData.world;
+			var worldMatrix	: Matrix4x4 = _localData.world;
 			var viewMatrix	: Matrix4x4 = view;
 			
 			if (_localToView_worldVersion != worldMatrix.version ||
@@ -481,11 +481,11 @@ package aerys.minko.scene.visitor.data
 			reset();
 		}
 		
-		public final function setLocalDataProvider(styleStack		: StyleStack,
-												   transformData	: TransformData) : void
+		public final function setLocalDataProvider(styleStack	: StyleStack,
+												   localData	: LocalData) : void
 		{
-			_styleStack		= styleStack;
-			_transformData	= transformData;
+			_styleStack	= styleStack;
+			_localData	= localData;
 		}
 		
 		public final function invalidate() : void
