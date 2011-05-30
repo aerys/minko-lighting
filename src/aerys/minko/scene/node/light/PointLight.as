@@ -53,8 +53,8 @@ package aerys.minko.scene.node.light
 				return null;
 			
 			// compute world space position
-			var worldMatrix : Matrix4x4	= localData.world;
-			var worldPosition : Vector4 = worldMatrix.multiplyVector(_position);
+			var worldMatrix 	: Matrix4x4	= localData.world;
+			var worldPosition 	: Vector4 	= worldMatrix.multiplyVector(_position);
 			
 			// fill LightData object
 			var ld : LightData = LIGHT_DATA.create(true) as LightData;
@@ -68,6 +68,7 @@ package aerys.minko.scene.node.light
 			ld.specular			= _specular;
 			ld.shininess		= _shininess;
 			ld.shadowMapSize	= _shadowMapSize;
+			
 			return ld;
 		}
 		
