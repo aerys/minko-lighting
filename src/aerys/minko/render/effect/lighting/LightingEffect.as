@@ -75,7 +75,10 @@ package aerys.minko.render.effect.lighting
 				
 				if (lightData.castShadows)
 				{
-					renderTarget		= new RenderTarget(lightData.shadowMapSize, true, 0);
+					renderTarget		= new RenderTarget(
+						RenderTarget.TEXTURE, lightData.shadowMapSize, 
+						lightData.shadowMapSize, 0, true, 0);
+					
 					textureRessource	= renderTarget.textureRessource;
 					
 					targetNames.push('light_depthMap_' + i);

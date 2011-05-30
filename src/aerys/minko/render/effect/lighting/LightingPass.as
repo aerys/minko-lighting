@@ -22,6 +22,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.scene.visitor.data.LightData;
 	import aerys.minko.scene.visitor.data.LocalData;
 	import aerys.minko.scene.visitor.data.StyleStack;
+	import aerys.minko.scene.visitor.data.ViewportData;
 	import aerys.minko.scene.visitor.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
@@ -71,7 +72,7 @@ package aerys.minko.render.effect.lighting
 			
 			state.blending			= styleStack.get(BasicStyle.BLENDING, Blending.ALPHA) as uint;
 			state.priority			= _priority;
-			state.renderTarget		= _renderTarget;
+			state.renderTarget		= _renderTarget || world[ViewportData].renderTarget;
 			state.triangleCulling	= triangleCulling 
 			
 			return true;
