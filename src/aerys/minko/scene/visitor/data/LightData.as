@@ -5,7 +5,7 @@ package aerys.minko.scene.visitor.data
 	import aerys.minko.type.math.ConstVector4;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
-
+	
 	public final class LightData implements IWorldData
 	{
 		use namespace minko;
@@ -59,10 +59,12 @@ package aerys.minko.scene.visitor.data
 		// Postcomputed data getter names
 		public static const VIEW					: String = 'view';
 		public static const PROJECTION				: String = 'projection';
+		public static const LOCAL_TO_DEPTH			: String = 'localToDepth';
 		public static const LOCAL_TO_VIEW			: String = 'localToView';
 		public static const LOCAL_TO_SCREEN			: String = 'localToScreen';
 		public static const SCREEN_TO_UV			: String = 'screenToUv';
 		public static const LOCAL_TO_UV				: String = 'localToUv';
+		
 		
 		protected var _styleStack		: StyleStack;
 		protected var _localData		: LocalData;
@@ -98,6 +100,9 @@ package aerys.minko.scene.visitor.data
 		minko var _localToView							: Matrix4x4;
 		minko var _localToView_worldVersion				: uint;
 		minko var _localToView_viewVersion				: uint;
+		
+		minko var _localToDepth							: Vector4;
+		minko var _localToDepth_localToViewVersion		: uint;
 		
 		minko var _localToScreen						: Matrix4x4;
 		minko var _localToScreen_localToViewVersion		: uint;
@@ -371,6 +376,23 @@ package aerys.minko.scene.visitor.data
 			return _localToView;
 		}
 		
+		/**
+		 * fixme, memory leak
+		 */
+		public function get localToDepth() : Vector4
+		{
+			var localToViewMatrix : Matrix4x4 = localToView;
+			
+			if (_localToDepth_localToViewVersion != localToViewMatrix.version)
+			{
+				var line3 : Vector.<Number> = localToViewMatrix.getRawData(null, 0, true);
+				_localToDepth ||= new Vector4();
+				_localToDepth.set(line3[8], line3[9], line3[10], line3[11]);
+			}
+			
+			return _localToDepth;
+		}
+		
 		public function get localToScreen() : Matrix4x4
 		{
 			var localToViewMatrix	: Matrix4x4 = localToView;
@@ -507,6 +529,7 @@ package aerys.minko.scene.visitor.data
 			_localToView_viewVersion			= maxUint;
 			
 			_localToScreen_localToViewVersion	= maxUint;
+			_localToDepth_localToViewVersion	= maxUint;
 			_localToScreen_projectionVersion 	= maxUint;
 			
 			_projection_outerRadius				= maxUint;
