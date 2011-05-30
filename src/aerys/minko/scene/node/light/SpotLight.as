@@ -54,11 +54,12 @@ package aerys.minko.scene.node.light
 								  innerRadius		: Number	= .4,
 								  shadowMapSize		: uint		= 0)
 		{
-			super(color, diffusion, specular, shininess, position, distance, shadowMapSize);
+			super(color, diffusion, specular, shininess, position, distance);
 			
 			_direction				= direction || new Vector4(0., 0., 1.);
 			_innerRadius			= innerRadius;
 			_outerRadius			= outerRadius;
+			_shadowMapSize			= shadowMapSize;
 		}
 		
 		override public function getData(localData : LocalData) : IWorldData

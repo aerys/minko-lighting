@@ -63,8 +63,7 @@ package aerys.minko.scene.node.light
 										 diffuse		: Number	= .6,
 										 specular		: Number	= .8,
 										 shininess		: Number	= 64,
-										 direction		: Vector4 	= null,
-										 shadowMapSize	: uint		= 0)
+										 direction		: Vector4 	= null)
 		{
 			super(color); 
 			
@@ -72,7 +71,7 @@ package aerys.minko.scene.node.light
 			_diffuse		= diffuse;
 			_specular		= specular;
 			_shininess		= shininess;
-			_shadowMapSize	= shadowMapSize;
+			_shadowMapSize	= 0;
 		}
 		
 		override public function getData(localData : LocalData) : IWorldData
