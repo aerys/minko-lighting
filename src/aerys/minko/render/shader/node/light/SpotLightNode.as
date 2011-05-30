@@ -30,7 +30,9 @@ package aerys.minko.render.shader.node.light
 	
 	public class SpotLightNode extends Dummy implements IFragmentNode
 	{
-		public function SpotLightNode(lightIndex : uint, lightData : LightData, useShadows : Boolean)
+		public function SpotLightNode(lightIndex 		: uint,
+									  lightData 		: LightData,
+									  samplerStyleId	: int	= 0)
 		{
 			// clean this!
 			var vertexPosition : INode = new Interpolate(new Attribute(VertexComponent.XYZ));
@@ -133,10 +135,10 @@ package aerys.minko.render.shader.node.light
 			}
 			
 			// shadows
-			if (lightData.castShadows && useShadows)
+			if (lightData.castShadows && samplerStyleId > 0)
 			{
 				// compute current depth from light, and retrieve the precomputed value from a depth map
-				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex);
+				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex, samplerStyleId);
 				var currentDepth		: INode = new DepthFromLight(lightIndex);
 				
 				// get the delta between both values, and see if it's small enought

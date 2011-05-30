@@ -30,17 +30,17 @@ package aerys.minko.render.effect.lighting
 	{
 		protected static const _SHADERS : Object = new Object();
 		
-		protected var _lightDepthNames		: Vector.<String>;
+		protected var _lightDepthIds		: Vector.<int>;
 		protected var _lightDepthRessources	: Vector.<TextureRessource>;
 		protected var _priority				: Number;
 		protected var _renderTarget			: RenderTarget;
 		
-		public function LightingPass(lightDepthNames		: Vector.<String>,
+		public function LightingPass(lightDepthIds		: Vector.<int>,
 									 lightDepthRessources	: Vector.<TextureRessource>,
 									 priority				: Number			= 0,
 									 renderTarget			: RenderTarget		= null)
 		{
-			_lightDepthNames		= lightDepthNames;
+			_lightDepthIds			= lightDepthIds;
 			_lightDepthRessources	= lightDepthRessources;
 			_priority				= priority;
 			_renderTarget			= renderTarget;
@@ -60,10 +60,10 @@ package aerys.minko.render.effect.lighting
 				
 				for (var i : int = 0; i < castingShadowLightsCount; ++i)
 				{
-					var lightDepthName		: String			= _lightDepthNames[i];
+					var lightDepthId		: int				= _lightDepthIds[i];
 					var lightDepthRessource	: TextureRessource	= _lightDepthRessources[i];
 					
-					styleStack.set(lightDepthName, lightDepthRessource);
+					styleStack.set(lightDepthId, lightDepthRessource);
 				}
 			}
 			
