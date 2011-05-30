@@ -10,15 +10,20 @@ package aerys.minko.render.shader.node.reflection
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.Sampler;
 	import aerys.minko.render.shader.node.leaf.StyleParameter;
+	import aerys.minko.render.shader.node.leaf.WorldParameter;
 	import aerys.minko.render.shader.node.operation.builtin.Add;
 	import aerys.minko.render.shader.node.operation.builtin.DotProduct3;
 	import aerys.minko.render.shader.node.operation.builtin.Multiply;
 	import aerys.minko.render.shader.node.operation.builtin.Negate;
+	import aerys.minko.render.shader.node.operation.builtin.Normalize;
 	import aerys.minko.render.shader.node.operation.builtin.ReciprocalRoot;
+	import aerys.minko.render.shader.node.operation.builtin.Substract;
 	import aerys.minko.render.shader.node.operation.builtin.Texture;
 	import aerys.minko.render.shader.node.operation.manipulation.Combine;
 	import aerys.minko.render.shader.node.operation.manipulation.Extract;
+	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.math.PlanarReflection;
+	import aerys.minko.scene.visitor.data.CameraData;
 	import aerys.minko.type.vertex.format.VertexComponent;
 	
 	public class ReflectionNode extends Dummy implements IFragmentNode
@@ -27,7 +32,8 @@ package aerys.minko.render.shader.node.reflection
 		{
 			var surfaceNormal				: INode	= new Attribute(VertexComponent.NORMAL).interpolated;
 			
-			var localViewDirection			: INode = new LocalViewDirection().interpolated;
+			var localViewDirection		: INode = new WorldParameter(3, CameraData, CameraData.LOCAL_DIRECTION);
+			
 			var reflectedLocalViewDirection	: INode = new PlanarReflection(localViewDirection, surfaceNormal);
 			
 			var rWithZIncrement : INode = new Combine(
