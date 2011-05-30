@@ -54,7 +54,7 @@ package aerys.minko.render.effect.lighting
 		{
 			var triangleCulling : uint = styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
 			
-			styleStack.set(BasicStyle.TRIANGLE_CULLING_MULTIPLIER, state.triangleCulling == TriangleCulling.BACK ? 1 : -1);
+			styleStack.set(BasicStyle.TRIANGLE_CULLING_MULTIPLIER, triangleCulling == TriangleCulling.BACK ? 1 : -1);
 			if (styleStack.get(LightingStyle.RECEIVE_SHADOWS, false))
 			{
 				var castingShadowLightsCount : uint = _lightDepthRessources.length;
