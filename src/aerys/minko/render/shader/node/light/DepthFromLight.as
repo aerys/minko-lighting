@@ -13,10 +13,6 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.scene.visitor.data.LightData;
 	import aerys.minko.type.vertex.format.VertexComponent;
 	
-	
-	/**
-	 * FIXME use a dp4 here!
-	 */
 	public class DepthFromLight extends Dummy implements IFragmentNode
 	{
 		public function DepthFromLight(lightIndex : uint)
