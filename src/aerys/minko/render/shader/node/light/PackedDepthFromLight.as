@@ -12,6 +12,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.manipulation.Combine;
 	import aerys.minko.render.shader.node.operation.manipulation.Extract;
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
+	import aerys.minko.render.shader.node.operation.packing.PackScalarToColor;
 	import aerys.minko.scene.visitor.data.LightData;
 	import aerys.minko.type.vertex.format.VertexComponent;
 	
@@ -19,12 +20,13 @@ package aerys.minko.render.shader.node.light
 	{
 		public function PackedDepthFromLight(lightIndex : uint)
 		{
-			var packedDepth : INode = new Multiply(
-				new Constant(1 / 1500),
-				new DepthFromLight(lightIndex)
-			);
+			var depth			: INode = new DepthFromLight(lightIndex);
+			var maxValueParts	: INode = new Constant(0, 400, 800, 1200);
+			var maxValue		: INode = new Constant(1600);
 			
-			super(new Extract(packedDepth, Components.XXXX));
+			var packedDepth		: INode = new PackScalarToColor(depth, maxValueParts, maxValue);
+			
+			super(packedDepth);
 		
 		}
 	}

@@ -141,7 +141,7 @@ package aerys.minko.render.shader.node.light
 				
 				// get the delta between both values, and see if it's small enought
 				var delta			: INode = new Absolute(new Substract(precomputedDepth, currentDepth));
-				var limit			: INode = new Constant(5);
+				var limit			: INode = new Constant(1);
 				var willShadowMap	: INode = new SetIfLessThan(delta, limit);
 				
 				// calculate the final multiplicator for this light

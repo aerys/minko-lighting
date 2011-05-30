@@ -1,34 +1,25 @@
 package aerys.minko.render.shader.node.light
 {
-	import aerys.minko.render.shader.node.Components;
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.Sampler;
-	import aerys.minko.render.shader.node.operation.builtin.Multiply;
 	import aerys.minko.render.shader.node.operation.builtin.Texture;
-	import aerys.minko.render.shader.node.operation.manipulation.Extract;
+	import aerys.minko.render.shader.node.operation.packing.UnpackColorIntoScalar;
 	
 	public class UnpackDepthFromLight extends Dummy implements IFragmentNode
 	{
 		public function UnpackDepthFromLight(lightIndex : uint)
 		{
+			var uv				: INode		= new UVFromLight(lightIndex);
+			var sampler			: Sampler	= new Sampler('light_depthMap_' + lightIndex, Sampler.FILTER_LINEAR, Sampler.MIPMAP_DISABLE, Sampler.WRAPPING_CLAMP);
+			var packedDepth		: INode		= new Texture(uv, sampler);
 			
-			var uv	: INode = new UVFromLight(lightIndex);
+			var quarterMaxValue	: INode		= new Constant(400);
+			var maxValue		: INode		= new Constant(1600);
 			
-			// retrieve it.
-			var depthMapSampler : Sampler = new Sampler('light_depthMap_' + lightIndex, Sampler.FILTER_LINEAR, Sampler.MIPMAP_DISABLE, Sampler.WRAPPING_CLAMP);
-			var packedDepth : INode = new Texture(uv, depthMapSampler);
-			
-			var unpackedDepth : INode = new Multiply(
-				new Constant(1500), 
-				new Extract(packedDepth, Components.X)
-			);
-			
-//			var maxValue		: IShaderNode = new Constant(1000);
-//			var quarterMaxValue	: IShaderNode = new Constant(250);
-//			var unpackedDepth	: IShaderNode = new Unpack(packedOppositeDepth, quarterMaxValue, maxValue);
+			var unpackedDepth	: INode		= new UnpackColorIntoScalar(packedDepth, quarterMaxValue, maxValue);
 			
 			super(unpackedDepth);
 		}
