@@ -1,6 +1,7 @@
 package aerys.minko.render.shader.node.light
 {
 	import aerys.minko.render.effect.basic.BasicStyle;
+	import aerys.minko.render.effect.light.LightingStyle;
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
@@ -33,10 +34,10 @@ package aerys.minko.render.shader.node.light
 	
 	public class SpotLightNode extends Dummy implements IFragmentNode
 	{
-		public function SpotLightNode(lightIndex		: uint, 
-									  styleStack		: StyleStack, 
-									  worldData			: Dictionary, 
-									  lightDepthSampler	: uint)
+		public function SpotLightNode(lightIndex			: uint, 
+									  styleStack			: StyleStack, 
+									  worldData				: Dictionary, 
+									  lightDepthSampler		: uint)
 		{
 			var lightData		: LightData = worldData[LightData].getItem(lightIndex);
 			
@@ -57,16 +58,16 @@ package aerys.minko.render.shader.node.light
 			var lightDirection : INode = 
 				new WorldParameter(3, LightData, LightData.LOCAL_DIRECTION, lightIndex);
 			
-			var localLightDirection : INode = new Normalize(lightToPoint);
+			var localLightDirection	: INode 	= new Normalize(lightToPoint);
+			var lightSurfaceCosine	: INode 	= new DotProduct3(localLightDirection, new Negate(normal));
+			var lightStrength		: Sum		= new Sum();
 			
-			var lightSurfaceCosine : INode = new DotProduct3(localLightDirection, new Negate(normal));
+			lightStrength.addTerm(new WorldParameter(3, LightData, LightData.LOCAL_DIFFUSE_X_COLOR, lightIndex));
 			
-			var lightStrength : Vector.<INode> = new Vector.<INode>();
-			lightStrength.push(new WorldParameter(3, LightData, LightData.LOCAL_DIFFUSE_X_COLOR, lightIndex));
 			// calculate diffuse light value.
 			if (!isNaN(lightData.diffuse) && lightData.diffuse != 0)
 			{
-				lightStrength.push(
+				lightStrength.addTerm(
 					new Multiply(
 						new WorldParameter(3, LightData, LightData.LOCAL_DIFFUSE_X_COLOR, lightIndex),
 						new Saturate(lightSurfaceCosine)
@@ -88,7 +89,7 @@ package aerys.minko.render.shader.node.light
 					)
 				);
 				
-				lightStrength.push(
+				lightStrength.addTerm(
 					new Multiply(
 						new WorldParameter(3, LightData, LightData.LOCAL_SPECULAR_X_COLOR, lightIndex),
 						new Power(
@@ -141,7 +142,8 @@ package aerys.minko.render.shader.node.light
 			}
 			
 			// shadows
-			if (lightData.castShadows)
+			var receiveShadows : Boolean = styleStack.get(LightingStyle.RECEIVE_SHADOWS, false);
+			if (lightData.castShadows && receiveShadows)
 			{
 				// compute current depth from light, and retrieve the precomputed value from a depth map
 				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex, lightDepthSampler);
@@ -161,18 +163,10 @@ package aerys.minko.render.shader.node.light
 				lightAttenuation.push(resultMultiplicator);
 			}
 			
-			var result : INode;
-			if (lightStrength.length == 0)
+			var result : INode = new Saturate(lightStrength);
+			if (lightAttenuation.length != 0)
 			{
-				result = null;
-			}
-			else
-			{
-				result = new Saturate(Sum.fromVector(lightStrength));
-				if (lightAttenuation.length != 0)
-				{
-					result = new Multiply(Product.fromVector(lightAttenuation), result);
-				}
+				result = new Multiply(Product.fromVector(lightAttenuation), result);
 			}
 			
 			super(result);

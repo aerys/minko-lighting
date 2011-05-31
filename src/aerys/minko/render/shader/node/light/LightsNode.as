@@ -18,7 +18,7 @@ package aerys.minko.render.shader.node.light
 								   lightDepthSamplers	: Vector.<int>)
 		{
 			// retrieve data
-			var lightDatas : WorldDataList = worldData[LightData];
+			var lightDatas		: WorldDataList = worldData[LightData];
 			
 			// compute light sum
 			var lightSum : Sum = new Sum();
@@ -28,12 +28,18 @@ package aerys.minko.render.shader.node.light
 			
 			for (var lightId : int = 0; lightId < lightCount; ++lightId) 
 			{
+				var lightNode	: INode;
 				var lightData	: LightData	= lightDatas.getItem(lightId) as LightData;
-				var lightNode	: INode		= 
-					new LightNode(lightId, styleStack, worldData, lightDepthSamplers[shadowedCount]);
 				
 				if (lightData.castShadows)
+				{
+					lightNode = new LightNode(lightId, styleStack, worldData, lightDepthSamplers[shadowedCount]);
 					++shadowedCount;
+				}
+				else
+				{
+					lightNode = new LightNode(lightId, styleStack, worldData, 0);
+				}
 				
 				lightSum.addTerm(lightNode);
 			}
