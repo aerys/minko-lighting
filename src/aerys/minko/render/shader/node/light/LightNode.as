@@ -4,11 +4,19 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.scene.visitor.data.LightData;
+	import aerys.minko.scene.visitor.data.StyleStack;
+	
+	import flash.utils.Dictionary;
 	
 	public class LightNode extends Dummy implements IFragmentNode
 	{
-		public function LightNode(lightIndex : uint, lightData : LightData, samplerStyleId : int)
+		public function LightNode(lightIndex		: uint, 
+								  styleStack		: StyleStack, 
+								  worldData			: Dictionary, 
+								  lightDepthSampler	: uint)
 		{
+			var lightData : LightData = worldData[LightData].getItem(lightIndex);
+			
 			var lightingNode : INode;
 			switch (lightData.type)
 			{
@@ -22,7 +30,7 @@ package aerys.minko.render.shader.node.light
 					
 				case LightData.TYPE_SPOT :
 				case LightData.TYPE_POINT :
-					lightingNode = new SpotLightNode(lightIndex, lightData, samplerStyleId);
+					lightingNode = new SpotLightNode(lightIndex, styleStack, worldData, lightDepthSampler);
 					break;
 			}
 			

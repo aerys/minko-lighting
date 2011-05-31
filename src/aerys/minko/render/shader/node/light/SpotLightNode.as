@@ -26,17 +26,23 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.math.Sum;
 	import aerys.minko.scene.visitor.data.CameraData;
 	import aerys.minko.scene.visitor.data.LightData;
+	import aerys.minko.scene.visitor.data.StyleStack;
 	import aerys.minko.type.vertex.format.VertexComponent;
+	
+	import flash.utils.Dictionary;
 	
 	public class SpotLightNode extends Dummy implements IFragmentNode
 	{
-		public function SpotLightNode(lightIndex 		: uint,
-									  lightData 		: LightData,
-									  samplerStyleId	: int	= 0)
+		public function SpotLightNode(lightIndex		: uint, 
+									  styleStack		: StyleStack, 
+									  worldData			: Dictionary, 
+									  lightDepthSampler	: uint)
 		{
+			var lightData		: LightData = worldData[LightData].getItem(lightIndex);
+			
 			// clean this!
-			var vertexPosition : INode = new Interpolate(new Attribute(VertexComponent.XYZ));
-			var normal: INode = new Interpolate(
+			var vertexPosition	: INode = new Interpolate(new Attribute(VertexComponent.XYZ));
+			var normal			: INode = new Interpolate(
 				new Multiply(
 					new Attribute(VertexComponent.NORMAL),
 					new StyleParameter(1, BasicStyle.NORMAL_MULTIPLIER)
@@ -135,10 +141,10 @@ package aerys.minko.render.shader.node.light
 			}
 			
 			// shadows
-			if (lightData.castShadows && samplerStyleId > 0)
+			if (lightData.castShadows)
 			{
 				// compute current depth from light, and retrieve the precomputed value from a depth map
-				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex, samplerStyleId);
+				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex, lightDepthSampler);
 				var currentDepth		: INode = new DepthFromLight(lightIndex);
 				
 				// get the delta between both values, and see if it's small enought

@@ -52,9 +52,10 @@ package aerys.minko.render.effect.lighting
 										local		: LocalData, 
 										world		: Dictionary) : Boolean
 		{
-			var triangleCulling : uint = styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
+			var triangleCulling		: uint		= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
+			var normalMultiplier	: Number	= triangleCulling == TriangleCulling.BACK ? 1 : -1;
 			
-			styleStack.set(BasicStyle.NORMAL_MULTIPLIER, triangleCulling == TriangleCulling.BACK ? 1 : -1);
+			styleStack.set(BasicStyle.NORMAL_MULTIPLIER, normalMultiplier);
 			if (styleStack.get(LightingStyle.RECEIVE_SHADOWS, false))
 			{
 				var castingShadowLightsCount : uint = _lightDepthRessources.length;
@@ -68,29 +69,31 @@ package aerys.minko.render.effect.lighting
 				}
 			}
 			
-			getShader(styleStack, world).fillRenderState(state, styleStack, local, world);
-			
-			state.blending			= styleStack.get(BasicStyle.BLENDING, Blending.ALPHA) as uint;
-			state.priority			= _priority;
+			state.blending			= styleStack.get(BasicStyle.BLENDING, Blending.NORMAL) as uint;
+			state.priority			= state.blending == Blending.ALPHA ? _priority : _priority + 0.5;
 			state.renderTarget		= _renderTarget || world[ViewportData].renderTarget;
-			state.triangleCulling	= triangleCulling 
+			state.triangleCulling	= triangleCulling;
+			
+			getShader(styleStack, world, _lightDepthIds).fillRenderState(state, styleStack, local, world);
 			
 			return true;
 		}
 		
-		protected static function getShader(styleStack	: StyleStack, 
-											worldData	: Dictionary) : DynamicShader
+		protected static function getShader(styleStack		: StyleStack, 
+											worldData		: Dictionary,
+											lightDepthIds	: Vector.<int>) : DynamicShader
 		{
-			var hash : String = computeShaderHash(styleStack, worldData);
+			var hash : String = computeShaderHash(styleStack, worldData, lightDepthIds);
 			
 			if (_SHADERS[hash] == undefined)
-				_SHADERS[hash] = createShader(styleStack, worldData);
+				_SHADERS[hash] = createShader(styleStack, worldData, lightDepthIds);
 			
 			return _SHADERS[hash];
 		}
 		
-		protected static function computeShaderHash(styleStack	: StyleStack,
-													worldData	: Dictionary) : String
+		protected static function computeShaderHash(styleStack		: StyleStack,
+													worldData		: Dictionary,
+													lightDepthIds	: Vector.<int>) : String
 		{
 			var hash : String = '';
 			
@@ -134,7 +137,8 @@ package aerys.minko.render.effect.lighting
 		}
 		
 		protected static function createShader(styleStack	: StyleStack, 
-											   worldData	: Dictionary) : DynamicShader
+											   worldData	: Dictionary,
+											   lightDepthIds	: Vector.<int>) : DynamicShader
 		{
 			var clipspacePosition	: INode = new ClipspacePosition();
 			var pixelColor			: INode;
@@ -154,12 +158,14 @@ package aerys.minko.render.effect.lighting
 			{
 				pixelColor = new MultiplyColor(
 					pixelColor,
-					new LightsNode(worldData[LightData], styleStack.get(LightingStyle.RECEIVE_SHADOWS, false))
+					new LightsNode(styleStack, worldData, lightDepthIds)
 				);
 			}
 			
 			if (styleStack.get(FogStyle.FOG_ENABLED, false))
+			{
 				pixelColor = new Blend(new Fog(), pixelColor, Blending.ALPHA);
+			}
 			
 			return DynamicShader.create(clipspacePosition, pixelColor);
 		}

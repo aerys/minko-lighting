@@ -10,10 +10,13 @@ package aerys.minko.render.shader.node.light
 	
 	public class UnpackDepthFromLight extends Dummy implements IFragmentNode
 	{
-		public function UnpackDepthFromLight(lightIndex : uint, samplerStyleId : int)
+		public function UnpackDepthFromLight(lightIndex			: uint, 
+											 lightDepthSampler	: int)
 		{
 			var uv				: INode		= new UVFromLight(lightIndex);
-			var sampler			: Sampler	= new Sampler(55555555 + lightIndex, Sampler.FILTER_LINEAR, Sampler.MIPMAP_DISABLE, Sampler.WRAPPING_CLAMP);
+			var sampler			: Sampler	= 
+				new Sampler(lightDepthSampler, Sampler.FILTER_LINEAR, Sampler.MIPMAP_DISABLE, Sampler.WRAPPING_CLAMP);
+			
 			var packedDepth		: INode		= new Texture(uv, sampler);
 			
 			var quarterMaxValue	: INode		= new Constant(400);
