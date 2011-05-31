@@ -30,7 +30,7 @@ package aerys.minko.render.shader.node.light
 			var normal : INode = new Interpolate(
 				new Multiply(
 					new Attribute(VertexComponent.NORMAL),
-					new StyleParameter(1, BasicStyle.TRIANGLE_CULLING_MULTIPLIER)
+					new StyleParameter(1, BasicStyle.NORMAL_MULTIPLIER)
 				)
 			);
 			

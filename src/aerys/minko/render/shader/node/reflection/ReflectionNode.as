@@ -32,7 +32,7 @@ package aerys.minko.render.shader.node.reflection
 		{
 			var surfaceNormal				: INode	= new Attribute(VertexComponent.NORMAL).interpolated;
 			
-			var localViewDirection		: INode = new WorldParameter(3, CameraData, CameraData.LOCAL_DIRECTION);
+			var localViewDirection			: INode = new WorldParameter(3, CameraData, CameraData.LOCAL_DIRECTION);
 			
 			var reflectedLocalViewDirection	: INode = new PlanarReflection(localViewDirection, surfaceNormal);
 			

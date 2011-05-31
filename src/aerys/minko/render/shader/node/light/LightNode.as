@@ -7,7 +7,7 @@ package aerys.minko.render.shader.node.light
 	
 	public class LightNode extends Dummy implements IFragmentNode
 	{
-		public function LightNode(lightIndex : uint, lightData : LightData, useShadows : Boolean)
+		public function LightNode(lightIndex : uint, lightData : LightData, samplerStyleId : int)
 		{
 			var lightingNode : INode;
 			switch (lightData.type)
@@ -22,7 +22,7 @@ package aerys.minko.render.shader.node.light
 					
 				case LightData.TYPE_SPOT :
 				case LightData.TYPE_POINT :
-					lightingNode = new SpotLightNode(lightIndex, lightData, useShadows);
+					lightingNode = new SpotLightNode(lightIndex, lightData, samplerStyleId);
 					break;
 			}
 			

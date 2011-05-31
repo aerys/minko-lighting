@@ -1,16 +1,18 @@
 package aerys.minko.render.effect.light
 {
+	import aerys.minko.scene.visitor.data.Style;
+
 	public final class LightingStyle
 	{
-		public static const LIGHT_ENABLED	: String = 'light_enabled';
+		public static const LIGHT_ENABLED	: int = Style.getStyleId("light_enabled");
 		
-		public static const AMBIENT			: String = 'lighted_ambient';
-		public static const DIFFUSE			: String = 'lighted_diffuse';
+		public static const AMBIENT			: int = Style.getStyleId("lighted_ambient");
+		public static const DIFFUSE			: int = Style.getStyleId("lighted_diffuse");
 		
-		public static const SPECULAR		: String = 'lighted_specular';
-		public static const SHININESS		: String = 'lighted_shininess';
+		public static const SPECULAR		: int = Style.getStyleId("lighted_specular");
+		public static const SHININESS		: int = Style.getStyleId("lighted_shininess");
 		
-		public static const CAST_SHADOWS	: String = 'lighted_cast_shadows';
-		public static const RECEIVE_SHADOWS	: String = 'lighted_receive_shadows';
+		public static const CAST_SHADOWS	: int = Style.getStyleId("lighted_cast_shadows");
+		public static const RECEIVE_SHADOWS	: int = Style.getStyleId("lighted_receive_shadows");
 	}
 }

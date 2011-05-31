@@ -18,7 +18,7 @@ package aerys.minko.render.shader.node.light
 				var lightData : LightData = lightDatas.getItem(i) as LightData;
 				
 				addTerm(
-					new LightNode(i, lightData, useShadows)
+					new LightNode(i, lightData, 0)
 				);
 			}
 		}

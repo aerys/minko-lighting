@@ -6,8 +6,9 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.light.LightDepthPass;
 	import aerys.minko.render.ressource.TextureRessource;
 	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.StyleStack;
 	import aerys.minko.scene.visitor.data.LocalData;
+	import aerys.minko.scene.visitor.data.Style;
+	import aerys.minko.scene.visitor.data.StyleStack;
 	import aerys.minko.scene.visitor.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
@@ -66,7 +67,7 @@ package aerys.minko.render.effect.lighting
 			var lightDatas			: WorldDataList				= world[LightData];
 			var lightDatasLength	: uint						= lightDatas ? lightDatas.length : 0;
 			
-			var targetNames			: Vector.<String>			= new Vector.<String>();
+			var targetIds			: Vector.<int>				= new Vector.<int>();
 			var targetRessources	: Vector.<TextureRessource>	= new Vector.<TextureRessource>();
 			
 			for (var i : int = 0; i < lightDatasLength; ++i)
@@ -81,7 +82,7 @@ package aerys.minko.render.effect.lighting
 					
 					textureRessource	= renderTarget.textureRessource;
 					
-					targetNames.push('light_depthMap_' + i);
+					targetIds.push(Style.getStyleId('light_depthMap_' + i));
 					targetRessources.push(textureRessource);
 					
 					var priority	: Number = lightDatasLength + 2 - i;
@@ -90,7 +91,7 @@ package aerys.minko.render.effect.lighting
 				}
 			}
 			
-			passList.push(new LightingPass(targetNames, targetRessources, 0));
+			passList.push(new LightingPass(targetIds, targetRessources, 0));
 						
 			return passList;
 		}
