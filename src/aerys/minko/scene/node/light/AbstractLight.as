@@ -1,5 +1,6 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.scene.action.WorldObjectAction;
 	import aerys.minko.scene.node.AbstractScene;
 	import aerys.minko.scene.visitor.data.IWorldData;
 	import aerys.minko.scene.visitor.data.LightData;
@@ -27,6 +28,8 @@ package aerys.minko.scene.node.light
 		public function AbstractLight(color : uint = 0xFFFFFF) 
 		{
 			_color = color;
+			
+			actions[0] = WorldObjectAction.worldObjectAction;
 		}
 		
 	}
