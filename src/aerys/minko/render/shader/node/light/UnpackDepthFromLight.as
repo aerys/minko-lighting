@@ -6,6 +6,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.Sampler;
 	import aerys.minko.render.shader.node.operation.builtin.Texture;
+	import aerys.minko.render.shader.node.operation.math.convolution.Blur;
 	import aerys.minko.render.shader.node.operation.packing.UnpackColorIntoScalar;
 	
 	public class UnpackDepthFromLight extends Dummy implements IFragmentNode
@@ -15,7 +16,7 @@ package aerys.minko.render.shader.node.light
 		{
 			var uv				: INode		= new UVFromLight(lightIndex);
 			var sampler			: Sampler	= 
-				new Sampler(lightDepthSampler, Sampler.FILTER_LINEAR, Sampler.MIPMAP_DISABLE, Sampler.WRAPPING_CLAMP);
+				new Sampler(lightDepthSampler, Sampler.FILTER_NEAREST, Sampler.MIPMAP_DISABLE, Sampler.WRAPPING_CLAMP);
 			
 			var packedDepth		: INode		= new Texture(uv, sampler);
 			

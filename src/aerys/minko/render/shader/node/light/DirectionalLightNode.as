@@ -23,11 +23,12 @@ package aerys.minko.render.shader.node.light
 	
 	public class DirectionalLightNode extends Saturate implements IFragmentNode
 	{
+		
 		// clean this!
 		public function DirectionalLightNode(lightIndex : uint, lightData : LightData)
 		{
-			var position : INode = new Interpolate(new Attribute(VertexComponent.XYZ));
-			var normal : INode = new Interpolate(
+			var position	: INode = new Interpolate(new Attribute(VertexComponent.XYZ));
+			var normal		: INode = new Interpolate(
 				new Multiply(
 					new Attribute(VertexComponent.NORMAL),
 					new StyleParameter(1, BasicStyle.NORMAL_MULTIPLIER)

@@ -7,7 +7,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.light.LightingStyle;
 	import aerys.minko.render.effect.reflection.ReflectionStyle;
 	import aerys.minko.render.renderer.state.Blending;
-	import aerys.minko.render.renderer.state.RenderState;
+	import aerys.minko.render.renderer.state.RendererState;
 	import aerys.minko.render.renderer.state.TriangleCulling;
 	import aerys.minko.render.ressource.TextureRessource;
 	import aerys.minko.render.shader.DynamicShader;
@@ -47,7 +47,7 @@ package aerys.minko.render.effect.lighting
 			_renderTarget			= renderTarget;
 		}
 		
-		public function fillRenderState(state		: RenderState,
+		public function fillRenderState(state		: RendererState,
 										styleStack	: StyleStack, 
 										local		: LocalData, 
 										world		: Dictionary) : Boolean

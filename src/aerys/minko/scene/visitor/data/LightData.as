@@ -6,6 +6,8 @@ package aerys.minko.scene.visitor.data
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
+	import flash.utils.Dictionary;
+	
 	public final class LightData implements IWorldData
 	{
 		use namespace minko;
@@ -66,8 +68,8 @@ package aerys.minko.scene.visitor.data
 		public static const LOCAL_TO_UV				: String = 'localToUv';
 		
 		
-		protected var _styleStack		: StyleStack;
-		protected var _localData		: LocalData;
+		protected var _styleStack			: StyleStack;
+		protected var _localData			: LocalData;
 		
 		// Light definition
 		minko var _type						: uint	 = 0x0;
@@ -503,8 +505,9 @@ package aerys.minko.scene.visitor.data
 			reset();
 		}
 		
-		public final function setLocalDataProvider(styleStack	: StyleStack,
-												   localData	: LocalData) : void
+		public final function setDataProvider(styleStack	: StyleStack,
+											  localData		: LocalData,
+											  worldData		: Dictionary) : void
 		{
 			_styleStack	= styleStack;
 			_localData	= localData;
