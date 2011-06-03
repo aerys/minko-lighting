@@ -116,7 +116,7 @@ package aerys.minko.render.effect.lighting
 			
 			if (styleStack.get(ReflectionStyle.REFLECTION_ENABLED, false))
 			{
-				var blending : uint = styleStack.get(ReflectionStyle.BLENDING, aerys.minko.render.renderer.state.Blending.ALPHA)
+				var blending : uint = styleStack.get(ReflectionStyle.BLENDING, aerys.minko.render.renderer.state.Blending.NORMAL)
 									  as uint;
 				
 				hash += '_reflection' + String.fromCharCode(
@@ -164,7 +164,7 @@ package aerys.minko.render.effect.lighting
 			
 			if (styleStack.get(FogStyle.FOG_ENABLED, false))
 			{
-				pixelColor = new Blend(new Fog(), pixelColor, Blending.ALPHA);
+				pixelColor = new Blend(new Fog(), pixelColor, Blending.NORMAL);
 			}
 			
 			return DynamicShader.create(clipspacePosition, pixelColor);
