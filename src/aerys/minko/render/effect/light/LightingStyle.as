@@ -1,10 +1,10 @@
 package aerys.minko.render.effect.light
 {
-	import aerys.minko.scene.visitor.data.Style;
+	import aerys.minko.render.effect.Style
 
 	public final class LightingStyle
 	{
-		public static const LIGHT_ENABLED	: int = Style.getStyleId("light_enabled");
+		public static const LIGHT_ENABLED	: int = Style.getStyleId("light enabled");
 		
 		public static const AMBIENT			: int = Style.getStyleId("lighted_ambient");
 		public static const DIFFUSE			: int = Style.getStyleId("lighted_diffuse");

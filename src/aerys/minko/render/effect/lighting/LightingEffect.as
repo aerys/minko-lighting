@@ -3,15 +3,19 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.IEffect;
 	import aerys.minko.render.effect.IEffectPass;
+	import aerys.minko.render.effect.Style;
 	import aerys.minko.render.effect.light.LightDepthPass;
 	import aerys.minko.render.ressource.TextureRessource;
 	import aerys.minko.scene.visitor.data.LightData;
 	import aerys.minko.scene.visitor.data.LocalData;
-	import aerys.minko.scene.visitor.data.Style;
 	import aerys.minko.scene.visitor.data.StyleStack;
+	import aerys.minko.scene.visitor.data.ViewportData;
 	import aerys.minko.scene.visitor.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
+	
+	[StyleParameter(name="basic diffuse map", type="texture")]
+	[StyleParameter(name="light enabled", type="boolean")]
 	
 	public class LightingEffect implements IEffect
 	{
@@ -76,18 +80,19 @@ package aerys.minko.render.effect.lighting
 				
 				if (lightData.castShadows)
 				{
-					renderTarget		= new RenderTarget(
+					renderTarget = new RenderTarget(
 						RenderTarget.TEXTURE, lightData.shadowMapSize, 
 						lightData.shadowMapSize, 0, true, 0);
 					
 					textureRessource	= renderTarget.textureRessource;
 					
-					targetIds.push(Style.getStyleId('light_depthMap_' + i));
+					targetIds.push(Style.getStyleId('light depthMap' + i));
 					targetRessources.push(textureRessource);
 					
 					var priority	: Number = lightDatasLength + 2 - i;
 					
 					passList.push(new LightDepthPass(i, priority, renderTarget));
+//					passList.push(new LightDepthPass(i, priority, world[ViewportData].renderTarget));
 				}
 			}
 			

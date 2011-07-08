@@ -11,7 +11,6 @@ package aerys.minko.scene.node.light
 		protected var _direction			: Vector4
 		protected var _innerRadius			: Number;
 		protected var _outerRadius			: Number;
-		
 
 		public function get direction()	: Vector4 
 		{

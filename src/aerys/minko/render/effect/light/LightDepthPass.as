@@ -52,7 +52,8 @@ package aerys.minko.render.effect.light
 			state.priority			= _priority;
 			state.renderTarget		= _renderTarget;
 			state.shader			= _shader;
-			state.triangleCulling	= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
+			//state.triangleCulling	= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
+			state.triangleCulling	= TriangleCulling.FRONT;
 			
 			_shader.fillRenderState(state, styleStack, local, world);
 			
