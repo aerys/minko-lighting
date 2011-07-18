@@ -13,6 +13,9 @@ package aerys.minko.render.effect.lighting
 	
 	import flash.utils.Dictionary;
 	
+	[StyleParameter(name="basic diffuse map", type="texture")]
+	[StyleParameter(name="light enabled", type="boolean")]
+	
 	public class LightingEffect implements IEffect
 	{
 		protected var _passes	: Object;
@@ -76,18 +79,19 @@ package aerys.minko.render.effect.lighting
 				
 				if (lightData.castShadows)
 				{
-					renderTarget		= new RenderTarget(
+					renderTarget = new RenderTarget(
 						RenderTarget.TEXTURE, lightData.shadowMapSize, 
 						lightData.shadowMapSize, 0, true, 0);
 					
 					textureRessource	= renderTarget.textureRessource;
 					
-					targetIds.push(Style.getStyleId('light_depthMap_' + i));
+					targetIds.push(Style.getStyleId('light depthMap' + i));
 					targetRessources.push(textureRessource);
 					
 					var priority	: Number = lightDatasLength + 2 - i;
 					
 					passList.push(new LightDepthPass(i, priority, renderTarget));
+//					passList.push(new LightDepthPass(i, priority, world[ViewportData].renderTarget));
 				}
 			}
 			

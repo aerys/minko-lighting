@@ -4,7 +4,7 @@ package aerys.minko.render.effect.light
 
 	public final class LightingStyle
 	{
-		public static const LIGHT_ENABLED	: int = Style.getStyleId("light_enabled");
+		public static const LIGHT_ENABLED	: int = Style.getStyleId("light enabled");
 		
 		public static const AMBIENT			: int = Style.getStyleId("lighted_ambient");
 		public static const DIFFUSE			: int = Style.getStyleId("lighted_diffuse");

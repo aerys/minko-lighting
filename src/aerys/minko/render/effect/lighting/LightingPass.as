@@ -7,6 +7,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.light.LightingStyle;
 	import aerys.minko.render.effect.reflection.ReflectionStyle;
 	import aerys.minko.render.renderer.state.Blending;
+	import aerys.minko.render.renderer.state.CompareMode;
 	import aerys.minko.render.renderer.state.RendererState;
 	import aerys.minko.render.renderer.state.TriangleCulling;
 	import aerys.minko.render.ressource.TextureRessource;
@@ -71,8 +72,10 @@ package aerys.minko.render.effect.lighting
 			
 			state.blending			= styleStack.get(BasicStyle.BLENDING, Blending.NORMAL) as uint;
 			state.priority			= state.blending == Blending.ALPHA ? _priority : _priority + 0.5;
+			state.rectangle			= null;
 			state.renderTarget		= _renderTarget || world[ViewportData].renderTarget;
 			state.triangleCulling	= triangleCulling;
+			state.depthTest			= CompareMode.LESS;
 			
 			getShader(styleStack, world, _lightDepthIds).fillRenderState(state, styleStack, local, world);
 			
