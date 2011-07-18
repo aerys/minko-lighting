@@ -10,7 +10,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.builtin.Multiply4x4;
 	import aerys.minko.render.shader.node.operation.manipulation.Extract;
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
-	import aerys.minko.scene.visitor.data.LightData;
+	import aerys.minko.scene.data.LightData;
 	import aerys.minko.type.vertex.format.VertexComponent;
 	
 	public class DepthFromLight extends Dummy implements IFragmentNode

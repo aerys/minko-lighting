@@ -5,6 +5,6 @@ package aerys.minko.scene.node.light
 
 	public interface ILight extends IScene, IWorldObject
 	{
-		function get color()		: uint;
+		function get color() : uint;
 	}
 }

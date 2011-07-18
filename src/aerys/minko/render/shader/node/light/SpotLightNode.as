@@ -25,9 +25,9 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.math.Product;
 	import aerys.minko.render.shader.node.operation.math.Sum;
-	import aerys.minko.scene.visitor.data.CameraData;
-	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.StyleStack;
+	import aerys.minko.scene.data.CameraData;
+	import aerys.minko.scene.data.LightData;
+	import aerys.minko.scene.data.StyleStack;
 	import aerys.minko.type.vertex.format.VertexComponent;
 	
 	import flash.utils.Dictionary;

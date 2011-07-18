@@ -3,13 +3,13 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.IEffect;
 	import aerys.minko.render.effect.IEffectPass;
+	import aerys.minko.render.effect.Style;
 	import aerys.minko.render.effect.light.LightDepthPass;
 	import aerys.minko.render.ressource.TextureRessource;
-	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.LocalData;
-	import aerys.minko.scene.visitor.data.Style;
-	import aerys.minko.scene.visitor.data.StyleStack;
-	import aerys.minko.scene.visitor.data.WorldDataList;
+	import aerys.minko.scene.data.LightData;
+	import aerys.minko.scene.data.LocalData;
+	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
 	

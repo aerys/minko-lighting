@@ -10,7 +10,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.renderer.state.RendererState;
 	import aerys.minko.render.renderer.state.TriangleCulling;
 	import aerys.minko.render.ressource.TextureRessource;
-	import aerys.minko.render.shader.DynamicShader;
+	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.common.ClipspacePosition;
 	import aerys.minko.render.shader.node.common.DiffuseMapTexture;
@@ -19,11 +19,11 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.operation.manipulation.Blend;
 	import aerys.minko.render.shader.node.operation.manipulation.MultiplyColor;
 	import aerys.minko.render.shader.node.reflection.ReflectionNode;
-	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.LocalData;
-	import aerys.minko.scene.visitor.data.StyleStack;
-	import aerys.minko.scene.visitor.data.ViewportData;
-	import aerys.minko.scene.visitor.data.WorldDataList;
+	import aerys.minko.scene.data.LightData;
+	import aerys.minko.scene.data.LocalData;
+	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.ViewportData;
+	import aerys.minko.scene.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
 	
@@ -36,7 +36,7 @@ package aerys.minko.render.effect.lighting
 		protected var _priority				: Number;
 		protected var _renderTarget			: RenderTarget;
 		
-		public function LightingPass(lightDepthIds		: Vector.<int>,
+		public function LightingPass(lightDepthIds			: Vector.<int>,
 									 lightDepthRessources	: Vector.<TextureRessource>,
 									 priority				: Number			= 0,
 									 renderTarget			: RenderTarget		= null)
@@ -49,7 +49,7 @@ package aerys.minko.render.effect.lighting
 		
 		public function fillRenderState(state		: RendererState,
 										styleStack	: StyleStack, 
-										local		: LocalData, 
+										local		: LocalData,
 										world		: Dictionary) : Boolean
 		{
 			var triangleCulling		: uint		= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
@@ -81,7 +81,7 @@ package aerys.minko.render.effect.lighting
 		
 		protected static function getShader(styleStack		: StyleStack, 
 											worldData		: Dictionary,
-											lightDepthIds	: Vector.<int>) : DynamicShader
+											lightDepthIds	: Vector.<int>) : Shader
 		{
 			var hash : String = computeShaderHash(styleStack, worldData, lightDepthIds);
 			
@@ -136,9 +136,9 @@ package aerys.minko.render.effect.lighting
 			return hash;
 		}
 		
-		protected static function createShader(styleStack	: StyleStack, 
-											   worldData	: Dictionary,
-											   lightDepthIds	: Vector.<int>) : DynamicShader
+		protected static function createShader(styleStack		: StyleStack, 
+											   worldData		: Dictionary,
+											   lightDepthIds	: Vector.<int>) : Shader
 		{
 			var clipspacePosition	: INode = new ClipspacePosition();
 			var pixelColor			: INode;
@@ -167,7 +167,7 @@ package aerys.minko.render.effect.lighting
 				pixelColor = new Blend(new Fog(), pixelColor, Blending.NORMAL);
 			}
 			
-			return DynamicShader.create(clipspacePosition, pixelColor);
+			return Shader.create(clipspacePosition, pixelColor);
 		}
 	}
 }

@@ -1,8 +1,8 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.scene.visitor.data.IWorldData;
-	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.LocalData;
+	import aerys.minko.scene.data.IWorldData;
+	import aerys.minko.scene.data.LightData;
+	import aerys.minko.scene.data.LocalData;
 
 	public class AmbientLight extends AbstractLight
 	{

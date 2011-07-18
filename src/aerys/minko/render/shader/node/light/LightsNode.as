@@ -3,11 +3,10 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
-	import aerys.minko.render.shader.node.operation.math.Product;
 	import aerys.minko.render.shader.node.operation.math.Sum;
-	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.StyleStack;
-	import aerys.minko.scene.visitor.data.WorldDataList;
+	import aerys.minko.scene.data.LightData;
+	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
 	

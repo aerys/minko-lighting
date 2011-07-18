@@ -5,7 +5,6 @@ package aerys.minko.render.shader.node.reflection
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
-	import aerys.minko.render.shader.node.common.LocalViewDirection;
 	import aerys.minko.render.shader.node.leaf.Attribute;
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.Sampler;
@@ -15,15 +14,12 @@ package aerys.minko.render.shader.node.reflection
 	import aerys.minko.render.shader.node.operation.builtin.DotProduct3;
 	import aerys.minko.render.shader.node.operation.builtin.Multiply;
 	import aerys.minko.render.shader.node.operation.builtin.Negate;
-	import aerys.minko.render.shader.node.operation.builtin.Normalize;
 	import aerys.minko.render.shader.node.operation.builtin.ReciprocalRoot;
-	import aerys.minko.render.shader.node.operation.builtin.Substract;
 	import aerys.minko.render.shader.node.operation.builtin.Texture;
 	import aerys.minko.render.shader.node.operation.manipulation.Combine;
 	import aerys.minko.render.shader.node.operation.manipulation.Extract;
-	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.math.PlanarReflection;
-	import aerys.minko.scene.visitor.data.CameraData;
+	import aerys.minko.scene.data.CameraData;
 	import aerys.minko.type.vertex.format.VertexComponent;
 	
 	public class ReflectionNode extends Dummy implements IFragmentNode

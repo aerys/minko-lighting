@@ -3,8 +3,8 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
-	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.StyleStack;
+	import aerys.minko.scene.data.LightData;
+	import aerys.minko.scene.data.StyleStack;
 	
 	import flash.utils.Dictionary;
 	

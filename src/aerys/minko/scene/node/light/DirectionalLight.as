@@ -1,8 +1,8 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.scene.visitor.data.IWorldData;
-	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.LocalData;
+	import aerys.minko.scene.data.IWorldData;
+	import aerys.minko.scene.data.LightData;
+	import aerys.minko.scene.data.LocalData;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
@@ -14,27 +14,27 @@ package aerys.minko.scene.node.light
 		protected var _shininess		: Number;
 		protected var _shadowMapSize	: uint;
 		
-		public function get shadowMapSize():uint
+		public function get shadowMapSize() : uint
 		{
 			return _shadowMapSize;
 		}
 
-		public function set shadowMapSize(value:uint):void
+		public function set shadowMapSize(value : uint) : void
 		{
 			_shadowMapSize = value;
 		}
 
-		public function set diffuse(value:Number):void
+		public function set diffuse(value : Number) : void
 		{
 			_diffuse = value;
 		}
 
-		public function set specular(value:Number):void
+		public function set specular(value : Number) : void
 		{
 			_specular = value;
 		}
 
-		public function set shininess(value:Number):void
+		public function set shininess(value : Number) : void
 		{
 			_shininess = value;
 		}

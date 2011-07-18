@@ -6,18 +6,18 @@ package aerys.minko.render.effect.light
 	import aerys.minko.render.renderer.state.Blending;
 	import aerys.minko.render.renderer.state.RendererState;
 	import aerys.minko.render.renderer.state.TriangleCulling;
-	import aerys.minko.render.shader.DynamicShader;
+	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.light.ClipspacePositionFromLight;
 	import aerys.minko.render.shader.node.light.PackedDepthFromLight;
-	import aerys.minko.scene.visitor.data.LocalData;
-	import aerys.minko.scene.visitor.data.StyleStack;
+	import aerys.minko.scene.data.LocalData;
+	import aerys.minko.scene.data.StyleStack;
 	
 	import flash.utils.Dictionary;
 	
 	public class LightDepthPass implements IEffectPass
 	{
-		protected var _shader				: DynamicShader;		
+		protected var _shader				: Shader;		
 		protected var _lightIndex			: uint;
 		protected var _priority				: Number;
 		protected var _renderTarget			: RenderTarget;
@@ -32,12 +32,12 @@ package aerys.minko.render.effect.light
 			_shader				= createShader(lightIndex);
 		}
 		
-		protected function createShader(lightIndex : uint) : DynamicShader
+		protected function createShader(lightIndex : uint) : Shader
 		{
 			var clipspacePosition	: INode	= new ClipspacePositionFromLight(_lightIndex);
 			var pixelColor			: INode	= new PackedDepthFromLight(_lightIndex);
 			
-			return DynamicShader.create(clipspacePosition, pixelColor);
+			return Shader.create(clipspacePosition, pixelColor);
 		}
 		
 		public function fillRenderState(state		: RendererState,

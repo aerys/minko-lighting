@@ -13,7 +13,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.manipulation.Extract;
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.packing.PackScalarToColor;
-	import aerys.minko.scene.visitor.data.LightData;
+	import aerys.minko.scene.data.LightData;
 	import aerys.minko.type.vertex.format.VertexComponent;
 	
 	public class PackedDepthFromLight extends Dummy implements IFragmentNode

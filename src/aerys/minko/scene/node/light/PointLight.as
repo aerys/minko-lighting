@@ -1,8 +1,8 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.scene.visitor.data.IWorldData;
-	import aerys.minko.scene.visitor.data.LightData;
-	import aerys.minko.scene.visitor.data.LocalData;
+	import aerys.minko.scene.data.IWorldData;
+	import aerys.minko.scene.data.LightData;
+	import aerys.minko.scene.data.LocalData;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
