@@ -3,6 +3,7 @@ package aerys.minko.scene.data
 	import aerys.minko.ns.minko;
 	import aerys.minko.render.effect.light.LightingStyle;
 	import aerys.minko.type.math.ConstVector4;
+	import aerys.minko.type.math.Frustum;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
@@ -67,9 +68,9 @@ package aerys.minko.scene.data
 		public static const SCREEN_TO_UV			: String = 'screenToUv';
 		public static const LOCAL_TO_UV				: String = 'localToUv';
 		
-		
 		protected var _styleStack			: StyleStack;
 		protected var _localData			: LocalData;
+		protected var _worldData			: Object;
 		
 		// Light definition
 		minko var _type						: uint	 = 0x0;
@@ -353,13 +354,15 @@ package aerys.minko.scene.data
 		
 		public function get projection() : Matrix4x4
 		{
-			if (_projection_outerRadius != _outerRadius)
-			{
-				_projection = Matrix4x4.perspectiveFoVLH(2 * _outerRadius, 1, 0.1, 1000, _projection);
-				_projection_outerRadius = _outerRadius;
-			}
+			// we have to intersect the frustum of the light with the frustum of the camera
+			// this way we will be able to compute best.
 			
-			return _projection;
+			var spotLightFrustum	: Frustum	= new Frustum();
+			spotLightFrustum.updateFromDescription(2 * _outerRadius, 1, .1, 1600);
+			
+			var cameraFrustum		: Frustum	= CameraData(_worldData[CameraData]).frustrum;
+			
+			return spotLightFrustum.toProjectionMatrix();
 		}
 		
 		public function get localToView() : Matrix4x4
@@ -511,6 +514,7 @@ package aerys.minko.scene.data
 		{
 			_styleStack	= styleStack;
 			_localData	= localData;
+			_worldData	= worldData;
 		}
 		
 		public final function invalidate() : void

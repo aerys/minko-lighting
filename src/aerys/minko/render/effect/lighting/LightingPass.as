@@ -16,9 +16,11 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.common.ClipspacePosition;
 	import aerys.minko.render.shader.node.common.DiffuseMapTexture;
 	import aerys.minko.render.shader.node.fog.Fog;
+	import aerys.minko.render.shader.node.leaf.StyleParameter;
 	import aerys.minko.render.shader.node.light.LightsNode;
 	import aerys.minko.render.shader.node.operation.manipulation.Blend;
 	import aerys.minko.render.shader.node.operation.manipulation.MultiplyColor;
+	import aerys.minko.render.shader.node.operation.manipulation.RootWrapper;
 	import aerys.minko.render.shader.node.reflection.ReflectionNode;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
@@ -100,6 +102,11 @@ package aerys.minko.render.effect.lighting
 		{
 			var hash : String = '';
 			
+			if (styleStack.isSet(BasicStyle.DIFFUSE_COLOR))
+			{
+				hash += 'color_';
+			}
+			
 			if (styleStack.get(LightingStyle.LIGHT_ENABLED, false))
 			{
 				hash += '_light';
@@ -146,7 +153,10 @@ package aerys.minko.render.effect.lighting
 			var clipspacePosition	: INode = new ClipspacePosition();
 			var pixelColor			: INode;
 			
-			pixelColor = new DiffuseMapTexture();
+			if (styleStack.isSet(BasicStyle.DIFFUSE_COLOR))
+				pixelColor = new RootWrapper(new StyleParameter(4, BasicStyle.DIFFUSE_COLOR));
+			else
+				pixelColor = new DiffuseMapTexture();
 			
 			if (styleStack.get(ReflectionStyle.REFLECTION_ENABLED, false))
 			{

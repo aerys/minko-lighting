@@ -91,12 +91,11 @@ package aerys.minko.render.effect.lighting
 					var priority	: Number = lightDatasLength + 2 - i;
 					
 					passList.push(new LightDepthPass(i, priority, renderTarget));
-//					passList.push(new LightDepthPass(i, priority, world[ViewportData].renderTarget));
 				}
 			}
 			
 			passList.push(new LightingPass(targetIds, targetRessources, 0));
-						
+			
 			return passList;
 		}
 	}
