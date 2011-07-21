@@ -14,6 +14,7 @@ package aerys.minko.scene.node.light
 		protected var _color	: uint;
 		
 		public function get color()		: uint		{ return _color; }
+		public function set color(v : uint) : void { _color = v; }
 		
 		public function get isSingle() : Boolean
 		{
