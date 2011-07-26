@@ -4,6 +4,7 @@ package aerys.minko.render.effect.light
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.basic.BasicStyle;
 	import aerys.minko.render.renderer.state.Blending;
+	import aerys.minko.render.renderer.state.CompareMode;
 	import aerys.minko.render.renderer.state.RendererState;
 	import aerys.minko.render.renderer.state.TriangleCulling;
 	import aerys.minko.render.shader.Shader;
@@ -49,6 +50,7 @@ package aerys.minko.render.effect.light
 				return false;
 			
 			state.blending			= Blending.NORMAL;
+			state.depthTest			= CompareMode.LESS
 			state.priority			= _priority;
 			state.renderTarget		= _renderTarget;
 			state.shader			= _shader;
