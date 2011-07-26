@@ -17,10 +17,18 @@ package aerys.minko.render.shader.node.light
 	{
 		public function DepthFromLight(lightIndex : uint)
 		{
-			var node : INode = new DotProduct4(
-				new Interpolate(new Attribute(VertexComponent.XYZ)),
-				new WorldParameter(4, LightData, LightData.LOCAL_TO_DEPTH, lightIndex)
+			var node : INode = new Extract(
+				new Multiply4x4(
+					new Interpolate(new Attribute(VertexComponent.XYZ)),
+					new WorldParameter(16, LightData, LightData.LOCAL_TO_VIEW, lightIndex)
+				),
+				Components.Z
 			);
+			
+//			var node : INode = new DotProduct4(
+//				new Interpolate(new Attribute(VertexComponent.XYZ)),
+//				new WorldParameter(4, LightData, LightData.LOCAL_TO_DEPTH, lightIndex)
+//			);
 			
 			super(node);
 		}
