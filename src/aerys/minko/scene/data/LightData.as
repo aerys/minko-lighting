@@ -344,7 +344,11 @@ package aerys.minko.scene.data
 			if (_view_positionVersion != _position.version ||
 				_view_directionVersion != _direction.version)
 			{
-				_view = Matrix4x4.lookAtLH(position, direction, ConstVector4.Y_AXIS, _view);
+				var lookAt : Vector4 = new Vector4();
+				lookAt.set(_position.x, _position.y, _position.z);
+				lookAt.add(_direction);
+				
+				_view = Matrix4x4.lookAtLH(position, lookAt, ConstVector4.Y_AXIS, _view);
 				_view_positionVersion	= _position.version;
 				_view_directionVersion	= _direction.version;
 			}
@@ -354,15 +358,13 @@ package aerys.minko.scene.data
 		
 		public function get projection() : Matrix4x4
 		{
-			// we have to intersect the frustum of the light with the frustum of the camera
-			// this way we will be able to compute best.
+			if (_projection_outerRadius != _outerRadius)
+			{
+				_projection = Matrix4x4.perspectiveFoVLH(2 * _outerRadius, 1, 0.1, 100, _projection);
+				_projection_outerRadius = _outerRadius;
+			}
 			
-			var spotLightFrustum	: Frustum	= new Frustum();
-			spotLightFrustum.updateFromDescription(2 * _outerRadius, 1, .1, 1600);
-			
-			var cameraFrustum		: Frustum	= CameraData(_worldData[CameraData]).frustrum;
-			
-			return spotLightFrustum.toProjectionMatrix();
+			return _projection;
 		}
 		
 		public function get localToView() : Matrix4x4
@@ -390,7 +392,7 @@ package aerys.minko.scene.data
 			
 			if (_localToDepth_localToViewVersion != localToViewMatrix.version)
 			{
-				var line3 : Vector.<Number> = localToViewMatrix.getRawData(null, 0, true);
+				var line3 : Vector.<Number> = localToViewMatrix.getRawData(null, 0, false);
 				_localToDepth ||= new Vector4();
 				_localToDepth.set(line3[8], line3[9], line3[10], line3[11]);
 			}

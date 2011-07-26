@@ -148,19 +148,12 @@ package aerys.minko.render.shader.node.light
 				// compute current depth from light, and retrieve the precomputed value from a depth map
 				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex, lightDepthSampler);
 				var currentDepth		: INode = new DepthFromLight(lightIndex);
+				currentDepth = new Substract(currentDepth, new Constant(1));
 				
 				// get the delta between both values, and see if it's small enought
-				var delta			: INode = new Absolute(new Substract(precomputedDepth, currentDepth));
-				var limit			: INode = new Constant(1);
-				var willShadowMap	: INode = new SetIfLessThan(delta, limit);
+				var willNotShadowMap	: INode = new SetIfLessThan(currentDepth, precomputedDepth);
 				
-				// calculate the final multiplicator for this light
-				var resultMultiplicator : INode = new Divide(
-					new Add(willShadowMap, new Constant(1)),
-					new Constant(2)
-				);
-				
-				lightAttenuation.push(resultMultiplicator);
+				lightAttenuation.push(willNotShadowMap);
 			}
 			
 			var result : INode = new Saturate(lightStrength);
