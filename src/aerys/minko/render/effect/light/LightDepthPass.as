@@ -13,6 +13,7 @@ package aerys.minko.render.effect.light
 	import aerys.minko.render.shader.node.light.PackedDepthFromLight;
 	import aerys.minko.scene.data.LocalData;
 	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.ViewportData;
 	
 	import flash.utils.Dictionary;
 	
@@ -52,7 +53,7 @@ package aerys.minko.render.effect.light
 			state.blending			= Blending.NORMAL;
 			state.depthTest			= CompareMode.LESS
 			state.priority			= _priority;
-			state.renderTarget		= _renderTarget;
+			state.renderTarget		= _renderTarget || world[ViewportData].renderTarget;
 			state.shader			= _shader;
 			state.triangleCulling	= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
 			

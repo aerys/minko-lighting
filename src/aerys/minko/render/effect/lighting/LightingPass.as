@@ -6,6 +6,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.fog.FogStyle;
 	import aerys.minko.render.effect.light.LightingStyle;
 	import aerys.minko.render.effect.reflection.ReflectionStyle;
+	import aerys.minko.render.effect.skinning.SkinningStyle;
 	import aerys.minko.render.renderer.state.Blending;
 	import aerys.minko.render.renderer.state.CompareMode;
 	import aerys.minko.render.renderer.state.RendererState;
@@ -27,6 +28,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.scene.data.StyleStack;
 	import aerys.minko.scene.data.ViewportData;
 	import aerys.minko.scene.data.WorldDataList;
+	import aerys.minko.type.skinning.SkinningMethod;
 	
 	import flash.utils.Dictionary;
 	
@@ -101,6 +103,15 @@ package aerys.minko.render.effect.lighting
 													lightDepthIds	: Vector.<int>) : String
 		{
 			var hash : String = '';
+			
+			if (styleStack.get(SkinningStyle.METHOD, SkinningMethod.DISABLED) != SkinningMethod.DISABLED)
+			{
+				hash += "_skin(";
+				hash += "method=" + styleStack.get(SkinningStyle.METHOD);
+				hash += ",maxInfluences=" + styleStack.get(SkinningStyle.MAX_INFLUENCES, 0);
+				hash += ",numBones=" + styleStack.get(SkinningStyle.NUM_BONES, 0);
+				hash += ")";
+			}
 			
 			if (styleStack.isSet(BasicStyle.DIFFUSE_COLOR))
 			{
