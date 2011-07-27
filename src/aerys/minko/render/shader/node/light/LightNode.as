@@ -25,7 +25,7 @@ package aerys.minko.render.shader.node.light
 					break;
 				
 				case LightData.TYPE_DIRECTIONAL : 
-					lightingNode = new DirectionalLightNode(lightIndex, lightData);
+					lightingNode = new DirectionalLightNode(lightIndex, lightData, styleStack);
 					break;
 					
 				case LightData.TYPE_SPOT :

@@ -18,11 +18,16 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.common.DiffuseMapTexture;
 	import aerys.minko.render.shader.node.fog.Fog;
 	import aerys.minko.render.shader.node.leaf.StyleParameter;
+	import aerys.minko.render.shader.node.leaf.TransformParameter;
 	import aerys.minko.render.shader.node.light.LightsNode;
+	import aerys.minko.render.shader.node.operation.builtin.Multiply4x4;
 	import aerys.minko.render.shader.node.operation.manipulation.Blend;
 	import aerys.minko.render.shader.node.operation.manipulation.MultiplyColor;
 	import aerys.minko.render.shader.node.operation.manipulation.RootWrapper;
 	import aerys.minko.render.shader.node.reflection.ReflectionNode;
+	import aerys.minko.render.shader.node.skinning.DQSkinnedPosition;
+	import aerys.minko.render.shader.node.skinning.MatrixSkinnedPosition;
+	import aerys.minko.render.shader.node.skinning.SkinnedPosition;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
 	import aerys.minko.scene.data.StyleStack;
@@ -161,7 +166,7 @@ package aerys.minko.render.effect.lighting
 											   worldData		: Dictionary,
 											   lightDepthIds	: Vector.<int>) : Shader
 		{
-			var clipspacePosition	: INode = new ClipspacePosition();
+			var clipspacePosition	: INode = getOutputPosition(styleStack);//new ClipspacePosition();
 			var pixelColor			: INode;
 			
 			if (styleStack.isSet(BasicStyle.DIFFUSE_COLOR))
@@ -192,6 +197,18 @@ package aerys.minko.render.effect.lighting
 			}
 			
 			return Shader.create(clipspacePosition, pixelColor);
+		}
+		
+		protected static function getOutputPosition(styleStack : StyleStack) : INode
+		{
+			var localToScreen	: INode = new TransformParameter(16, LocalData.LOCAL_TO_SCREEN);
+			var skinnedPosition	: INode	= new SkinnedPosition(
+				styleStack.get(SkinningStyle.METHOD, SkinningMethod.DISABLED) as uint,
+				styleStack.get(SkinningStyle.MAX_INFLUENCES, 0) as uint,
+				styleStack.get(SkinningStyle.NUM_BONES, 0) as uint
+			);
+			
+			return new Multiply4x4(skinnedPosition, localToScreen);
 		}
 	}
 }
