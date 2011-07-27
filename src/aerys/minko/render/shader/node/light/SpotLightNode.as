@@ -2,6 +2,7 @@ package aerys.minko.render.shader.node.light
 {
 	import aerys.minko.render.effect.basic.BasicStyle;
 	import aerys.minko.render.effect.light.LightingStyle;
+	import aerys.minko.render.effect.skinning.SkinningStyle;
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
@@ -25,9 +26,11 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.math.Product;
 	import aerys.minko.render.shader.node.operation.math.Sum;
+	import aerys.minko.render.shader.node.skinning.SkinnedNormal;
 	import aerys.minko.scene.data.CameraData;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.type.skinning.SkinningMethod;
 	import aerys.minko.type.vertex.format.VertexComponent;
 	
 	import flash.utils.Dictionary;
@@ -43,12 +46,7 @@ package aerys.minko.render.shader.node.light
 			
 			// clean this!
 			var vertexPosition	: INode = new Interpolate(new Attribute(VertexComponent.XYZ));
-			var normal			: INode = new Interpolate(
-				new Multiply(
-					new Attribute(VertexComponent.NORMAL),
-					new StyleParameter(1, BasicStyle.NORMAL_MULTIPLIER)
-				)
-			);
+			var normal			: INode = getNormal(styleStack);
 			
 			var lightToPoint : INode = new Substract( 
 				vertexPosition, 
@@ -173,6 +171,20 @@ package aerys.minko.render.shader.node.light
 			
 			if (result == null)
 				throw new Error('This light\'s data is empty, it should not be in the LightData.DATA style.');
+		}
+		
+		private function getNormal(styleStack : StyleStack) : INode
+		{
+			return new Interpolate(
+				new Multiply(
+					new SkinnedNormal(
+						styleStack.get(SkinningStyle.METHOD, SkinningMethod.DISABLED) as uint,
+						styleStack.get(SkinningStyle.MAX_INFLUENCES, 0) as uint,
+						styleStack.get(SkinningStyle.NUM_BONES, 0) as uint
+					),
+					new StyleParameter(1, BasicStyle.NORMAL_MULTIPLIER)
+				)
+			);
 		}
 	}
 }
