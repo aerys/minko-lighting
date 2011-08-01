@@ -17,11 +17,15 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.common.ClipspacePosition;
 	import aerys.minko.render.shader.node.common.DiffuseMapTexture;
 	import aerys.minko.render.shader.node.fog.Fog;
+	import aerys.minko.render.shader.node.leaf.Attribute;
+	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.StyleParameter;
 	import aerys.minko.render.shader.node.leaf.TransformParameter;
 	import aerys.minko.render.shader.node.light.LightsNode;
 	import aerys.minko.render.shader.node.operation.builtin.Multiply4x4;
 	import aerys.minko.render.shader.node.operation.manipulation.Blend;
+	import aerys.minko.render.shader.node.operation.manipulation.Combine;
+	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.manipulation.MultiplyColor;
 	import aerys.minko.render.shader.node.operation.manipulation.RootWrapper;
 	import aerys.minko.render.shader.node.reflection.ReflectionNode;
@@ -33,7 +37,9 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.scene.data.StyleStack;
 	import aerys.minko.scene.data.ViewportData;
 	import aerys.minko.scene.data.WorldDataList;
+	import aerys.minko.type.math.Vector4;
 	import aerys.minko.type.skinning.SkinningMethod;
+	import aerys.minko.type.vertex.format.VertexComponent;
 	
 	import flash.utils.Dictionary;
 	
@@ -109,6 +115,21 @@ package aerys.minko.render.effect.lighting
 		{
 			var hash : String = '';
 			
+			// diffuse color source
+			var diffuseStyleValue	: Object = styleStack.isSet(BasicStyle.DIFFUSE) ?
+				styleStack.get(BasicStyle.DIFFUSE) :
+				null;
+			
+			if (diffuseStyleValue == null)
+				hash += '_colorFromVertex';
+			else if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
+				hash += '_colorFromConstant';
+			else if (diffuseStyleValue is TextureRessource)
+				hash += '_colorFromTexture';
+			else
+				throw new Error('Invalid BasicStyle.DIFFUSE value');
+			
+			// skinning status
 			if (styleStack.get(SkinningStyle.METHOD, SkinningMethod.DISABLED) != SkinningMethod.DISABLED)
 			{
 				hash += "_skin(";
@@ -118,11 +139,7 @@ package aerys.minko.render.effect.lighting
 				hash += ")";
 			}
 			
-			if (styleStack.isSet(BasicStyle.DIFFUSE_COLOR))
-			{
-				hash += 'color_';
-			}
-			
+			// lighting status
 			if (styleStack.get(LightingStyle.LIGHT_ENABLED, false))
 			{
 				hash += '_light';
@@ -140,6 +157,7 @@ package aerys.minko.render.effect.lighting
 				}
 			}
 			
+			// reflections
 			if (styleStack.get(ReflectionStyle.REFLECTION_ENABLED, false))
 			{
 				var blending : uint = styleStack.get(ReflectionStyle.BLENDING, aerys.minko.render.renderer.state.Blending.NORMAL)
@@ -153,9 +171,11 @@ package aerys.minko.render.effect.lighting
 				);
 			}
 			
+			// shadowing
 			if (styleStack.get(LightingStyle.RECEIVE_SHADOWS, false))
 				hash += '_shadowcasting';
 			
+			// fog
 			if (styleStack.get(FogStyle.FOG_ENABLED, false))
 				hash += '_fog';
 			
@@ -169,10 +189,18 @@ package aerys.minko.render.effect.lighting
 			var clipspacePosition	: INode = getOutputPosition(styleStack);//new ClipspacePosition();
 			var pixelColor			: INode;
 			
-			if (styleStack.isSet(BasicStyle.DIFFUSE_COLOR))
-				pixelColor = new RootWrapper(new StyleParameter(4, BasicStyle.DIFFUSE_COLOR));
-			else
+			var diffuseStyleValue	: Object = styleStack.isSet(BasicStyle.DIFFUSE) ?
+				styleStack.get(BasicStyle.DIFFUSE) :
+				null;
+			
+			if (diffuseStyleValue == null)
+				pixelColor = new Interpolate(new Combine(new Attribute(VertexComponent.RGB), new Constant(1)));
+			if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
+				pixelColor = new RootWrapper(new StyleParameter(4, BasicStyle.DIFFUSE));
+			else if (diffuseStyleValue is TextureRessource)
 				pixelColor = new DiffuseMapTexture();
+			else
+				throw new Error('Invalid BasicStyle.DIFFUSE value');
 			
 			if (styleStack.get(ReflectionStyle.REFLECTION_ENABLED, false))
 			{
