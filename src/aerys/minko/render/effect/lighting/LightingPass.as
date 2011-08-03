@@ -13,6 +13,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.renderer.state.TriangleCulling;
 	import aerys.minko.render.ressource.TextureRessource;
 	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.node.Components;
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.common.ClipspacePosition;
 	import aerys.minko.render.shader.node.common.DiffuseMapTexture;
@@ -25,6 +26,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.operation.builtin.Multiply4x4;
 	import aerys.minko.render.shader.node.operation.manipulation.Blend;
 	import aerys.minko.render.shader.node.operation.manipulation.Combine;
+	import aerys.minko.render.shader.node.operation.manipulation.Extract;
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.manipulation.MultiplyColor;
 	import aerys.minko.render.shader.node.operation.manipulation.RootWrapper;
@@ -189,15 +191,20 @@ package aerys.minko.render.effect.lighting
 			var clipspacePosition	: INode = getOutputPosition(styleStack);//new ClipspacePosition();
 			var pixelColor			: INode;
 			
-			var diffuseStyleValue	: Object = styleStack.isSet(BasicStyle.DIFFUSE) ?
+			var diffuseStyle	: Object = styleStack.isSet(BasicStyle.DIFFUSE) ?
 				styleStack.get(BasicStyle.DIFFUSE) :
 				null;
 			
-			if (diffuseStyleValue == null)
-				pixelColor = new Interpolate(new Combine(new Attribute(VertexComponent.RGB), new Constant(1)));
-			if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
+			if (diffuseStyle == null)
+				pixelColor = new Interpolate(
+					new Combine(
+						new Extract(new Attribute(VertexComponent.RGB), Components.RGB),
+						new Constant(1)
+					)
+				);
+			else if (diffuseStyle is uint || diffuseStyle is Vector4)
 				pixelColor = new RootWrapper(new StyleParameter(4, BasicStyle.DIFFUSE));
-			else if (diffuseStyleValue is TextureRessource)
+			else if (diffuseStyle is TextureRessource)
 				pixelColor = new DiffuseMapTexture();
 			else
 				throw new Error('Invalid BasicStyle.DIFFUSE value');
