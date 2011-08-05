@@ -21,8 +21,8 @@ package aerys.minko.render.shader.node.light
 		public function PackedDepthFromLight(lightIndex : uint)
 		{
 			var depth			: INode = new DepthFromLight(lightIndex);
-			var maxValueParts	: INode = new Constant(0, 400, 800, 1200);
-			var maxValue		: INode = new Constant(1600);
+			var maxValueParts	: INode = new Constant(0, 100, 200, 300);
+			var maxValue		: INode = new Constant(400);
 			
 			var packedDepth		: INode = new PackScalarToColor(depth, maxValueParts, maxValue);
 			

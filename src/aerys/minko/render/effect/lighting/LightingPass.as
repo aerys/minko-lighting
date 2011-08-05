@@ -191,9 +191,9 @@ package aerys.minko.render.effect.lighting
 			var clipspacePosition	: INode = getOutputPosition(styleStack);//new ClipspacePosition();
 			var pixelColor			: INode;
 			
-			var diffuseStyleValue	: Object = styleStack.isSet(BasicStyle.DIFFUSE) ?
-				styleStack.get(BasicStyle.DIFFUSE) :
-				null;
+			var diffuseStyleValue	: Object = styleStack.isSet(BasicStyle.DIFFUSE)
+											   ? styleStack.get(BasicStyle.DIFFUSE)
+											   : null;
 			
 			if (diffuseStyleValue == null)
 			{

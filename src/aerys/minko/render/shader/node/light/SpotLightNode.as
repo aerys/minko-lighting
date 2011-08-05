@@ -10,9 +10,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.StyleParameter;
 	import aerys.minko.render.shader.node.leaf.WorldParameter;
-	import aerys.minko.render.shader.node.operation.builtin.Absolute;
 	import aerys.minko.render.shader.node.operation.builtin.Add;
-	import aerys.minko.render.shader.node.operation.builtin.Divide;
 	import aerys.minko.render.shader.node.operation.builtin.DotProduct3;
 	import aerys.minko.render.shader.node.operation.builtin.Multiply;
 	import aerys.minko.render.shader.node.operation.builtin.Negate;
@@ -146,11 +144,11 @@ package aerys.minko.render.shader.node.light
 				// compute current depth from light, and retrieve the precomputed value from a depth map
 				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex, lightDepthSampler);
 				var currentDepth		: INode = new DepthFromLight(lightIndex);
-				currentDepth = new Substract(currentDepth, new Constant(2));
+				currentDepth = new Substract(currentDepth, new Constant(0.8));
 				
 				// get the delta between both values, and see if it's small enought
 				var willNotShadowMap	: INode = new SetIfLessThan(currentDepth, precomputedDepth);
-				
+//				willNotShadowMap = new Add(new Constant(0.5), new Multiply(new Constant(0.5), willNotShadowMap));
 				lightAttenuation.push(willNotShadowMap);
 			}
 			
