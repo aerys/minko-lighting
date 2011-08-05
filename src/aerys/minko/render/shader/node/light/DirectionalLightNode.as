@@ -23,7 +23,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleStack;
 	import aerys.minko.type.skinning.SkinningMethod;
-	import aerys.minko.type.vertex.format.VertexComponent;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	public class DirectionalLightNode extends Saturate implements IFragmentNode
 	{

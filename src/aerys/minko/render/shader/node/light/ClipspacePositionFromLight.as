@@ -9,7 +9,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.builtin.Multiply4x4;
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.type.vertex.format.VertexComponent;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	public class ClipspacePositionFromLight extends Dummy implements IVertexNode
 	{

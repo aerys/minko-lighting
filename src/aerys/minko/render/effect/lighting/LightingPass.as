@@ -13,6 +13,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.renderer.state.TriangleCulling;
 	import aerys.minko.render.ressource.TextureRessource;
 	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.node.Components;
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.common.ClipspacePosition;
 	import aerys.minko.render.shader.node.common.DiffuseMapTexture;
@@ -25,6 +26,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.operation.builtin.Multiply4x4;
 	import aerys.minko.render.shader.node.operation.manipulation.Blend;
 	import aerys.minko.render.shader.node.operation.manipulation.Combine;
+	import aerys.minko.render.shader.node.operation.manipulation.Extract;
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.manipulation.MultiplyColor;
 	import aerys.minko.render.shader.node.operation.manipulation.RootWrapper;
@@ -39,7 +41,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.scene.data.WorldDataList;
 	import aerys.minko.type.math.Vector4;
 	import aerys.minko.type.skinning.SkinningMethod;
-	import aerys.minko.type.vertex.format.VertexComponent;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	import flash.utils.Dictionary;
 	
@@ -194,8 +196,15 @@ package aerys.minko.render.effect.lighting
 				null;
 			
 			if (diffuseStyleValue == null)
-				pixelColor = new Interpolate(new Combine(new Attribute(VertexComponent.RGB), new Constant(1)));
-			if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
+			{
+				pixelColor = new Interpolate(
+					new Combine(
+						new Extract(new Attribute(VertexComponent.RGB), Components.RGB),
+						new Constant(1)
+					)
+				);
+			}
+			else if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
 				pixelColor = new RootWrapper(new StyleParameter(4, BasicStyle.DIFFUSE));
 			else if (diffuseStyleValue is TextureRessource)
 				pixelColor = new DiffuseMapTexture();
