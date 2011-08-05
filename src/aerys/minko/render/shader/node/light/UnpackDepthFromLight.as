@@ -20,8 +20,8 @@ package aerys.minko.render.shader.node.light
 			
 			var packedDepth		: INode		= new Texture(uv, sampler);
 			
-			var quarterMaxValue	: INode		= new Constant(400);
-			var maxValue		: INode		= new Constant(1600);
+			var quarterMaxValue	: INode		= new Constant(100);
+			var maxValue		: INode		= new Constant(400);
 			
 			var unpackedDepth	: INode		= new UnpackColorIntoScalar(packedDepth, quarterMaxValue, maxValue);
 			

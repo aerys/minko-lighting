@@ -20,7 +20,7 @@ package aerys.minko.render.shader.node.reflection
 	import aerys.minko.render.shader.node.operation.manipulation.Extract;
 	import aerys.minko.render.shader.node.operation.math.PlanarReflection;
 	import aerys.minko.scene.data.CameraData;
-	import aerys.minko.type.vertex.format.VertexComponent;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	public class ReflectionNode extends Dummy implements IFragmentNode
 	{

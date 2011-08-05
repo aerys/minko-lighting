@@ -14,15 +14,15 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.packing.PackScalarToColor;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.type.vertex.format.VertexComponent;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	public class PackedDepthFromLight extends Dummy implements IFragmentNode
 	{
 		public function PackedDepthFromLight(lightIndex : uint)
 		{
 			var depth			: INode = new DepthFromLight(lightIndex);
-			var maxValueParts	: INode = new Constant(0, 400, 800, 1200);
-			var maxValue		: INode = new Constant(1600);
+			var maxValueParts	: INode = new Constant(0, 100, 200, 300);
+			var maxValue		: INode = new Constant(400);
 			
 			var packedDepth		: INode = new PackScalarToColor(depth, maxValueParts, maxValue);
 			

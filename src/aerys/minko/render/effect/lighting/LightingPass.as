@@ -41,7 +41,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.scene.data.WorldDataList;
 	import aerys.minko.type.math.Vector4;
 	import aerys.minko.type.skinning.SkinningMethod;
-	import aerys.minko.type.vertex.format.VertexComponent;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	import flash.utils.Dictionary;
 	
