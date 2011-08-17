@@ -1,4 +1,4 @@
-package aerys.minko.render.effect.light
+package aerys.minko.render.effect.lighting
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.IEffectPass;

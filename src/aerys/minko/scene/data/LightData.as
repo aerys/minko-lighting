@@ -1,7 +1,7 @@
 package aerys.minko.scene.data
 {
 	import aerys.minko.ns.minko;
-	import aerys.minko.render.effect.light.LightingStyle;
+	import aerys.minko.render.effect.lighting.LightingStyle;
 	import aerys.minko.type.math.ConstVector4;
 	import aerys.minko.type.math.Frustum;
 	import aerys.minko.type.math.Matrix4x4;

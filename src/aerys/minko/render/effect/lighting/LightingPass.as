@@ -4,7 +4,6 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.basic.BasicStyle;
 	import aerys.minko.render.effect.fog.FogStyle;
-	import aerys.minko.render.effect.light.LightingStyle;
 	import aerys.minko.render.effect.reflection.ReflectionStyle;
 	import aerys.minko.render.effect.skinning.SkinningStyle;
 	import aerys.minko.render.renderer.state.Blending;

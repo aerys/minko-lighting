@@ -1,7 +1,7 @@
 package aerys.minko.render.shader.node.light
 {
 	import aerys.minko.render.effect.basic.BasicStyle;
-	import aerys.minko.render.effect.light.LightingStyle;
+	import aerys.minko.render.effect.lighting.LightingStyle;
 	import aerys.minko.render.effect.skinning.SkinningStyle;
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;

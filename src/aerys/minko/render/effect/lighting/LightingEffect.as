@@ -4,7 +4,6 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.IEffect;
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.Style;
-	import aerys.minko.render.effect.light.LightDepthPass;
 	import aerys.minko.render.ressource.TextureRessource;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
@@ -18,7 +17,7 @@ package aerys.minko.render.effect.lighting
 	
 	public class LightingEffect implements IEffect
 	{
-		protected var _passes	: Object;
+		private var _passes	: Object;
 		
 		public function LightingEffect()
 		{
