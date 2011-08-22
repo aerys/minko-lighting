@@ -3,7 +3,6 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.basic.BasicStyle;
-	import aerys.minko.render.effect.fog.FogStyle;
 	import aerys.minko.render.effect.reflection.ReflectionStyle;
 	import aerys.minko.render.effect.skinning.SkinningStyle;
 	import aerys.minko.render.renderer.state.Blending;
@@ -15,7 +14,6 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.Components;
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.common.DiffuseMapTexture;
-	import aerys.minko.render.shader.node.fog.Fog;
 	import aerys.minko.render.shader.node.leaf.Attribute;
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.StyleParameter;
@@ -173,10 +171,6 @@ package aerys.minko.render.effect.lighting
 			if (styleStack.get(LightingStyle.RECEIVE_SHADOWS, false))
 				hash += '_shadowcasting';
 			
-			// fog
-			if (styleStack.get(FogStyle.FOG_ENABLED, false))
-				hash += '_fog';
-			
 			return hash;
 		}
 		
@@ -223,12 +217,7 @@ package aerys.minko.render.effect.lighting
 					new LightsNode(styleStack, worldData, lightDepthIds)
 				);
 			}
-			
-			if (styleStack.get(FogStyle.FOG_ENABLED, false))
-			{
-				pixelColor = new Blend(new Fog(), pixelColor, Blending.NORMAL);
-			}
-			
+						
 			return Shader.create(clipspacePosition, pixelColor);
 		}
 		

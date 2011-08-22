@@ -82,7 +82,7 @@ package aerys.minko.render.effect.lighting
 						RenderTarget.TEXTURE, lightData.shadowMapSize, 
 						lightData.shadowMapSize, 0, true, 0);
 					
-					textureRessource	= renderTarget.textureRessource;
+					textureRessource	= renderTarget.textureResource;
 					
 					targetIds.push(Style.getStyleId('light depthMap' + i));
 					targetRessources.push(textureRessource);

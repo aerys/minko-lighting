@@ -54,7 +54,7 @@ package aerys.minko.render.effect.lighting
 			state.depthTest			= CompareMode.LESS
 			state.priority			= _priority;
 			state.renderTarget		= _renderTarget || world[ViewportData].renderTarget;
-			state.shader			= _shader;
+			state.shader			= _shader.resource;
 			state.triangleCulling	= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
 			
 			_shader.fillRenderState(state, styleStack, local, world);
