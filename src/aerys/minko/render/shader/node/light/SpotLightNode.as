@@ -1,11 +1,13 @@
 package aerys.minko.render.shader.node.light
 {
+	import aerys.minko.render.effect.animation.AnimationStyle;
 	import aerys.minko.render.effect.basic.BasicStyle;
 	import aerys.minko.render.effect.lighting.LightingStyle;
-	import aerys.minko.render.effect.skinning.SkinningStyle;
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
+	import aerys.minko.render.shader.node.animation.MorphedNormal;
+	import aerys.minko.render.shader.node.animation.AnimatedNormal;
 	import aerys.minko.render.shader.node.leaf.Attribute;
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.StyleParameter;
@@ -24,11 +26,10 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.math.Product;
 	import aerys.minko.render.shader.node.operation.math.Sum;
-	import aerys.minko.render.shader.node.skinning.SkinnedNormal;
 	import aerys.minko.scene.data.CameraData;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleStack;
-	import aerys.minko.type.skinning.SkinningMethod;
+	import aerys.minko.type.animation.AnimationMethod;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
 	import flash.utils.Dictionary;
@@ -166,13 +167,15 @@ package aerys.minko.render.shader.node.light
 		
 		private function getNormal(styleStack : StyleStack) : INode
 		{
+			var normal	: INode	= new AnimatedNormal(
+				styleStack.get(AnimationStyle.METHOD, AnimationMethod.DISABLED) as uint,
+				styleStack.get(AnimationStyle.MAX_INFLUENCES, 0) as uint,
+				styleStack.get(AnimationStyle.NUM_BONES, 0) as uint
+			);
+			
 			return new Interpolate(
 				new Multiply(
-					new SkinnedNormal(
-						styleStack.get(SkinningStyle.METHOD, SkinningMethod.DISABLED) as uint,
-						styleStack.get(SkinningStyle.MAX_INFLUENCES, 0) as uint,
-						styleStack.get(SkinningStyle.NUM_BONES, 0) as uint
-					),
+					normal,
 					new StyleParameter(1, BasicStyle.NORMAL_MULTIPLIER)
 				)
 			);

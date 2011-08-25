@@ -2,9 +2,9 @@ package aerys.minko.render.effect.lighting
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.IEffectPass;
+	import aerys.minko.render.effect.animation.AnimationStyle;
 	import aerys.minko.render.effect.basic.BasicStyle;
 	import aerys.minko.render.effect.reflection.ReflectionStyle;
-	import aerys.minko.render.effect.skinning.SkinningStyle;
 	import aerys.minko.render.renderer.state.Blending;
 	import aerys.minko.render.renderer.state.CompareMode;
 	import aerys.minko.render.renderer.state.RendererState;
@@ -13,6 +13,10 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.node.Components;
 	import aerys.minko.render.shader.node.INode;
+	import aerys.minko.render.shader.node.animation.AnimatedPosition;
+	import aerys.minko.render.shader.node.animation.DQSkinnedPosition;
+	import aerys.minko.render.shader.node.animation.MatrixSkinnedPosition;
+	import aerys.minko.render.shader.node.animation.MorphedPosition;
 	import aerys.minko.render.shader.node.common.DiffuseMapTexture;
 	import aerys.minko.render.shader.node.leaf.Attribute;
 	import aerys.minko.render.shader.node.leaf.Constant;
@@ -27,14 +31,13 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.operation.manipulation.MultiplyColor;
 	import aerys.minko.render.shader.node.operation.manipulation.RootWrapper;
 	import aerys.minko.render.shader.node.reflection.ReflectionNode;
-	import aerys.minko.render.shader.node.skinning.SkinnedPosition;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
 	import aerys.minko.scene.data.StyleStack;
 	import aerys.minko.scene.data.ViewportData;
 	import aerys.minko.scene.data.WorldDataList;
+	import aerys.minko.type.animation.AnimationMethod;
 	import aerys.minko.type.math.Vector4;
-	import aerys.minko.type.skinning.SkinningMethod;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
 	import flash.utils.Dictionary;
@@ -126,12 +129,12 @@ package aerys.minko.render.effect.lighting
 				throw new Error('Invalid BasicStyle.DIFFUSE value');
 			
 			// skinning status
-			if (styleStack.get(SkinningStyle.METHOD, SkinningMethod.DISABLED) != SkinningMethod.DISABLED)
+			if (styleStack.get(AnimationStyle.METHOD, AnimationMethod.DISABLED) != AnimationMethod.DISABLED)
 			{
-				hash += "_skin(";
-				hash += "method=" + styleStack.get(SkinningStyle.METHOD);
-				hash += ",maxInfluences=" + styleStack.get(SkinningStyle.MAX_INFLUENCES, 0);
-				hash += ",numBones=" + styleStack.get(SkinningStyle.NUM_BONES, 0);
+				hash += "_animation(";
+				hash += "method=" + styleStack.get(AnimationStyle.METHOD);
+				hash += ",maxInfluences=" + styleStack.get(AnimationStyle.MAX_INFLUENCES, 0);
+				hash += ",numBones=" + styleStack.get(AnimationStyle.NUM_BONES, 0);
 				hash += ")";
 			}
 			
@@ -224,13 +227,13 @@ package aerys.minko.render.effect.lighting
 		protected static function getOutputPosition(styleStack : StyleStack) : INode
 		{
 			var localToScreen	: INode = new TransformParameter(16, LocalData.LOCAL_TO_SCREEN);
-			var skinnedPosition	: INode	= new SkinnedPosition(
-				styleStack.get(SkinningStyle.METHOD, SkinningMethod.DISABLED) as uint,
-				styleStack.get(SkinningStyle.MAX_INFLUENCES, 0) as uint,
-				styleStack.get(SkinningStyle.NUM_BONES, 0) as uint
+			var position		: INode	= new AnimatedPosition(
+				styleStack.get(AnimationStyle.METHOD, AnimationMethod.DISABLED) as uint,
+				styleStack.get(AnimationStyle.MAX_INFLUENCES, 0) as uint,
+				styleStack.get(AnimationStyle.NUM_BONES, 0) as uint
 			);
 			
-			return new Multiply4x4(skinnedPosition, localToScreen);
+			return new Multiply4x4(position, localToScreen);
 		}
 	}
 }
