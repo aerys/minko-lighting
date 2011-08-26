@@ -1,6 +1,6 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.scene.action.WorldObjectAction;
+	import aerys.minko.scene.action.LightAction;
 	import aerys.minko.scene.data.IWorldData;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
@@ -13,24 +13,24 @@ package aerys.minko.scene.node.light
 		
 		protected var _color	: uint;
 		
-		public function get color()		: uint		{ return _color; }
-		public function set color(v : uint) : void { _color = v; }
+		public function get color()	: uint			{ return _color; }
+		public function set color(v : uint) : void 	{ _color = v; }
 		
 		public function get isSingle() : Boolean
 		{
 			return false;
 		}
 		
-		public function getData(localData : LocalData) : IWorldData
+		public function getLightData(localData : LocalData) : LightData
 		{
-			throw new Error('Must be overriden');
+			throw new Error();
 		}
 		
-		public function AbstractLight(color : uint = 0xFFFFFF) 
+		public function AbstractLight(color : uint = 0xFFFFFF)
 		{
 			_color = color;
 			
-			actions[0] = WorldObjectAction.worldObjectAction;
+			actions[0] = new LightAction();
 		}
 		
 	}

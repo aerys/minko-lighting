@@ -62,7 +62,7 @@ package aerys.minko.scene.node.light
 			_shadowMapSize			= shadowMapSize;
 		}
 		
-		override public function getData(localData : LocalData) : IWorldData
+		override public function getLightData(localData : LocalData) : LightData
 		{
 			if ((isNaN(_diffuse) || _diffuse == 0) &&
 				(isNaN(_specular) || _specular == 0))

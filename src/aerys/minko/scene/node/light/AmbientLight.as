@@ -21,7 +21,7 @@ package aerys.minko.scene.node.light
 			_ambient = ambient;
 		}
 		
-		override public function getData(localData : LocalData) : IWorldData
+		override public function getLightData(localData : LocalData) : LightData
 		{
 			if (isNaN(_ambient) || _ambient == 0)
 				return null;
