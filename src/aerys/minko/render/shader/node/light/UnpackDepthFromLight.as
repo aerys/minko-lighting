@@ -16,7 +16,7 @@ package aerys.minko.render.shader.node.light
 		{
 			var uv				: INode		= new UVFromLight(lightIndex);
 			var sampler			: Sampler	= 
-				new Sampler(lightDepthSampler, Sampler.FILTER_LINEAR, Sampler.MIPMAP_LINEAR, Sampler.WRAPPING_CLAMP);
+				new Sampler(lightDepthSampler, Sampler.FILTER_LINEAR, Sampler.MIPMAP_DISABLE, Sampler.WRAPPING_CLAMP);
 			
 			var packedDepth		: INode		= new Texture(uv, sampler);
 			

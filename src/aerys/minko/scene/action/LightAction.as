@@ -18,13 +18,17 @@ package aerys.minko.scene.action
 		
 		public function run(scene : IScene, visitor : ISceneVisitor, renderer : IRenderer) : Boolean
 		{
-			var light	: ILight			= ILight(scene);
-			var list	: WorldDataList		= visitor.worldData[LightData];
+			var light	: ILight		= ILight(scene);
+			var data	: LightData		= light.getLightData(visitor.localData)
 			
+			if (!data)
+				return false;
+				
+			var list	: WorldDataList	= visitor.worldData[LightData];
 			if (!list)
 				visitor.worldData[LightData] = list = new WorldDataList();
 			
-			list.push(light.getLightData(visitor.localData));
+			list.push(data);
 			
 			return true;
 		}

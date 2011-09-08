@@ -1,17 +1,19 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko;
 	import aerys.minko.scene.data.IWorldData;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
-
+	
+	use namespace minko;
+	
 	public class SpotLight extends PointLight
 	{
 		protected var _direction			: Vector4
 		protected var _innerRadius			: Number;
 		protected var _outerRadius			: Number;
-		
 
 		public function get direction()	: Vector4 
 		{
@@ -52,9 +54,10 @@ package aerys.minko.scene.node.light
 								  direction			: Vector4	= null,
 								  outerRadius		: Number	= .4,
 								  innerRadius		: Number	= .4,
-								  shadowMapSize		: uint		= 0)
+								  shadowMapSize		: uint		= 0,
+								  group				: uint		= 0x1)
 		{
-			super(color, diffusion, specular, shininess, position, distance);
+			super(color, diffusion, specular, shininess, position, distance, group);
 			
 			_direction				= direction || new Vector4(0., 0., 1.);
 			_innerRadius			= innerRadius;
@@ -76,17 +79,18 @@ package aerys.minko.scene.node.light
 			var ld : LightData = LIGHT_DATA.create(true) as LightData;
 			
 			ld.reset();
-			ld.type				= LightData.TYPE_SPOT;
-			ld.position			= worldPosition;
-			ld.direction		= worldDirection;
-			ld.color			= _color;
-			ld.outerRadius		= _outerRadius;
-			ld.distance			= _distance;
-			ld.diffuse			= _diffuse;
-			ld.specular			= _specular;
-			ld.shininess		= _shininess;
-			ld.innerRadius		= _innerRadius;
-			ld.shadowMapSize	= _shadowMapSize;
+			ld._type				= LightData.TYPE_SPOT;
+			ld._group			= _group;
+			ld._position			= worldPosition;
+			ld._direction		= worldDirection;
+			ld._color			= _color;
+			ld._outerRadius		= _outerRadius;
+			ld._distance			= _distance;
+			ld._diffuse			= _diffuse;
+			ld._specular			= _specular;
+			ld._shininess		= _shininess;
+			ld._innerRadius		= _innerRadius;
+			ld._shadowMapSize	= _shadowMapSize;
 			
 			return ld;
 		}

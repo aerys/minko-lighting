@@ -1,10 +1,13 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko;
 	import aerys.minko.scene.data.IWorldData;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
+	
+	use namespace minko;
 	
 	public class DirectionalLight extends AbstractLight
 	{
@@ -63,9 +66,10 @@ package aerys.minko.scene.node.light
 										 diffuse		: Number	= .6,
 										 specular		: Number	= .8,
 										 shininess		: Number	= 64,
-										 direction		: Vector4 	= null)
+										 direction		: Vector4 	= null,
+										 group			: uint		= 0x1)
 		{
-			super(color); 
+			super(color, group);
 			
 			_direction		= direction ? direction.normalize() : new Vector4(0., -1., 0);
 			_diffuse		= diffuse;
@@ -85,13 +89,14 @@ package aerys.minko.scene.node.light
 			var ld 				: LightData = LIGHT_DATA.create(true) as LightData;
 			
 			ld.reset();
-			ld.type				= LightData.TYPE_DIRECTIONAL;
-			ld.direction		= worldDirection;
-			ld.color			= _color;
-			ld.diffuse			= _diffuse;
-			ld.specular			= _specular;
-			ld.shininess		= _shininess;
-			ld.shadowMapSize	= _shadowMapSize;
+			ld._type			= LightData.TYPE_DIRECTIONAL;
+			ld._group			= _group;
+			ld._direction		= worldDirection;
+			ld._color			= _color;
+			ld._diffuse			= _diffuse;
+			ld._specular		= _specular;
+			ld._shininess		= _shininess;
+			ld._shadowMapSize	= _shadowMapSize;
 			
 			return ld;
 		}

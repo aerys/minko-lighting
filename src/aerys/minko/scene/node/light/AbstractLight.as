@@ -12,9 +12,13 @@ package aerys.minko.scene.node.light
 		protected static const LIGHT_DATA : Factory	= Factory.getFactory(LightData);
 		
 		protected var _color	: uint;
+		protected var _group	: uint;
 		
-		public function get color()	: uint			{ return _color; }
+		public function get color()	: uint	{ return _color; }
+		public function get group() : uint	{ return _group; }
+		
 		public function set color(v : uint) : void 	{ _color = v; }
+		public function set group(v : uint) : void	{ _group = v; }
 		
 		public function get isSingle() : Boolean
 		{
@@ -26,12 +30,12 @@ package aerys.minko.scene.node.light
 			throw new Error();
 		}
 		
-		public function AbstractLight(color : uint = 0xFFFFFF)
+		public function AbstractLight(color : uint, group : uint)
 		{
 			_color = color;
+			_group = group;
 			
 			actions[0] = new LightAction();
 		}
-		
 	}
 }

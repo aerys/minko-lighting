@@ -16,6 +16,7 @@ package aerys.minko.scene.data
 		private static const TMP_VECTOR				: Vector4 = new Vector4();
 		
 		// types
+		public static const TYPE_DISABLED			: uint = 0x0;
 		public static const TYPE_AMBIENT			: uint = 0x1;
 		public static const TYPE_DIRECTIONAL		: uint = 0x2;
 		public static const TYPE_POINT				: uint = 0x3;
@@ -75,6 +76,7 @@ package aerys.minko.scene.data
 		// Light definition
 		minko var _type						: uint	 = 0x0;
 		minko var _color					: uint;
+		minko var _group					: uint;
 		minko var _ambient					: Number;
 		minko var _diffuse					: Number;
 		minko var _specular					: Number;
@@ -120,7 +122,7 @@ package aerys.minko.scene.data
 		minko var _localToUv							: Matrix4x4;
 		minko var _localToUv_localToScreenVersion		: uint;
 		
-		public final function get type():uint
+		public final function get type() : uint
 		{
 			return _type;
 		}
@@ -128,6 +130,11 @@ package aerys.minko.scene.data
 		public final function get color() : uint
 		{
 			return _color;
+		}
+		
+		public final function get group() : uint
+		{
+			return _group;
 		}
 				
 		public final function get ambient() : Number
@@ -293,14 +300,15 @@ package aerys.minko.scene.data
 			return (redCasted << 16) | (greenCasted << 8) | blueCasted;
 		}
 		
-		public final function get localDiffuseXColor() : uint
+		public final function get localDiffuseXColor() : Vector4
 		{
 			var localDiffuseValue	: Number = localDiffuse;
 			
 			var redDiffuse		: Number = red * localDiffuseValue;
 			var greenDiffuse	: Number = green * localDiffuseValue;
 			var blueDiffuse		: Number = blue * localDiffuseValue;
-			
+//			trace(redDiffuse, greenDiffuse, blueDiffuse, 1);
+			return new Vector4(redDiffuse, greenDiffuse, blueDiffuse, 1);
 			var redCasted		: uint = redDiffuse < 1.0	? int(255.0 * redDiffuse)	: 255;
 			var greenCasted		: uint = greenDiffuse < 1.0	? int(255.0 * greenDiffuse)	: 255;
 			var blueCasted		: uint = blueDiffuse < 1.0	? int(255.0 * blueDiffuse)	: 255;
@@ -453,6 +461,11 @@ package aerys.minko.scene.data
 		public final function set color(value : uint) : void
 		{
 			_color	= value;
+		}
+		
+		public final function set group(value : uint) : void
+		{
+			_group = value;
 		}
 		
 		public final function set ambient(value : Number) : void

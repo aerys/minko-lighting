@@ -63,14 +63,14 @@ package aerys.minko.render.effect.lighting
 		{
 			var passList			: Vector.<IEffectPass>		= new Vector.<IEffectPass>();
 			
-			var textureRessource	: TextureResource;
+			var textureResource		: TextureResource;
 			var renderTarget		: RenderTarget;
 			
 			var lightDatas			: WorldDataList				= world[LightData];
 			var lightDatasLength	: uint						= lightDatas ? lightDatas.length : 0;
 			
 			var targetIds			: Vector.<int>				= new Vector.<int>();
-			var targetRessources	: Vector.<TextureResource>	= new Vector.<TextureResource>();
+			var targetResources		: Vector.<TextureResource>	= new Vector.<TextureResource>();
 			
 			for (var i : int = 0; i < lightDatasLength; ++i)
 			{
@@ -82,10 +82,10 @@ package aerys.minko.render.effect.lighting
 						RenderTarget.TEXTURE, lightData.shadowMapSize, 
 						lightData.shadowMapSize, 0, true, 0);
 					
-					textureRessource	= renderTarget.textureResource;
+					textureResource	= renderTarget.textureResource;
 					
 					targetIds.push(Style.getStyleId('light depthMap' + i));
-					targetRessources.push(textureRessource);
+					targetResources.push(textureResource);
 					
 					var priority	: Number = lightDatasLength + 2 - i;
 					
@@ -93,7 +93,7 @@ package aerys.minko.render.effect.lighting
 				}
 			}
 			
-			passList.push(new LightingPass(targetIds, targetRessources, 0));
+			passList.push(new LightingPass(targetIds, targetResources, 0));
 			
 			return passList;
 		}

@@ -1,9 +1,12 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko;
 	import aerys.minko.scene.data.IWorldData;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
 
+	use namespace minko;
+	
 	public class AmbientLight extends AbstractLight
 	{
 		protected var _ambient : Number;
@@ -14,9 +17,10 @@ package aerys.minko.scene.node.light
 		}
 		
 		public function AmbientLight(color		: uint		= 0xFFFFFF, 
-									 ambient	: Number	= .4)
+									 ambient	: Number	= .4,
+									 group		: uint		= 0x1)
 		{
-			super(color);
+			super(color, group);
 			
 			_ambient = ambient;
 		}
@@ -29,10 +33,11 @@ package aerys.minko.scene.node.light
 			var ld : LightData = LIGHT_DATA.create(true) as LightData;
 			
 			ld.reset();
-			ld.type				= LightData.TYPE_AMBIENT;
-			ld.color			= _color;
-			ld.ambient			= _ambient;
-			ld.shadowMapSize	= 0;
+			ld._type			= LightData.TYPE_AMBIENT;
+			ld._group			= _group;
+			ld._color			= _color;
+			ld._ambient			= _ambient;
+			ld._shadowMapSize	= 0;
 			
 			return ld;
 		}

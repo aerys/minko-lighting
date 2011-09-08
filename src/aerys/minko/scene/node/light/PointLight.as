@@ -1,10 +1,13 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko;
 	import aerys.minko.scene.data.IWorldData;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
+	
+	use namespace minko;
 	
 	public class PointLight extends AbstractLight
 	{
@@ -34,9 +37,10 @@ package aerys.minko.scene.node.light
 								   specular			: Number	= .8,
 								   shininess		: Number	= 64,
 								   position			: Vector4 	= null,
-								   distance			: Number	= 0)
+								   distance			: Number	= 0,
+								   group			: uint		= 0x1)
 		{
-			super(color); 
+			super(color, group); 
 			
 			_position		= position || new Vector4();
 			_distance		= distance;
@@ -59,14 +63,15 @@ package aerys.minko.scene.node.light
 			var ld : LightData = LIGHT_DATA.create(true) as LightData;
 			
 			ld.reset();
-			ld.type				= LightData.TYPE_POINT;
-			ld.position			= worldPosition;
-			ld.color			= _color;
-			ld.distance			= _distance;
-			ld.diffuse			= _diffuse;
-			ld.specular			= _specular;
-			ld.shininess		= _shininess;
-			ld.shadowMapSize	= _shadowMapSize;
+			ld._group			= _group;
+			ld._type			= LightData.TYPE_POINT;
+			ld._position		= worldPosition;
+			ld._color			= _color;
+			ld._distance		= _distance;
+			ld._diffuse			= _diffuse;
+			ld._specular		= _specular;
+			ld._shininess		= _shininess;
+			ld._shadowMapSize	= _shadowMapSize;
 			
 			return ld;
 		}

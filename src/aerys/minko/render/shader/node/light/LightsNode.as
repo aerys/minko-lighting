@@ -1,5 +1,6 @@
 package aerys.minko.render.shader.node.light
 {
+	import aerys.minko.render.effect.lighting.LightingStyle;
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
@@ -20,15 +21,19 @@ package aerys.minko.render.shader.node.light
 			var lightDatas		: WorldDataList = worldData[LightData];
 			
 			// compute light sum
-			var lightSum : Sum = new Sum();
+			var lightSum		: Sum = new Sum();
 			
 			var shadowedCount	: uint	= 0;
 			var lightCount		: uint	= lightDatas ? lightDatas.length : 0;
+			var lightGroup		: uint	= uint(styleStack.get(LightingStyle.GROUP, 0));
 			
 			for (var lightId : int = 0; lightId < lightCount; ++lightId) 
 			{
 				var lightNode	: INode;
 				var lightData	: LightData	= lightDatas.getItem(lightId) as LightData;
+				
+				if ((lightData.group & lightGroup) == 0)
+					continue;
 				
 				if (lightData.castShadows)
 				{

@@ -14,9 +14,6 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.Components;
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.animation.AnimatedPosition;
-	import aerys.minko.render.shader.node.animation.DQSkinnedPosition;
-	import aerys.minko.render.shader.node.animation.MatrixSkinnedPosition;
-	import aerys.minko.render.shader.node.animation.MorphedPosition;
 	import aerys.minko.render.shader.node.common.DiffuseMapTexture;
 	import aerys.minko.render.shader.node.leaf.Attribute;
 	import aerys.minko.render.shader.node.leaf.Constant;
@@ -47,17 +44,17 @@ package aerys.minko.render.effect.lighting
 		protected static const _SHADERS : Object = new Object();
 		
 		protected var _lightDepthIds		: Vector.<int>;
-		protected var _lightDepthRessources	: Vector.<TextureResource>;
+		protected var _lightDepthResources	: Vector.<TextureResource>;
 		protected var _priority				: Number;
 		protected var _renderTarget			: RenderTarget;
 		
 		public function LightingPass(lightDepthIds			: Vector.<int>,
-									 lightDepthRessources	: Vector.<TextureResource>,
+									 lightDepthResources	: Vector.<TextureResource>,
 									 priority				: Number			= 0,
 									 renderTarget			: RenderTarget		= null)
 		{
 			_lightDepthIds			= lightDepthIds;
-			_lightDepthRessources	= lightDepthRessources;
+			_lightDepthResources	= lightDepthResources;
 			_priority				= priority;
 			_renderTarget			= renderTarget;
 		}
@@ -73,14 +70,14 @@ package aerys.minko.render.effect.lighting
 			styleStack.set(BasicStyle.NORMAL_MULTIPLIER, normalMultiplier);
 			if (styleStack.get(LightingStyle.RECEIVE_SHADOWS, false))
 			{
-				var castingShadowLightsCount : uint = _lightDepthRessources.length;
+				var castingShadowLightsCount : uint = _lightDepthResources.length;
 				
 				for (var i : int = 0; i < castingShadowLightsCount; ++i)
 				{
 					var lightDepthId		: int				= _lightDepthIds[i];
-					var lightDepthRessource	: TextureResource	= _lightDepthRessources[i];
+					var lightDepthResource	: TextureResource	= _lightDepthResources[i];
 					
-					styleStack.set(lightDepthId, lightDepthRessource);
+					styleStack.set(lightDepthId, lightDepthResource);
 				}
 			}
 			
@@ -139,7 +136,7 @@ package aerys.minko.render.effect.lighting
 			}
 			
 			// lighting status
-			if (styleStack.get(LightingStyle.LIGHT_ENABLED, false))
+			if (styleStack.get(LightingStyle.GROUP, 0) != 0)
 			{
 				hash += '_light';
 				
@@ -213,7 +210,7 @@ package aerys.minko.render.effect.lighting
 				);
 			}
 			
-			if (styleStack.get(LightingStyle.LIGHT_ENABLED, false))
+			if (styleStack.get(LightingStyle.GROUP, false))
 			{
 				pixelColor = new MultiplyColor(
 					pixelColor,

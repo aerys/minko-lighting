@@ -59,7 +59,7 @@ package aerys.minko.render.shader.node.light
 			var lightSurfaceCosine	: INode 	= new DotProduct3(localLightDirection, new Negate(normal));
 			var lightStrength		: Sum		= new Sum();
 			
-			lightStrength.addTerm(new WorldParameter(3, LightData, LightData.LOCAL_DIFFUSE_X_COLOR, lightIndex));
+//			lightStrength.addTerm(new WorldParameter(3, LightData, LightData.LOCAL_DIFFUSE_X_COLOR, lightIndex));
 			
 			// calculate diffuse light value.
 			if (!isNaN(lightData.diffuse) && lightData.diffuse != 0)
@@ -145,15 +145,14 @@ package aerys.minko.render.shader.node.light
 				// compute current depth from light, and retrieve the precomputed value from a depth map
 				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex, lightDepthSampler);
 				var currentDepth		: INode = new DepthFromLight(lightIndex);
-				currentDepth = new Substract(currentDepth, new Constant(0.8));
+				currentDepth = new Substract(currentDepth, new Constant(0.5));
 				
 				// get the delta between both values, and see if it's small enought
 				var willNotShadowMap	: INode = new SetIfLessThan(currentDepth, precomputedDepth);
-//				willNotShadowMap = new Add(new Constant(0.5), new Multiply(new Constant(0.5), willNotShadowMap));
 				lightAttenuation.push(willNotShadowMap);
 			}
 			
-			var result : INode = new Saturate(lightStrength);
+			var result : INode = lightStrength;
 			if (lightAttenuation.length != 0)
 			{
 				result = new Multiply(Product.fromVector(lightAttenuation), result);
