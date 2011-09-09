@@ -59,8 +59,6 @@ package aerys.minko.render.shader.node.light
 			var lightSurfaceCosine	: INode 	= new DotProduct3(localLightDirection, new Negate(normal));
 			var lightStrength		: Sum		= new Sum();
 			
-//			lightStrength.addTerm(new WorldParameter(3, LightData, LightData.LOCAL_DIFFUSE_X_COLOR, lightIndex));
-			
 			// calculate diffuse light value.
 			if (!isNaN(lightData.diffuse) && lightData.diffuse != 0)
 			{

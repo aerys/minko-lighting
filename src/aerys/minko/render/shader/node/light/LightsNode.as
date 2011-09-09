@@ -25,7 +25,7 @@ package aerys.minko.render.shader.node.light
 			
 			var shadowedCount	: uint	= 0;
 			var lightCount		: uint	= lightDatas ? lightDatas.length : 0;
-			var lightGroup		: uint	= uint(styleStack.get(LightingStyle.GROUP, 0));
+			var lightGroup		: uint	= uint(styleStack.get(LightingStyle.GROUP, 1));
 			
 			for (var lightId : int = 0; lightId < lightCount; ++lightId) 
 			{

@@ -122,6 +122,10 @@ package aerys.minko.scene.data
 		minko var _localToUv							: Matrix4x4;
 		minko var _localToUv_localToScreenVersion		: uint;
 		
+		minko var _localAmbientXColor					: Vector4;
+		minko var _localDiffuseXColor					: Vector4;
+		minko var _localSpecularXColor					: Vector4;
+		
 		public final function get type() : uint
 		{
 			return _type;
@@ -285,50 +289,48 @@ package aerys.minko.scene.data
 			return _localDirection;
 		}
 
-		public final function get localAmbientXColor() : uint
+		public final function get localAmbientXColor() : Vector4
 		{
 			var localAmbientValue	: Number = localAmbient;
 			
-			var redAmbient		: Number = red * localAmbientValue;
-			var greenAmbient	: Number = green * localAmbientValue;
-			var blueAmbient		: Number = blue * localAmbientValue;
+			_localAmbientXColor ||= new Vector4();
+			_localAmbientXColor.set(
+				red * localAmbientValue,
+				green * localAmbientValue,
+				blue * localAmbientValue,
+				1
+			);
 			
-			var redCasted		: uint = redAmbient < 1.0	? int(255.0 * redAmbient)	: 255;
-			var greenCasted		: uint = greenAmbient < 1.0	? int(255.0 * greenAmbient)	: 255;
-			var blueCasted		: uint = blueAmbient < 1.0	? int(255.0 * blueAmbient)	: 255;
-			
-			return (redCasted << 16) | (greenCasted << 8) | blueCasted;
+			return _localAmbientXColor;
 		}
 		
 		public final function get localDiffuseXColor() : Vector4
 		{
 			var localDiffuseValue	: Number = localDiffuse;
 			
-			var redDiffuse		: Number = red * localDiffuseValue;
-			var greenDiffuse	: Number = green * localDiffuseValue;
-			var blueDiffuse		: Number = blue * localDiffuseValue;
-//			trace(redDiffuse, greenDiffuse, blueDiffuse, 1);
-			return new Vector4(redDiffuse, greenDiffuse, blueDiffuse, 1);
-			var redCasted		: uint = redDiffuse < 1.0	? int(255.0 * redDiffuse)	: 255;
-			var greenCasted		: uint = greenDiffuse < 1.0	? int(255.0 * greenDiffuse)	: 255;
-			var blueCasted		: uint = blueDiffuse < 1.0	? int(255.0 * blueDiffuse)	: 255;
-			
-			return (redCasted << 16) | (greenCasted << 8) | blueCasted;
+			_localDiffuseXColor ||= new Vector4();
+			_localDiffuseXColor.set(
+				red * localDiffuseValue,
+				green * localDiffuseValue,
+				blue * localDiffuseValue,
+				1
+			);
+			return _localDiffuseXColor;
 		}
 		
-		public final function get localSpecularXColor() : uint
+		public final function get localSpecularXColor() : Vector4
 		{
 			var localSpecularValue	: Number = localSpecular;
 			
-			var redSpecular		: Number = red * localSpecularValue;
-			var greenSpecular	: Number = green * localSpecularValue;
-			var blueSpecular	: Number = blue * localSpecularValue;
+			_localSpecularXColor ||= new Vector4();
+			_localSpecularXColor.set(
+				red * localSpecularValue,
+				green * localSpecularValue,
+				blue * localSpecularValue,
+				1
+			);
 			
-			var redCasted		: uint = redSpecular < 1.0		? int(255.0 * redSpecular)		: 255;
-			var greenCasted		: uint = greenSpecular < 1.0	? int(255.0 * greenSpecular)	: 255;
-			var blueCasted		: uint = blueSpecular < 1.0		? int(255.0 * blueSpecular)		: 255;
-			
-			return (redCasted << 16) | (greenCasted << 8) | blueCasted;
+			return _localSpecularXColor;
 		}
 		
 		public final function get radiusInterpolation1() : Number

@@ -136,7 +136,7 @@ package aerys.minko.render.effect.lighting
 			}
 			
 			// lighting status
-			if (styleStack.get(LightingStyle.GROUP, 0) != 0)
+			if (styleStack.get(LightingStyle.LIGHT_ENABLED, false))
 			{
 				hash += '_light';
 				
@@ -146,10 +146,8 @@ package aerys.minko.render.effect.lighting
 				for (var i : int = 0; i < lightCount; ++i)
 				{
 					var type : uint = LightData(lightDatas.getItem(i)).type;
-					hash += String.fromCharCode(
-						33 + (type & 0xF), 
-						33 + ((type & 0xF0) >>> 4), 
-						33 + ((type & 0xF00) >>> 8));
+					var group : uint = LightData(lightDatas.getItem(i)).group;
+					hash += type + '|' + group;
 				}
 			}
 			
@@ -210,7 +208,7 @@ package aerys.minko.render.effect.lighting
 				);
 			}
 			
-			if (styleStack.get(LightingStyle.GROUP, false))
+			if (styleStack.get(LightingStyle.LIGHT_ENABLED, false))
 			{
 				pixelColor = new MultiplyColor(
 					pixelColor,

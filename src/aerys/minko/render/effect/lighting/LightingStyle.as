@@ -4,6 +4,7 @@ package aerys.minko.render.effect.lighting
 
 	public final class LightingStyle
 	{
+		public static const LIGHT_ENABLED	: int = Style.getStyleId("light enabled");
 		public static const GROUP			: int = Style.getStyleId("light group");
 		
 		public static const MAP				: int = Style.getStyleId("light map");
