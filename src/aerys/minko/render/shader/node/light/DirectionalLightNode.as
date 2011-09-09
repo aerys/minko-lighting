@@ -2,6 +2,7 @@ package aerys.minko.render.shader.node.light
 {
 	import aerys.minko.render.effect.animation.AnimationStyle;
 	import aerys.minko.render.effect.basic.BasicStyle;
+	import aerys.minko.render.effect.lighting.LightingStyle;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.animation.AnimatedNormal;
@@ -10,6 +11,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.StyleParameter;
 	import aerys.minko.render.shader.node.leaf.WorldParameter;
+	import aerys.minko.render.shader.node.operation.builtin.Absolute;
 	import aerys.minko.render.shader.node.operation.builtin.DotProduct3;
 	import aerys.minko.render.shader.node.operation.builtin.Multiply;
 	import aerys.minko.render.shader.node.operation.builtin.Negate;
@@ -41,8 +43,8 @@ package aerys.minko.render.shader.node.light
 									lightData 	: LightData,
 									styleStack 	: StyleStack) : INode
 		{
-			var position	: INode = new Interpolate(new Attribute(VertexComponent.XYZ));
-			var normal		: INode = getNormal(styleStack);
+			var position	: INode 	= new Interpolate(new Attribute(VertexComponent.XYZ));
+			var normal		: INode 	= getNormal(styleStack);
 			
 			var lightDirection : INode = 
 				new WorldParameter(3, LightData, LightData.LOCAL_DIRECTION, lightIndex);
@@ -61,7 +63,7 @@ package aerys.minko.render.shader.node.light
 			{
 				lightStrength.push(
 					new Product(
-						new WorldParameter(3, LightData, LightData.LOCAL_DIFFUSE_X_COLOR, lightIndex),
+						new WorldParameter(3, LightData, LightData.PREMULTIPLIED_DIFFUSE_COLOR, lightIndex),
 						lightSurfaceSaturatedCosine
 					)
 				);
@@ -83,10 +85,10 @@ package aerys.minko.render.shader.node.light
 				
 				lightStrength.push(
 					new Multiply(
-						new WorldParameter(3, LightData, LightData.LOCAL_SPECULAR_X_COLOR, lightIndex),
+						new WorldParameter(3, LightData, LightData.PREMULTIPLIED_SPECULAR_COLOR, lightIndex),
 						new Power(
 							new Saturate(new Negate(new DotProduct3(reflectionVector, viewDirection))),
-							new WorldParameter(1, LightData, LightData.LOCAL_SHININESS, lightIndex)
+							new WorldParameter(1, LightData, LightData.PREMULTIPLIED_SHININESS, lightIndex)
 						)
 					)
 				);

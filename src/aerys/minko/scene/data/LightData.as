@@ -13,61 +13,61 @@ package aerys.minko.scene.data
 	{
 		use namespace minko;
 		
-		private static const TMP_VECTOR				: Vector4 = new Vector4();
+		private static const TMP_VECTOR						: Vector4 = new Vector4();
 		
 		// types
-		public static const TYPE_DISABLED			: uint = 0x0;
-		public static const TYPE_AMBIENT			: uint = 0x1;
-		public static const TYPE_DIRECTIONAL		: uint = 0x2;
-		public static const TYPE_POINT				: uint = 0x3;
-		public static const TYPE_SPOT				: uint = 0x4;
+		public static const TYPE_DISABLED					: uint = 0x0;
+		public static const TYPE_AMBIENT					: uint = 0x1;
+		public static const TYPE_DIRECTIONAL				: uint = 0x2;
+		public static const TYPE_POINT						: uint = 0x3;
+		public static const TYPE_SPOT						: uint = 0x4;
 		
 		// Data getter names
-		public static const TYPE					: String = 'type';
-		public static const COLOR					: String = 'color';
-		public static const AMBIENT					: String = 'ambient';
-		public static const DIFFUSE					: String = 'diffuse';
-		public static const SPECULAR				: String = 'specular';
-		public static const SHININESS				: String = 'shininess';
-		public static const POSITION				: String = 'position';
-		public static const DIRECTION				: String = 'direction';
-		public static const DISTANCE				: String = 'distance';
-		public static const OUTER_RADIUS			: String = 'outerRadius';
-		public static const INNER_RADIUS			: String = 'innerRadius';
+		public static const TYPE							: String = 'type';
+		public static const COLOR							: String = 'color';
+		public static const AMBIENT							: String = 'ambient';
+		public static const DIFFUSE							: String = 'diffuse';
+		public static const SPECULAR						: String = 'specular';
+		public static const SHININESS						: String = 'shininess';
+		public static const POSITION						: String = 'position';
+		public static const DIRECTION						: String = 'direction';
+		public static const DISTANCE						: String = 'distance';
+		public static const OUTER_RADIUS					: String = 'outerRadius';
+		public static const INNER_RADIUS					: String = 'innerRadius';
 		
 		// Precomputed data getter names
-		public static const OUTER_RADIUS_COSINE		: String = 'outerRadiusCosine';
-		public static const INNER_RADIUS_COSINE		: String = 'innerRadiusCosine';
-		public static const RADIUS_INTERPOLATION_1	: String = 'radiusInterpolation1';
-		public static const RADIUS_INTERPOLATION_2	: String = 'radiusInterpolation2';
-		public static const RED						: String = 'red';
-		public static const GREEN					: String = 'green';
-		public static const BLUE					: String = 'blue';
+		public static const OUTER_RADIUS_COSINE				: String = 'outerRadiusCosine';
+		public static const INNER_RADIUS_COSINE				: String = 'innerRadiusCosine';
+		public static const RADIUS_INTERPOLATION_1			: String = 'radiusInterpolation1';
+		public static const RADIUS_INTERPOLATION_2			: String = 'radiusInterpolation2';
+		public static const RED								: String = 'red';
+		public static const GREEN							: String = 'green';
+		public static const BLUE							: String = 'blue';
 		
 		// Local precomputed data getter names
-		public static const LOCAL_POSITION			: String = 'localPosition';
-		public static const LOCAL_DIRECTION			: String = 'localDirection';
+		public static const LOCAL_POSITION					: String = 'localPosition';
+		public static const LOCAL_DIRECTION					: String = 'localDirection';
 		
-		public static const LOCAL_DISTANCE			: String = 'localDistance';
-		public static const SQUARE_LOCAL_DISTANCE	: String = 'squareLocalDistance';
+		public static const LOCAL_DISTANCE					: String = 'localDistance';
+		public static const SQUARE_LOCAL_DISTANCE			: String = 'squareLocalDistance';
 		
-		public static const LOCAL_AMBIENT			: String = 'localAmbient';
-		public static const LOCAL_DIFFUSE			: String = 'localDiffuse';
-		public static const LOCAL_SPECULAR			: String = 'localSpecular';
-		public static const LOCAL_SHININESS			: String = 'localShininess';
+		public static const PREMULTIPLIED_AMBIENT			: String = 'premultipliedAmbient';
+		public static const PREMULTIPLIED_DIFFUSE			: String = 'premultipliedDiffuse';
+		public static const PREMULTIPLIED_SPECULAR			: String = 'premultipliedSpecular';
+		public static const PREMULTIPLIED_SHININESS			: String = 'premultipliedShininess';
 		
-		public static const LOCAL_AMBIENT_X_COLOR	: String = 'localAmbientXColor';
-		public static const LOCAL_DIFFUSE_X_COLOR	: String = 'localDiffuseXColor';
-		public static const LOCAL_SPECULAR_X_COLOR	: String = 'localSpecularXColor';
+		public static const PREMULTIPLIED_AMBIENT_COLOR		: String = 'premultipliedAmbientColor';
+		public static const PREMULTIPLIED_DIFFUSE_COLOR		: String = 'premultipliedDiffuseColor';
+		public static const PREMULTIPLIED_SPECULAR_COLOR	: String = 'premultipliedSpecularColor';
 		
 		// Postcomputed data getter names
-		public static const VIEW					: String = 'view';
-		public static const PROJECTION				: String = 'projection';
-		public static const LOCAL_TO_DEPTH			: String = 'localToDepth';
-		public static const LOCAL_TO_VIEW			: String = 'localToView';
-		public static const LOCAL_TO_SCREEN			: String = 'localToScreen';
-		public static const SCREEN_TO_UV			: String = 'screenToUv';
-		public static const LOCAL_TO_UV				: String = 'localToUv';
+		public static const VIEW							: String = 'view';
+		public static const PROJECTION						: String = 'projection';
+		public static const LOCAL_TO_DEPTH					: String = 'localToDepth';
+		public static const LOCAL_TO_VIEW					: String = 'localToView';
+		public static const LOCAL_TO_SCREEN					: String = 'localToScreen';
+		public static const SCREEN_TO_UV					: String = 'screenToUv';
+		public static const LOCAL_TO_UV						: String = 'localToUv';
 		
 		protected var _styleStack			: StyleStack;
 		protected var _localData			: LocalData;
@@ -221,24 +221,24 @@ package aerys.minko.scene.data
 			return _shadowMapSize != 0;
 		}
 
-		public function get localAmbient() : Number
+		public function get premultipliedAmbient() : Number
 		{
-			return (_styleStack.get(LightingStyle.AMBIENT, 1) as Number) * _ambient;
+			return (_styleStack.get(LightingStyle.AMBIENT_MULTIPLIER, 1) as Number) * _ambient;
 		}
 
-		public function get localDiffuse() : Number
+		public function get premultipliedDiffuse() : Number
 		{
-			return (_styleStack.get(LightingStyle.DIFFUSE, 1) as Number) * _diffuse;
+			return (_styleStack.get(LightingStyle.DIFFUSE_MULTIPLIER, 1) as Number) * _diffuse;
 		}
 
-		public function get localSpecular() : Number
+		public function get premultipliedSpecular() : Number
 		{
-			return (_styleStack.get(LightingStyle.SPECULAR, 1) as Number) * _specular;
+			return (_styleStack.get(LightingStyle.SPECULAR_MULTIPLIER, 1) as Number) * _specular;
 		}
 
-		public function get localShininess() : Number
+		public function get premultipliedShininess() : Number
 		{
-			return (_styleStack.get(LightingStyle.SHININESS, 1) as Number) * _shininess;
+			return (_styleStack.get(LightingStyle.SHININESS_MULTIPLIER, 1) as Number) * _shininess;
 		}
 
 		public function get localPosition() : Vector4
@@ -289,9 +289,9 @@ package aerys.minko.scene.data
 			return _localDirection;
 		}
 
-		public final function get localAmbientXColor() : Vector4
+		public final function get premultipliedAmbientColor() : Vector4
 		{
-			var localAmbientValue	: Number = localAmbient;
+			var localAmbientValue	: Number = premultipliedAmbient;
 			
 			_localAmbientXColor ||= new Vector4();
 			_localAmbientXColor.set(
@@ -304,9 +304,9 @@ package aerys.minko.scene.data
 			return _localAmbientXColor;
 		}
 		
-		public final function get localDiffuseXColor() : Vector4
+		public final function get premultipliedDiffuseColor() : Vector4
 		{
-			var localDiffuseValue	: Number = localDiffuse;
+			var localDiffuseValue	: Number = premultipliedDiffuse;
 			
 			_localDiffuseXColor ||= new Vector4();
 			_localDiffuseXColor.set(
@@ -318,9 +318,9 @@ package aerys.minko.scene.data
 			return _localDiffuseXColor;
 		}
 		
-		public final function get localSpecularXColor() : Vector4
+		public final function get premultipliedSpecularColor() : Vector4
 		{
-			var localSpecularValue	: Number = localSpecular;
+			var localSpecularValue	: Number = premultipliedSpecular;
 			
 			_localSpecularXColor ||= new Vector4();
 			_localSpecularXColor.set(

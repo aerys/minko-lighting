@@ -7,7 +7,7 @@ package aerys.minko.render.shader.node.light
 	{
 		public function AmbientLightNode(lightIndex : uint)
 		{
-			super(3, LightData, LightData.LOCAL_AMBIENT_X_COLOR, lightIndex);
+			super(3, LightData, LightData.PREMULTIPLIED_AMBIENT_COLOR, lightIndex);
 		}
 	}
 }

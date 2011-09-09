@@ -6,12 +6,13 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.Dummy;
 	import aerys.minko.render.shader.node.IFragmentNode;
 	import aerys.minko.render.shader.node.INode;
-	import aerys.minko.render.shader.node.animation.MorphedNormal;
 	import aerys.minko.render.shader.node.animation.AnimatedNormal;
+	import aerys.minko.render.shader.node.animation.MorphedNormal;
 	import aerys.minko.render.shader.node.leaf.Attribute;
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.StyleParameter;
 	import aerys.minko.render.shader.node.leaf.WorldParameter;
+	import aerys.minko.render.shader.node.operation.builtin.Absolute;
 	import aerys.minko.render.shader.node.operation.builtin.Add;
 	import aerys.minko.render.shader.node.operation.builtin.DotProduct3;
 	import aerys.minko.render.shader.node.operation.builtin.Multiply;
@@ -64,7 +65,7 @@ package aerys.minko.render.shader.node.light
 			{
 				lightStrength.addTerm(
 					new Multiply(
-						new WorldParameter(3, LightData, LightData.LOCAL_DIFFUSE_X_COLOR, lightIndex),
+						new WorldParameter(3, LightData, LightData.PREMULTIPLIED_DIFFUSE_COLOR, lightIndex),
 						new Saturate(lightSurfaceCosine)
 					)
 				);
@@ -86,7 +87,7 @@ package aerys.minko.render.shader.node.light
 				
 				lightStrength.addTerm(
 					new Multiply(
-						new WorldParameter(3, LightData, LightData.LOCAL_SPECULAR_X_COLOR, lightIndex),
+						new WorldParameter(3, LightData, LightData.PREMULTIPLIED_SPECULAR_COLOR, lightIndex),
 						new Power(
 							new Saturate(new Negate(new DotProduct3(reflectionVector, viewDirection))),
 							new WorldParameter(1, LightData, LightData.SHININESS, lightIndex)

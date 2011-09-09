@@ -65,9 +65,14 @@ package aerys.minko.render.effect.lighting
 										world		: Dictionary) : Boolean
 		{
 			var triangleCulling		: uint		= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
-			var normalMultiplier	: Number	= triangleCulling == TriangleCulling.BACK ? 1 : -1;
 			
-			styleStack.set(BasicStyle.NORMAL_MULTIPLIER, normalMultiplier);
+			if (!styleStack.isSet(BasicStyle.NORMAL_MULTIPLIER))
+			{
+				var normalMultiplier	: Number	= triangleCulling == TriangleCulling.BACK ? 1 : -1;
+				
+				styleStack.set(BasicStyle.NORMAL_MULTIPLIER, normalMultiplier);
+			}
+			
 			if (styleStack.get(LightingStyle.RECEIVE_SHADOWS, false))
 			{
 				var castingShadowLightsCount : uint = _lightDepthResources.length;
