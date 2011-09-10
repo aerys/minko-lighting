@@ -70,7 +70,7 @@ package aerys.minko.scene.data
 		public static const LOCAL_TO_UV						: String = 'localToUv';
 		
 		protected var _styleStack			: StyleStack;
-		protected var _localData			: LocalData;
+		protected var _transformData			: TransformData;
 		protected var _worldData			: Object;
 		
 		// Light definition
@@ -243,7 +243,7 @@ package aerys.minko.scene.data
 
 		public function get localPosition() : Vector4
 		{
-			var worldInverseMatrix : Matrix3D = _localData.worldInverse;
+			var worldInverseMatrix : Matrix3D = _transformData.worldInverse;
 			
 			if (_localPosition_worldInverseVersion != worldInverseMatrix.version)
 			{
@@ -256,7 +256,7 @@ package aerys.minko.scene.data
 
 		public function get localDistance():Number
 		{
-			var worldInverseMatrix : Matrix3D = _localData.worldInverse;
+			var worldInverseMatrix : Matrix3D = _transformData.worldInverse;
 			
 			if (_localDistance_worldInverseVersion != worldInverseMatrix.version)
 			{
@@ -276,7 +276,7 @@ package aerys.minko.scene.data
 
 		public function get localDirection():Vector4
 		{
-			var invertedWorldMatrix : Matrix3D = _localData.worldInverse;
+			var invertedWorldMatrix : Matrix3D = _transformData.worldInverse;
 			
 			if (_localDirection_worldInverseVersion != invertedWorldMatrix.version)
 			{
@@ -379,7 +379,7 @@ package aerys.minko.scene.data
 		
 		public function get localToView() : Matrix3D
 		{
-			var worldMatrix	: Matrix3D = _localData.world;
+			var worldMatrix	: Matrix3D = _transformData.world;
 			var viewMatrix	: Matrix3D = view;
 			
 			if (_localToView_worldVersion != worldMatrix.version ||
@@ -526,11 +526,11 @@ package aerys.minko.scene.data
 		}
 		
 		public final function setDataProvider(styleStack	: StyleStack,
-											  localData		: LocalData,
+											  transformData		: TransformData,
 											  worldData		: Dictionary) : void
 		{
 			_styleStack	= styleStack;
-			_localData	= localData;
+			_transformData	= transformData;
 			_worldData	= worldData;
 		}
 		

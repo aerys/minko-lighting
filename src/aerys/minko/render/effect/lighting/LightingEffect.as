@@ -6,7 +6,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.Style;
 	import aerys.minko.render.resource.TextureResource;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.LocalData;
+	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.StyleStack;
 	import aerys.minko.scene.data.WorldDataList;
 	
@@ -27,7 +27,7 @@ package aerys.minko.render.effect.lighting
 		}
 		
 		public function getPasses(styleStack	: StyleStack, 
-								  local			: LocalData, 
+								  local			: TransformData, 
 								  world			: Dictionary) : Vector.<IEffectPass>
 		{
 			var hash : String = computePassListHash(styleStack, local, world);
@@ -39,7 +39,7 @@ package aerys.minko.render.effect.lighting
 		}
 		
 		protected function computePassListHash(styleStack	: StyleStack, 
-											   local		: LocalData, 
+											   local		: TransformData, 
 											   world		: Dictionary) : String
 		{
 			var hash				: String					= '';
@@ -58,7 +58,7 @@ package aerys.minko.render.effect.lighting
 		}
 		
 		protected function createPassList(styleStack	: StyleStack, 
-										  local			: LocalData, 
+										  local			: TransformData, 
 										  world			: Dictionary) : Vector.<IEffectPass>
 		{
 			var passList			: Vector.<IEffectPass>		= new Vector.<IEffectPass>();

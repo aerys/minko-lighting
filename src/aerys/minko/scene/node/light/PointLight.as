@@ -2,7 +2,7 @@ package aerys.minko.scene.node.light
 {
 	import aerys.minko.ns.minko;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.LocalData;
+	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.type.math.Matrix3D;
 	import aerys.minko.type.math.Vector4;
 	
@@ -49,13 +49,13 @@ package aerys.minko.scene.node.light
 			_shadowMapSize	= 0;
 		}
 		
-		override public function getLightData(localData : LocalData) : LightData
+		override public function getLightData(transformData : TransformData) : LightData
 		{
 			if ((isNaN(_diffuse) || _diffuse == 0) && (isNaN(_specular) || _specular == 0))
 				return null;
 			
 			// compute world space position
-			var worldMatrix 	: Matrix3D	= localData.world;
+			var worldMatrix 	: Matrix3D	= transformData.world;
 			var worldPosition 	: Vector4 	= worldMatrix.transformVector(_position);
 			
 			// fill LightData object

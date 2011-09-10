@@ -3,7 +3,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.scene.action.LightAction;
 	import aerys.minko.scene.data.IWorldData;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.LocalData;
+	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.node.AbstractScene;
 	import aerys.minko.type.Factory;
 	
@@ -25,7 +25,7 @@ package aerys.minko.scene.node.light
 			return false;
 		}
 		
-		public function getLightData(localData : LocalData) : LightData
+		public function getLightData(transformData : TransformData) : LightData
 		{
 			throw new Error();
 		}

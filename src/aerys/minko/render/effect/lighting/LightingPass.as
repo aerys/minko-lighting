@@ -29,7 +29,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.operation.manipulation.RootWrapper;
 	import aerys.minko.render.shader.node.reflection.ReflectionNode;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.LocalData;
+	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.StyleStack;
 	import aerys.minko.scene.data.ViewportData;
 	import aerys.minko.scene.data.WorldDataList;
@@ -61,7 +61,7 @@ package aerys.minko.render.effect.lighting
 		
 		public function fillRenderState(state		: RendererState,
 										styleStack	: StyleStack, 
-										local		: LocalData,
+										local		: TransformData,
 										world		: Dictionary) : Boolean
 		{
 			var triangleCulling		: uint		= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
@@ -226,7 +226,7 @@ package aerys.minko.render.effect.lighting
 		
 		protected static function getOutputPosition(styleStack : StyleStack) : INode
 		{
-			var localToScreen	: INode = new TransformParameter(16, LocalData.LOCAL_TO_SCREEN);
+			var localToScreen	: INode = new TransformParameter(16, TransformData.LOCAL_TO_SCREEN);
 			var position		: INode	= new AnimatedPosition(
 				styleStack.get(AnimationStyle.METHOD, AnimationMethod.DISABLED) as uint,
 				styleStack.get(AnimationStyle.MAX_INFLUENCES, 0) as uint,

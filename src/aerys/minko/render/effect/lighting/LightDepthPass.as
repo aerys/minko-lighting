@@ -11,7 +11,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.light.ClipspacePositionFromLight;
 	import aerys.minko.render.shader.node.light.PackedDepthFromLight;
-	import aerys.minko.scene.data.LocalData;
+	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.StyleStack;
 	import aerys.minko.scene.data.ViewportData;
 	
@@ -44,7 +44,7 @@ package aerys.minko.render.effect.lighting
 		
 		public function fillRenderState(state		: RendererState,
 										styleStack	: StyleStack, 
-										local		: LocalData,
+										local		: TransformData,
 										world		: Dictionary) : Boolean
 		{
 			if (!styleStack.get(LightingStyle.CAST_SHADOWS, false))

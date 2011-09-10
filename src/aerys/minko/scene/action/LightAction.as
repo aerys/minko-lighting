@@ -19,7 +19,7 @@ package aerys.minko.scene.action
 		public function run(scene : IScene, visitor : ISceneVisitor, renderer : IRenderer) : Boolean
 		{
 			var light	: ILight		= ILight(scene);
-			var data	: LightData		= light.getLightData(visitor.localData)
+			var data	: LightData		= light.getLightData(visitor.transformData)
 			
 			if (!data)
 				return false;

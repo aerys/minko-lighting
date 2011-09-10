@@ -3,7 +3,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.ns.minko;
 	import aerys.minko.scene.data.IWorldData;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.LocalData;
+	import aerys.minko.scene.data.TransformData;
 
 	use namespace minko;
 	
@@ -25,7 +25,7 @@ package aerys.minko.scene.node.light
 			_ambient = ambient;
 		}
 		
-		override public function getLightData(localData : LocalData) : LightData
+		override public function getLightData(transformData : TransformData) : LightData
 		{
 			if (isNaN(_ambient) || _ambient == 0)
 				return null;
