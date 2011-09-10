@@ -1,10 +1,9 @@
 package aerys.minko.scene.node.light
 {
 	import aerys.minko.ns.minko;
-	import aerys.minko.scene.data.IWorldData;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.LocalData;
-	import aerys.minko.type.math.Matrix4x4;
+	import aerys.minko.type.math.Matrix3D;
 	import aerys.minko.type.math.Vector4;
 	
 	use namespace minko;
@@ -72,9 +71,9 @@ package aerys.minko.scene.node.light
 				return null;
 			
 			// compute world space position & direction
-			var worldMatrix : Matrix4x4	= localData.world;
-			var worldPosition : Vector4 = worldMatrix.multiplyVector(_position);
-			var worldDirection: Vector4 = worldMatrix.deltaMultiplyVector(_direction).normalize();
+			var worldMatrix 	: Matrix3D	= localData.world;
+			var worldPosition 	: Vector4 	= worldMatrix.transformVector(_position);
+			var worldDirection	: Vector4 	= worldMatrix.deltaTransformVector(_direction).normalize();
 			
 			var ld : LightData = LIGHT_DATA.create(true) as LightData;
 			
