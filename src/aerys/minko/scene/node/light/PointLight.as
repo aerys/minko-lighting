@@ -71,6 +71,7 @@ package aerys.minko.scene.node.light
 			ld._specular		= _specular;
 			ld._shininess		= _shininess;
 			ld._shadowMapSize	= _shadowMapSize;
+			ld._outerRadius		= 0;
 			
 			return ld;
 		}

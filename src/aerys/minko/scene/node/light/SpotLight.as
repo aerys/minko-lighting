@@ -78,15 +78,15 @@ package aerys.minko.scene.node.light
 			var ld : LightData = LIGHT_DATA.create(true) as LightData;
 			
 			ld.reset();
-			ld._type				= LightData.TYPE_SPOT;
+			ld._type			= LightData.TYPE_SPOT;
 			ld._group			= _group;
-			ld._position			= worldPosition;
+			ld._position		= worldPosition;
 			ld._direction		= worldDirection;
 			ld._color			= _color;
 			ld._outerRadius		= _outerRadius;
-			ld._distance			= _distance;
+			ld._distance		= _distance;
 			ld._diffuse			= _diffuse;
-			ld._specular			= _specular;
+			ld._specular		= _specular;
 			ld._shininess		= _shininess;
 			ld._innerRadius		= _innerRadius;
 			ld._shadowMapSize	= _shadowMapSize;

@@ -42,23 +42,16 @@ package aerys.minko.render.shader.node.light
 									  worldData				: Dictionary, 
 									  lightDepthSampler		: uint)
 		{
-			var lightData		: LightData = worldData[LightData].getItem(lightIndex);
+			var lightData			: LightData = worldData[LightData].getItem(lightIndex);
 			
-			// clean this!
-			var vertexPosition	: INode = new Interpolate(new Attribute(VertexComponent.XYZ));
-			var normal			: INode = getNormal(styleStack);
-			
-			var lightToPoint : INode = new Substract( 
-				vertexPosition, 
-				new WorldParameter(3, LightData, LightData.LOCAL_POSITION, lightIndex)
-			);
-			
-			var lightDirection : INode = 
-				new WorldParameter(3, LightData, LightData.LOCAL_DIRECTION, lightIndex);
-			
-			var localLightDirection	: INode 	= new Normalize(lightToPoint);
-			var lightSurfaceCosine	: INode 	= new DotProduct3(localLightDirection, new Negate(normal));
-			var lightStrength		: Sum		= new Sum();
+			var vertexPosition		: INode = new Interpolate(new Attribute(VertexComponent.XYZ));
+			var lightPosition		: INode = new WorldParameter(3, LightData, LightData.LOCAL_POSITION, lightIndex);
+			var lightToPoint		: INode = new Substract(vertexPosition, lightPosition);
+			var normal				: INode = getNormal(styleStack);
+			var lightDirection		: INode	= new WorldParameter(3, LightData, LightData.LOCAL_DIRECTION, lightIndex);
+			var localLightDirection	: INode = new Normalize(lightToPoint);
+			var lightSurfaceCosine	: INode = new DotProduct3(localLightDirection, new Negate(normal));
+			var lightStrength		: Sum	= new Sum();
 			
 			// calculate diffuse light value.
 			if (!isNaN(lightData.diffuse) && lightData.diffuse != 0)
