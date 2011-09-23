@@ -11,8 +11,8 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.light.ClipspacePositionFromLight;
 	import aerys.minko.render.shader.node.light.PackedDepthFromLight;
-	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.ViewportData;
 	
 	import flash.utils.Dictionary;
@@ -42,22 +42,22 @@ package aerys.minko.render.effect.lighting
 			return Shader.create(clipspacePosition, pixelColor);
 		}
 		
-		public function fillRenderState(state		: RendererState,
-										styleStack	: StyleStack, 
-										local		: TransformData,
-										world		: Dictionary) : Boolean
+		public function fillRenderState(state			: RendererState,
+										styleData		: StyleStack, 
+										transformData	: TransformData,
+										worldData		: Dictionary) : Boolean
 		{
-			if (!styleStack.get(LightingStyle.CAST_SHADOWS, false))
+			if (!styleData.get(LightingStyle.CAST_SHADOWS, false))
 				return false;
 			
 			state.blending			= Blending.NORMAL;
 			state.depthTest			= CompareMode.LESS
 			state.priority			= _priority;
-			state.renderTarget		= _renderTarget || world[ViewportData].renderTarget;
-			state.shader			= _shader.resource;
-			state.triangleCulling	= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
+			state.renderTarget		= _renderTarget || worldData[ViewportData].renderTarget;
+			state.program			= _shader.resource;
+			state.triangleCulling	= styleData.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
 			
-			_shader.fillRenderState(state, styleStack, local, world);
+			_shader.fillRenderState(state, styleData, transformData, worldData);
 			
 			return true;
 		}

@@ -1,13 +1,13 @@
 package aerys.minko.render.effect.lighting
 {
 	import aerys.minko.render.RenderTarget;
-	import aerys.minko.render.effect.IEffect;
 	import aerys.minko.render.effect.IEffectPass;
+	import aerys.minko.render.effect.IRenderingEffect;
 	import aerys.minko.render.effect.Style;
 	import aerys.minko.render.resource.Texture3DResource;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
@@ -15,7 +15,7 @@ package aerys.minko.render.effect.lighting
 	[StyleParameter(name="basic diffuse map", type="texture")]
 	[StyleParameter(name="light enabled", type="boolean")]
 	
-	public class LightingEffect implements IEffect
+	public class LightingEffect implements IRenderingEffect
 	{
 		private var _passes	: Object;
 		
