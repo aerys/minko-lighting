@@ -24,7 +24,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.math.Sum;
 	import aerys.minko.scene.data.CameraData;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.type.animation.AnimationMethod;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
@@ -34,14 +34,14 @@ package aerys.minko.render.shader.node.light
 		// clean this!
 		public function DirectionalLightNode(lightIndex : uint,
 											 lightData 	: LightData,
-											 styleStack : StyleStack)
+											 styleStack : StyleData)
 		{
 			super(initialize(lightIndex, lightData, styleStack));
 		}
 		
 		private function initialize(lightIndex	: uint,
 									lightData 	: LightData,
-									styleStack 	: StyleStack) : INode
+									styleStack 	: StyleData) : INode
 		{
 			var position	: INode 	= new Interpolate(new Attribute(VertexComponent.XYZ));
 			var normal		: INode 	= getNormal(styleStack);
@@ -97,7 +97,7 @@ package aerys.minko.render.shader.node.light
 			return Sum.fromVector(lightStrength);
 		}
 		
-		private function getNormal(styleStack : StyleStack) : INode
+		private function getNormal(styleStack : StyleData) : INode
 		{
 			var normal	: INode	= new AnimatedNormal(
 				styleStack.get(AnimationStyle.METHOD, AnimationMethod.DISABLED) as uint,

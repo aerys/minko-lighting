@@ -69,7 +69,7 @@ package aerys.minko.scene.data
 		public static const SCREEN_TO_UV					: String = 'screenToUv';
 		public static const LOCAL_TO_UV						: String = 'localToUv';
 		
-		protected var _styleStack			: StyleStack;
+		protected var _styleStack			: StyleData;
 		protected var _transformData			: TransformData;
 		protected var _worldData			: Object;
 		
@@ -525,7 +525,7 @@ package aerys.minko.scene.data
 			reset();
 		}
 		
-		public final function setDataProvider(styleStack	: StyleStack,
+		public final function setDataProvider(styleStack	: StyleData,
 											  transformData		: TransformData,
 											  worldData		: Dictionary) : void
 		{

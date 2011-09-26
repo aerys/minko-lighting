@@ -29,7 +29,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.math.Sum;
 	import aerys.minko.scene.data.CameraData;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.type.animation.AnimationMethod;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
@@ -38,7 +38,7 @@ package aerys.minko.render.shader.node.light
 	public class SpotLightNode extends Dummy implements IFragmentNode
 	{
 		public function SpotLightNode(lightIndex			: uint, 
-									  styleStack			: StyleStack, 
+									  styleStack			: StyleData, 
 									  worldData				: Dictionary, 
 									  lightDepthSampler		: uint)
 		{
@@ -156,7 +156,7 @@ package aerys.minko.render.shader.node.light
 				throw new Error('This light\'s data is empty, it should not be in the LightData.DATA style.');
 		}
 		
-		private function getNormal(styleStack : StyleStack) : INode
+		private function getNormal(styleStack : StyleData) : INode
 		{
 			var normal	: INode	= new AnimatedNormal(
 				styleStack.get(AnimationStyle.METHOD, AnimationMethod.DISABLED) as uint,

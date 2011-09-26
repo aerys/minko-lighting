@@ -5,10 +5,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.animation.AnimationStyle;
 	import aerys.minko.render.effect.basic.BasicStyle;
 	import aerys.minko.render.effect.reflection.ReflectionStyle;
-	import aerys.minko.render.renderer.state.Blending;
-	import aerys.minko.render.renderer.state.CompareMode;
-	import aerys.minko.render.renderer.state.RendererState;
-	import aerys.minko.render.renderer.state.TriangleCulling;
+	import aerys.minko.render.renderer.RendererState;
 	import aerys.minko.render.resource.Texture3DResource;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.node.Components;
@@ -29,11 +26,14 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.operation.manipulation.RootWrapper;
 	import aerys.minko.render.shader.node.reflection.ReflectionNode;
 	import aerys.minko.scene.data.LightData;
+	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
-	import aerys.minko.scene.data.StyleStack;
 	import aerys.minko.scene.data.ViewportData;
 	import aerys.minko.scene.data.WorldDataList;
 	import aerys.minko.type.animation.AnimationMethod;
+	import aerys.minko.type.enum.Blending;
+	import aerys.minko.type.enum.CompareMode;
+	import aerys.minko.type.enum.TriangleCulling;
 	import aerys.minko.type.math.Vector4;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
@@ -60,11 +60,11 @@ package aerys.minko.render.effect.lighting
 		}
 		
 		public function fillRenderState(state		: RendererState,
-										styleStack	: StyleStack, 
+										styleStack	: StyleData, 
 										local		: TransformData,
 										world		: Dictionary) : Boolean
 		{
-			var triangleCulling		: uint		= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
+			var triangleCulling	: uint	= styleStack.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;
 			
 			if (!styleStack.isSet(BasicStyle.NORMAL_MULTIPLIER))
 			{
@@ -98,7 +98,7 @@ package aerys.minko.render.effect.lighting
 			return true;
 		}
 		
-		protected static function getShader(styleStack		: StyleStack, 
+		protected static function getShader(styleStack		: StyleData, 
 											worldData		: Dictionary,
 											lightDepthIds	: Vector.<int>) : Shader
 		{
@@ -110,7 +110,7 @@ package aerys.minko.render.effect.lighting
 			return _SHADERS[hash];
 		}
 		
-		protected static function computeShaderHash(styleStack		: StyleStack,
+		protected static function computeShaderHash(styleStack		: StyleData,
 													worldData		: Dictionary,
 													lightDepthIds	: Vector.<int>) : String
 		{
@@ -159,7 +159,7 @@ package aerys.minko.render.effect.lighting
 			// reflections
 			if (styleStack.get(ReflectionStyle.REFLECTION_ENABLED, false))
 			{
-				var blending : uint = styleStack.get(ReflectionStyle.BLENDING, aerys.minko.render.renderer.state.Blending.NORMAL)
+				var blending : uint = styleStack.get(ReflectionStyle.BLENDING, Blending.NORMAL)
 									  as uint;
 				
 				hash += '_reflection' + String.fromCharCode(
@@ -177,7 +177,7 @@ package aerys.minko.render.effect.lighting
 			return hash;
 		}
 		
-		protected static function createShader(styleStack		: StyleStack, 
+		protected static function createShader(styleStack		: StyleData, 
 											   worldData		: Dictionary,
 											   lightDepthIds	: Vector.<int>) : Shader
 		{
@@ -224,7 +224,7 @@ package aerys.minko.render.effect.lighting
 			return Shader.create(clipspacePosition, pixelColor);
 		}
 		
-		protected static function getOutputPosition(styleStack : StyleStack) : INode
+		protected static function getOutputPosition(styleStack : StyleData) : INode
 		{
 			var localToScreen	: INode = new TransformParameter(16, TransformData.LOCAL_TO_SCREEN);
 			var position		: INode	= new AnimatedPosition(

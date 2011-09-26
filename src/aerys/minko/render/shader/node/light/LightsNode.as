@@ -6,14 +6,14 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.operation.math.Sum;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
 	
 	public class LightsNode extends Dummy implements IFragmentNode
 	{
-		public function LightsNode(styleStack			: StyleStack,
+		public function LightsNode(styleStack			: StyleData,
 								   worldData			: Dictionary,
 								   lightDepthSamplers	: Vector.<int>)
 		{

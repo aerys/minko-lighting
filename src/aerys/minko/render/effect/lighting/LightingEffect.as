@@ -6,7 +6,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.Style;
 	import aerys.minko.render.resource.Texture3DResource;
 	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.StyleStack;
+	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.WorldDataList;
 	
@@ -26,7 +26,7 @@ package aerys.minko.render.effect.lighting
 			_passes = new Object();
 		}
 		
-		public function getPasses(styleStack	: StyleStack, 
+		public function getPasses(styleStack	: StyleData, 
 								  local			: TransformData, 
 								  world			: Dictionary) : Vector.<IEffectPass>
 		{
@@ -38,7 +38,7 @@ package aerys.minko.render.effect.lighting
 			return _passes[hash];
 		}
 		
-		protected function computePassListHash(styleStack	: StyleStack, 
+		protected function computePassListHash(styleStack	: StyleData, 
 											   local		: TransformData, 
 											   world		: Dictionary) : String
 		{
@@ -57,7 +57,7 @@ package aerys.minko.render.effect.lighting
 			return hash;
 		}
 		
-		protected function createPassList(styleStack	: StyleStack, 
+		protected function createPassList(styleStack	: StyleData, 
 										  local			: TransformData, 
 										  world			: Dictionary) : Vector.<IEffectPass>
 		{
