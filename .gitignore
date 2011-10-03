@@ -1,8 +1,9 @@
-
-/.project
-/.settings
-/bin
-/.actionScriptProperties
-/.flexLibProperties
-/lib/minko.swf
-/lib/minko_logo.swf
+.actionScriptProperties
+.flexProperties
+.flexLibProperties
+.project
+.settings
+bin-debug/
+bin-release/
+build/
+html-template/
