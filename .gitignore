@@ -1,6 +1,8 @@
 
+/.project
+/.settings
+/bin
 /.actionScriptProperties
 /.flexLibProperties
-/.project
-/.settings/org.eclipse.core.resources.prefs
-/bin/minko-lighting.swc
+/lib/minko.swf
+/lib/minko_logo.swf
