@@ -4,7 +4,7 @@ package aerys.minko.scene.data
 	import aerys.minko.render.effect.lighting.LightingStyle;
 	import aerys.minko.type.math.ConstVector4;
 	import aerys.minko.type.math.Frustum;
-	import aerys.minko.type.math.Matrix3D;
+	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
 	import flash.utils.Dictionary;
@@ -98,28 +98,28 @@ package aerys.minko.scene.data
 		minko var _localDistance						: Number;
 		minko var _localDistance_worldInverseVersion	: uint;
 		
-		minko var _view									: Matrix3D;
+		minko var _view									: Matrix4x4;
 		minko var _view_positionVersion 				: uint;
 		minko var _view_directionVersion				: uint;
 		
-		minko var _localToView							: Matrix3D;
+		minko var _localToView							: Matrix4x4;
 		minko var _localToView_worldVersion				: uint;
 		minko var _localToView_viewVersion				: uint;
 		
 		minko var _localToDepth							: Vector4;
 		minko var _localToDepth_localToViewVersion		: uint;
 		
-		minko var _localToScreen						: Matrix3D;
+		minko var _localToScreen						: Matrix4x4;
 		minko var _localToScreen_localToViewVersion		: uint;
 		minko var _localToScreen_projectionVersion 		: uint;
 		
-		minko var _projection							: Matrix3D;
+		minko var _projection							: Matrix4x4;
 		minko var _projection_outerRadius				: Number;
 		
-		minko var _screenToUv							: Matrix3D;
+		minko var _screenToUv							: Matrix4x4;
 		minko var _screenToUv_shadowMapSize				: uint;
 		
-		minko var _localToUv							: Matrix3D;
+		minko var _localToUv							: Matrix4x4;
 		minko var _localToUv_localToScreenVersion		: uint;
 		
 		minko var _localAmbientXColor					: Vector4;
@@ -243,7 +243,7 @@ package aerys.minko.scene.data
 
 		public function get localPosition() : Vector4
 		{
-			var worldInverseMatrix : Matrix3D = _transformData.worldInverse;
+			var worldInverseMatrix : Matrix4x4 = _transformData.worldInverse;
 			
 			if (_localPosition_worldInverseVersion != worldInverseMatrix.version)
 			{
@@ -256,7 +256,7 @@ package aerys.minko.scene.data
 
 		public function get localDistance():Number
 		{
-			var worldInverseMatrix : Matrix3D = _transformData.worldInverse;
+			var worldInverseMatrix : Matrix4x4 = _transformData.worldInverse;
 			
 			if (_localDistance_worldInverseVersion != worldInverseMatrix.version)
 			{
@@ -276,7 +276,7 @@ package aerys.minko.scene.data
 
 		public function get localDirection():Vector4
 		{
-			var invertedWorldMatrix : Matrix3D = _transformData.worldInverse;
+			var invertedWorldMatrix : Matrix4x4 = _transformData.worldInverse;
 			
 			if (_localDirection_worldInverseVersion != invertedWorldMatrix.version)
 			{
@@ -349,7 +349,7 @@ package aerys.minko.scene.data
 			return 1 / (innerRadiusCosineValue - outerRadiusCosineValue);
 		}
 		
-		public function get view() : Matrix3D
+		public function get view() : Matrix4x4
 		{
 			if (_view_positionVersion != _position.version ||
 				_view_directionVersion != _direction.version)
@@ -358,7 +358,7 @@ package aerys.minko.scene.data
 				lookAt.set(_position.x, _position.y, _position.z);
 				lookAt.add(_direction);
 				
-				_view = Matrix3D.lookAtLH(position, lookAt, ConstVector4.Y_AXIS, _view);
+				_view = Matrix4x4.lookAtLH(position, lookAt, ConstVector4.Y_AXIS, _view);
 				_view_positionVersion	= _position.version;
 				_view_directionVersion	= _direction.version;
 			}
@@ -366,26 +366,26 @@ package aerys.minko.scene.data
 			return _view;
 		}
 		
-		public function get projection() : Matrix3D
+		public function get projection() : Matrix4x4
 		{
 			if (_projection_outerRadius != _outerRadius)
 			{
-				_projection = Matrix3D.perspectiveFoVLH(2 * _outerRadius, 1, 0.1, 100, _projection);
+				_projection = Matrix4x4.perspectiveFoVLH(2 * _outerRadius, 1, 0.1, 100, _projection);
 				_projection_outerRadius = _outerRadius;
 			}
 			
 			return _projection;
 		}
 		
-		public function get localToView() : Matrix3D
+		public function get localToView() : Matrix4x4
 		{
-			var worldMatrix	: Matrix3D = _transformData.world;
-			var viewMatrix	: Matrix3D = view;
+			var worldMatrix	: Matrix4x4 = _transformData.world;
+			var viewMatrix	: Matrix4x4 = view;
 			
 			if (_localToView_worldVersion != worldMatrix.version ||
 				_localToView_viewVersion != viewMatrix.version)
 			{
-				_localToView = Matrix3D.multiply(viewMatrix, worldMatrix, _localToView);
+				_localToView = Matrix4x4.multiply(viewMatrix, worldMatrix, _localToView);
 				_localToView_worldVersion	= worldMatrix.version;
 				_localToView_viewVersion	= viewMatrix.version;
 			}
@@ -398,7 +398,7 @@ package aerys.minko.scene.data
 		 */
 		public function get localToDepth() : Vector4
 		{
-			var localToViewMatrix : Matrix3D = localToView;
+			var localToViewMatrix : Matrix4x4 = localToView;
 			
 			if (_localToDepth_localToViewVersion != localToViewMatrix.version)
 			{
@@ -410,27 +410,27 @@ package aerys.minko.scene.data
 			return _localToDepth;
 		}
 		
-		public function get localToScreen() : Matrix3D
+		public function get localToScreen() : Matrix4x4
 		{
-			var localToViewMatrix	: Matrix3D = localToView;
-			var projectionMatrix	: Matrix3D = projection;
+			var localToViewMatrix	: Matrix4x4 = localToView;
+			var projectionMatrix	: Matrix4x4 = projection;
 			
 			if (_localToScreen_localToViewVersion != localToViewMatrix.version ||
 				_localToScreen_projectionVersion != projectionMatrix.version)
 			{
-				_localToScreen = Matrix3D.multiply(projectionMatrix, localToViewMatrix, _localToScreen);
+				_localToScreen = Matrix4x4.multiply(projectionMatrix, localToViewMatrix, _localToScreen);
 				_localToScreen_localToViewVersion	= localToViewMatrix.version;
 				_localToScreen_projectionVersion	= projectionMatrix.version;
 			}
 			return _localToScreen;
 		}
 		
-		public function get screentoUv() : Matrix3D
+		public function get screentoUv() : Matrix4x4
 		{
 			if (_screenToUv_shadowMapSize != _shadowMapSize)
 			{
 				var offset : Number = 0.5 + (0.5 / _shadowMapSize);
-				_screenToUv = new Matrix3D(
+				_screenToUv = new Matrix4x4(
 					0.5,		0.0,		0.0,	0.0,
 					0.0, 		-0.5,		0.0,	0.0,
 					0.0,		0.0,		1.0,	0.0,
@@ -441,14 +441,14 @@ package aerys.minko.scene.data
 			return _screenToUv;
 		}
 		
-		public function get localToUv() : Matrix3D
+		public function get localToUv() : Matrix4x4
 		{
-			var localToScreenMatrix : Matrix3D = localToScreen;
-			var screenToUvMatrix	: Matrix3D = screentoUv;
+			var localToScreenMatrix : Matrix4x4 = localToScreen;
+			var screenToUvMatrix	: Matrix4x4 = screentoUv;
 			
 			if (_localToUv_localToScreenVersion != localToScreenMatrix.version)
 			{
-				_localToUv = Matrix3D.multiply(screenToUvMatrix, localToScreenMatrix);
+				_localToUv = Matrix4x4.multiply(screenToUvMatrix, localToScreenMatrix, _localToUv);
 				_localToUv_localToScreenVersion = localToScreenMatrix.version;
 			}
 			
