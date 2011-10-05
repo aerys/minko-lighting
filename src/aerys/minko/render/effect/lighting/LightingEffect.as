@@ -8,6 +8,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
+	import aerys.minko.scene.data.ViewportData;
 	import aerys.minko.scene.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
@@ -17,13 +18,15 @@ package aerys.minko.render.effect.lighting
 	
 	public class LightingEffect implements IRenderingEffect
 	{
-		private var _passes	: Object;
+		private var _passes			: Object;
+		private var _renderTarget	: RenderTarget;
 		
-		public function LightingEffect()
+		public function LightingEffect(renderTarget	: RenderTarget	= null)
 		{
 			super();
 			
 			_passes = new Object();
+			_renderTarget = renderTarget;
 		}
 		
 		public function getPasses(styleStack	: StyleData, 
@@ -93,7 +96,7 @@ package aerys.minko.render.effect.lighting
 				}
 			}
 			
-			passList.push(new LightingPass(targetIds, targetResources, 0));
+			passList.push(new LightingPass(targetIds, targetResources, 0, _renderTarget));
 			
 			return passList;
 		}
