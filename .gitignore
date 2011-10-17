@@ -1,6 +1,9 @@
-
-/.actionScriptProperties
-/.flexLibProperties
-/.project
-/.settings/org.eclipse.core.resources.prefs
-/bin/minko-lighting.swc
+.actionScriptProperties
+.flexProperties
+.flexLibProperties
+.project
+.settings
+bin-debug/
+bin-release/
+build/
+html-template/
