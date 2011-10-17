@@ -141,7 +141,7 @@ package aerys.minko.render.effect.lighting
 			}
 			
 			// lighting status
-			if (styleStack.get(LightingStyle.LIGHT_ENABLED, false))
+			if (styleStack.get(LightingStyle.LIGHTS_ENABLED, false))
 			{
 				hash += '_light';
 				
@@ -213,7 +213,7 @@ package aerys.minko.render.effect.lighting
 				);
 			}
 			
-			if (styleStack.get(LightingStyle.LIGHT_ENABLED, false))
+			if (styleStack.get(LightingStyle.LIGHTS_ENABLED, false))
 			{
 				pixelColor = new MultiplyColor(
 					pixelColor,
@@ -221,7 +221,7 @@ package aerys.minko.render.effect.lighting
 				);
 			}
 						
-			return Shader.create(clipspacePosition, pixelColor);
+			return Shader.create("lighting pass", clipspacePosition, pixelColor);
 		}
 		
 		protected static function getOutputPosition(styleStack : StyleData) : INode

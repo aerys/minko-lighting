@@ -37,6 +37,8 @@ package aerys.minko.render.shader.node.light
 	
 	public class SpotLightNode extends Dummy implements IFragmentNode
 	{
+		public static const NO_LIGHT_DEPTH_SAMPLER	: uint	= 0xffffffff;
+		
 		public function SpotLightNode(lightIndex			: uint, 
 									  styleStack			: StyleData, 
 									  worldData				: Dictionary, 
@@ -131,13 +133,18 @@ package aerys.minko.render.shader.node.light
 			}
 			
 			// shadows
-			var receiveShadows : Boolean = styleStack.get(LightingStyle.RECEIVE_SHADOWS, false);
-			if (lightData.castShadows && receiveShadows)
+			var receiveShadows : Boolean = styleStack.get(LightingStyle.RECEIVE_SHADOWS, false)
+										   && lightDepthSampler != NO_LIGHT_DEPTH_SAMPLER
+							   			   && Boolean(styleStack.get(LightingStyle.SHADOWS_ENABLED))
+										   && lightData.castShadows;
+			
+			if (receiveShadows)
 			{
 				// compute current depth from light, and retrieve the precomputed value from a depth map
 				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex, lightDepthSampler);
 				var currentDepth		: INode = new DepthFromLight(lightIndex);
-				currentDepth = new Substract(currentDepth, new Constant(0.5));
+				
+				currentDepth = new Substract(currentDepth, new StyleParameter(1, LightingStyle.SHADOWS_BIAS, 0.5));
 				
 				// get the delta between both values, and see if it's small enought
 				var willNotShadowMap	: INode = new SetIfLessThan(currentDepth, precomputedDepth);

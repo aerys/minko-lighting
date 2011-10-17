@@ -45,7 +45,7 @@ package aerys.minko.render.effect.lighting
 			var clipspacePosition	: INode	= new ClipspacePositionFromLight(styleData, _lightIndex);
 			var pixelColor			: INode	= new PackedDepthFromLight(_lightIndex);
 			
-			return Shader.create(clipspacePosition, pixelColor);
+			return Shader.create("light depth pass", clipspacePosition, pixelColor);
 		}
 		
 		public function fillRenderState(state			: RendererState,

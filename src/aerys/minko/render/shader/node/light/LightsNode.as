@@ -21,28 +21,30 @@ package aerys.minko.render.shader.node.light
 			var lightDatas		: WorldDataList = worldData[LightData];
 			
 			// compute light sum
-			var lightSum		: Sum = new Sum();
+			var lightSum		: Sum 		= new Sum();
 			
-			var shadowedCount	: uint	= 0;
-			var lightCount		: uint	= lightDatas ? lightDatas.length : 0;
-			var lightGroup		: uint	= uint(styleStack.get(LightingStyle.GROUP, 1));
+			var shadowedCount	: uint		= 0;
+			var lightCount		: uint		= lightDatas ? lightDatas.length : 0;
+			var lightGroup		: uint		= uint(styleStack.get(LightingStyle.GROUP, 1));
+			var shadowsEnabled	: uint		= uint(styleStack.get(LightingStyle.SHADOWS_ENABLED, false));
+			var castShadows		: Boolean	= Boolean(styleStack.get(LightingStyle.CAST_SHADOWS, false));
 			
 			for (var lightId : int = 0; lightId < lightCount; ++lightId) 
 			{
-				var lightNode	: INode;
+				var lightNode	: INode		= null;
 				var lightData	: LightData	= lightDatas.getItem(lightId) as LightData;
 				
 				if ((lightData.group & lightGroup) == 0)
 					continue;
 				
-				if (lightData.castShadows)
+				if (castShadows && shadowsEnabled && lightData.castShadows)
 				{
 					lightNode = new LightNode(lightId, styleStack, worldData, lightDepthSamplers[shadowedCount]);
 					++shadowedCount;
 				}
 				else
 				{
-					lightNode = new LightNode(lightId, styleStack, worldData, 0);
+					lightNode = new LightNode(lightId, styleStack, worldData, SpotLightNode.NO_LIGHT_DEPTH_SAMPLER);
 				}
 				
 				lightSum.addTerm(lightNode);
