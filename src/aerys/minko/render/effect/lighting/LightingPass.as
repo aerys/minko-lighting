@@ -6,7 +6,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.basic.BasicStyle;
 	import aerys.minko.render.effect.reflection.ReflectionStyle;
 	import aerys.minko.render.renderer.RendererState;
-	import aerys.minko.render.resource.Texture3DResource;
+	import aerys.minko.render.resource.TextureResource;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.node.Components;
 	import aerys.minko.render.shader.node.INode;
@@ -44,12 +44,12 @@ package aerys.minko.render.effect.lighting
 		protected static const _SHADERS : Object = new Object();
 		
 		protected var _lightDepthIds		: Vector.<int>;
-		protected var _lightDepthResources	: Vector.<Texture3DResource>;
+		protected var _lightDepthResources	: Vector.<TextureResource>;
 		protected var _priority				: Number;
 		protected var _renderTarget			: RenderTarget;
 		
 		public function LightingPass(lightDepthIds			: Vector.<int>,
-									 lightDepthResources	: Vector.<Texture3DResource>,
+									 lightDepthResources	: Vector.<TextureResource>,
 									 priority				: Number			= 0,
 									 renderTarget			: RenderTarget		= null)
 		{
@@ -80,7 +80,7 @@ package aerys.minko.render.effect.lighting
 				for (var i : int = 0; i < castingShadowLightsCount; ++i)
 				{
 					var lightDepthId		: int				= _lightDepthIds[i];
-					var lightDepthResource	: Texture3DResource	= _lightDepthResources[i];
+					var lightDepthResource	: TextureResource	= _lightDepthResources[i];
 					
 					styleStack.set(lightDepthId, lightDepthResource);
 				}
@@ -125,7 +125,7 @@ package aerys.minko.render.effect.lighting
 				hash += '_colorFromVertex';
 			else if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
 				hash += '_colorFromConstant';
-			else if (diffuseStyleValue is Texture3DResource)
+			else if (diffuseStyleValue is TextureResource)
 				hash += '_colorFromTexture';
 			else
 				throw new Error('Invalid BasicStyle.DIFFUSE value');
@@ -199,7 +199,7 @@ package aerys.minko.render.effect.lighting
 			}
 			else if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
 				pixelColor = new RootWrapper(new StyleParameter(4, BasicStyle.DIFFUSE));
-			else if (diffuseStyleValue is Texture3DResource)
+			else if (diffuseStyleValue is TextureResource)
 				pixelColor = new DiffuseMapTexture();
 			else
 				throw new Error('Invalid BasicStyle.DIFFUSE value');

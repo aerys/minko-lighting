@@ -5,6 +5,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.leaf.Constant;
 	import aerys.minko.render.shader.node.leaf.Sampler;
+	import aerys.minko.render.shader.node.operation.builtin.Multiply;
 	import aerys.minko.render.shader.node.operation.builtin.Texture;
 	import aerys.minko.render.shader.node.operation.math.convolution.Blur;
 	import aerys.minko.render.shader.node.operation.packing.UnpackColorIntoScalar;
@@ -23,7 +24,10 @@ package aerys.minko.render.shader.node.light
 			var quarterMaxValue	: INode		= new Constant(100);
 			var maxValue		: INode		= new Constant(400);
 			
-			var unpackedDepth	: INode		= new UnpackColorIntoScalar(packedDepth, quarterMaxValue, maxValue);
+			var unpackedDepth	: INode		= new Multiply(
+				new UnpackColorIntoScalar(packedDepth),
+				maxValue
+			);
 			
 			super(unpackedDepth);
 		}
