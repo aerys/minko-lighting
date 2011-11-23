@@ -23,7 +23,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.builtin.Saturate;
 	import aerys.minko.render.shader.node.operation.builtin.SetIfGreaterEqual;
 	import aerys.minko.render.shader.node.operation.builtin.SetIfLessThan;
-	import aerys.minko.render.shader.node.operation.builtin.Substract;
+	import aerys.minko.render.shader.node.operation.builtin.Subtract;
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.math.Product;
 	import aerys.minko.render.shader.node.operation.math.Sum;
@@ -48,7 +48,7 @@ package aerys.minko.render.shader.node.light
 			
 			var vertexPosition		: INode = new Interpolate(new Attribute(VertexComponent.XYZ));
 			var lightPosition		: INode = new WorldParameter(3, LightData, LightData.LOCAL_POSITION, lightIndex);
-			var lightToPoint		: INode = new Substract(vertexPosition, lightPosition);
+			var lightToPoint		: INode = new Subtract(vertexPosition, lightPosition);
 			var normal				: INode = getNormal(styleStack);
 			var lightDirection		: INode	= new WorldParameter(3, LightData, LightData.LOCAL_DIRECTION, lightIndex);
 			var localLightDirection	: INode = new Normalize(lightToPoint);
@@ -70,11 +70,11 @@ package aerys.minko.render.shader.node.light
 			if (!isNaN(lightData.specular) && lightData.specular != 0)
 			{
 				var viewDirection : INode = new Normalize(
-					new Substract(vertexPosition, new WorldParameter(3, CameraData, CameraData.LOCAL_POSITION))
+					new Subtract(vertexPosition, new WorldParameter(3, CameraData, CameraData.LOCAL_POSITION))
 				);
 				
 				var reflectionVector : INode = new Normalize(
-					new Substract( // faux!!
+					new Subtract( // faux!!
 						new Product(new Constant(2), lightSurfaceCosine, normal),
 						localLightDirection
 					)
@@ -144,7 +144,7 @@ package aerys.minko.render.shader.node.light
 				var precomputedDepth	: INode = new UnpackDepthFromLight(lightIndex, lightDepthSampler);
 				var currentDepth		: INode = new DepthFromLight(lightIndex);
 				
-				currentDepth = new Substract(currentDepth, new StyleParameter(1, LightingStyle.SHADOWS_BIAS, 0.5));
+				currentDepth = new Subtract(currentDepth, new StyleParameter(1, LightingStyle.SHADOWS_BIAS, 0.5));
 				
 				// get the delta between both values, and see if it's small enought
 				var willNotShadowMap	: INode = new SetIfLessThan(currentDepth, precomputedDepth);

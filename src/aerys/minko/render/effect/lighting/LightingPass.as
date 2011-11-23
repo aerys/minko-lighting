@@ -20,10 +20,10 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.operation.builtin.Multiply4x4;
 	import aerys.minko.render.shader.node.operation.manipulation.Blend;
 	import aerys.minko.render.shader.node.operation.manipulation.Combine;
+	import aerys.minko.render.shader.node.operation.manipulation.Copy;
 	import aerys.minko.render.shader.node.operation.manipulation.Extract;
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.manipulation.MultiplyColor;
-	import aerys.minko.render.shader.node.operation.manipulation.RootWrapper;
 	import aerys.minko.render.shader.node.reflection.ReflectionNode;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
@@ -198,7 +198,7 @@ package aerys.minko.render.effect.lighting
 				);
 			}
 			else if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
-				pixelColor = new RootWrapper(new StyleParameter(4, BasicStyle.DIFFUSE));
+				pixelColor = new Copy(new StyleParameter(4, BasicStyle.DIFFUSE));
 			else if (diffuseStyleValue is TextureResource)
 				pixelColor = new DiffuseMapTexture();
 			else

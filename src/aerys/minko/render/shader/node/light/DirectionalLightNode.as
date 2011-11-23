@@ -18,7 +18,7 @@ package aerys.minko.render.shader.node.light
 	import aerys.minko.render.shader.node.operation.builtin.Normalize;
 	import aerys.minko.render.shader.node.operation.builtin.Power;
 	import aerys.minko.render.shader.node.operation.builtin.Saturate;
-	import aerys.minko.render.shader.node.operation.builtin.Substract;
+	import aerys.minko.render.shader.node.operation.builtin.Subtract;
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.math.Product;
 	import aerys.minko.render.shader.node.operation.math.Sum;
@@ -73,11 +73,11 @@ package aerys.minko.render.shader.node.light
 			if (!isNaN(lightData.specular) && lightData.specular != 0)
 			{
 				var viewDirection : INode = new Normalize(
-					new Substract(position, new WorldParameter(3, CameraData, CameraData.LOCAL_POSITION))
+					new Subtract(position, new WorldParameter(3, CameraData, CameraData.LOCAL_POSITION))
 				);
 				
 				var reflectionVector : INode = new Normalize(
-					new Substract( 
+					new Subtract( 
 						new Product(lightSurfaceSaturatedCosine, new Constant(2), normal),
 						lightDirection
 					)
