@@ -1,6 +1,5 @@
 package aerys.minko.render.effect.lighting
 {
-	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.animation.AnimationStyle;
 	import aerys.minko.render.effect.basic.BasicStyle;
@@ -9,6 +8,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.INode;
 	import aerys.minko.render.shader.node.light.ClipspacePositionFromLight;
 	import aerys.minko.render.shader.node.light.PackedDepthFromLight;
+	import aerys.minko.render.target.AbstractRenderTarget;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
@@ -28,11 +28,11 @@ package aerys.minko.render.effect.lighting
 		protected var _shader		: Shader;		
 		protected var _lightIndex	: uint;
 		protected var _priority		: Number;
-		protected var _renderTarget	: RenderTarget;
+		protected var _renderTarget	: AbstractRenderTarget;
 		
 		public function LightDepthPass(lightIndex	: uint			= 0,
 									   priority		: Number		= 0,
-									   renderTarget	: RenderTarget	= null)
+									   renderTarget	: AbstractRenderTarget	= null)
 		{
 			_lightIndex			= lightIndex;
 			_priority			= priority;

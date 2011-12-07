@@ -1,6 +1,6 @@
 package aerys.minko.scene.data
 {
-	import aerys.minko.ns.minko;
+	import aerys.minko.ns.minko_math;
 	import aerys.minko.render.effect.lighting.LightingStyle;
 	import aerys.minko.type.math.ConstVector4;
 	import aerys.minko.type.math.Frustum;
@@ -11,7 +11,7 @@ package aerys.minko.scene.data
 	
 	public final class LightData implements IWorldData
 	{
-		use namespace minko;
+		use namespace minko_math;
 		
 		private static const TMP_VECTOR						: Vector4 = new Vector4();
 		
@@ -74,57 +74,57 @@ package aerys.minko.scene.data
 		protected var _worldData			: Object;
 		
 		// Light definition
-		minko var _type						: uint	 = 0x0;
-		minko var _color					: uint;
-		minko var _group					: uint;
-		minko var _ambient					: Number;
-		minko var _diffuse					: Number;
-		minko var _specular					: Number;
-		minko var _shininess				: Number;
-		minko var _position					: Vector4;
-		minko var _distance					: Number;
-		minko var _direction				: Vector4;
-		minko var _innerRadius				: Number;
-		minko var _outerRadius				: Number;
-		minko var _shadowMapSize			: uint;
+		minko_math var _type						: uint	 = 0x0;
+		minko_math var _color					: uint;
+		minko_math var _group					: uint;
+		minko_math var _ambient					: Number;
+		minko_math var _diffuse					: Number;
+		minko_math var _specular					: Number;
+		minko_math var _shininess				: Number;
+		minko_math var _position					: Vector4;
+		minko_math var _distance					: Number;
+		minko_math var _direction				: Vector4;
+		minko_math var _innerRadius				: Number;
+		minko_math var _outerRadius				: Number;
+		minko_math var _shadowMapSize			: uint;
 		
 		// Local precomputed data
-		minko var _localPosition						: Vector4;
-		minko var _localPosition_worldInverseVersion	: uint;
+		minko_math var _localPosition						: Vector4;
+		minko_math var _localPosition_worldInverseVersion	: uint;
 		
-		minko var _localDirection						: Vector4;
-		minko var _localDirection_worldInverseVersion	: uint;
+		minko_math var _localDirection						: Vector4;
+		minko_math var _localDirection_worldInverseVersion	: uint;
 		
-		minko var _localDistance						: Number;
-		minko var _localDistance_worldInverseVersion	: uint;
+		minko_math var _localDistance						: Number;
+		minko_math var _localDistance_worldInverseVersion	: uint;
 		
-		minko var _view									: Matrix4x4;
-		minko var _view_positionVersion 				: uint;
-		minko var _view_directionVersion				: uint;
+		minko_math var _view									: Matrix4x4;
+		minko_math var _view_positionVersion 				: uint;
+		minko_math var _view_directionVersion				: uint;
 		
-		minko var _localToView							: Matrix4x4;
-		minko var _localToView_worldVersion				: uint;
-		minko var _localToView_viewVersion				: uint;
+		minko_math var _localToView							: Matrix4x4;
+		minko_math var _localToView_worldVersion				: uint;
+		minko_math var _localToView_viewVersion				: uint;
 		
-		minko var _localToDepth							: Vector4;
-		minko var _localToDepth_localToViewVersion		: uint;
+		minko_math var _localToDepth							: Vector4;
+		minko_math var _localToDepth_localToViewVersion		: uint;
 		
-		minko var _localToScreen						: Matrix4x4;
-		minko var _localToScreen_localToViewVersion		: uint;
-		minko var _localToScreen_projectionVersion 		: uint;
+		minko_math var _localToScreen						: Matrix4x4;
+		minko_math var _localToScreen_localToViewVersion		: uint;
+		minko_math var _localToScreen_projectionVersion 		: uint;
 		
-		minko var _projection							: Matrix4x4;
-		minko var _projection_outerRadius				: Number;
+		minko_math var _projection							: Matrix4x4;
+		minko_math var _projection_outerRadius				: Number;
 		
-		minko var _screenToUv							: Matrix4x4;
-		minko var _screenToUv_shadowMapSize				: uint;
+		minko_math var _screenToUv							: Matrix4x4;
+		minko_math var _screenToUv_shadowMapSize				: uint;
 		
-		minko var _localToUv							: Matrix4x4;
-		minko var _localToUv_localToScreenVersion		: uint;
+		minko_math var _localToUv							: Matrix4x4;
+		minko_math var _localToUv_localToScreenVersion		: uint;
 		
-		minko var _localAmbientXColor					: Vector4;
-		minko var _localDiffuseXColor					: Vector4;
-		minko var _localSpecularXColor					: Vector4;
+		minko_math var _localAmbientXColor					: Vector4;
+		minko_math var _localDiffuseXColor					: Vector4;
+		minko_math var _localSpecularXColor					: Vector4;
 		
 		public final function get type() : uint
 		{

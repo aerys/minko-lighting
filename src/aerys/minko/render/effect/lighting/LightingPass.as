@@ -1,12 +1,11 @@
 package aerys.minko.render.effect.lighting
 {
-	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.animation.AnimationStyle;
 	import aerys.minko.render.effect.basic.BasicStyle;
 	import aerys.minko.render.effect.reflection.ReflectionStyle;
 	import aerys.minko.render.renderer.RendererState;
-	import aerys.minko.render.resource.TextureResource;
+	import aerys.minko.render.resource.texture.FlatTextureResource;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.node.Components;
 	import aerys.minko.render.shader.node.INode;
@@ -25,6 +24,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.shader.node.operation.manipulation.Interpolate;
 	import aerys.minko.render.shader.node.operation.manipulation.MultiplyColor;
 	import aerys.minko.render.shader.node.reflection.ReflectionNode;
+	import aerys.minko.render.target.AbstractRenderTarget;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
@@ -44,14 +44,14 @@ package aerys.minko.render.effect.lighting
 		protected static const _SHADERS : Object = new Object();
 		
 		protected var _lightDepthIds		: Vector.<int>;
-		protected var _lightDepthResources	: Vector.<TextureResource>;
+		protected var _lightDepthResources	: Vector.<FlatTextureResource>;
 		protected var _priority				: Number;
-		protected var _renderTarget			: RenderTarget;
+		protected var _renderTarget			: AbstractRenderTarget;
 		
 		public function LightingPass(lightDepthIds			: Vector.<int>,
-									 lightDepthResources	: Vector.<TextureResource>,
+									 lightDepthResources	: Vector.<FlatTextureResource>,
 									 priority				: Number			= 0,
-									 renderTarget			: RenderTarget		= null)
+									 renderTarget			: AbstractRenderTarget		= null)
 		{
 			_lightDepthIds			= lightDepthIds;
 			_lightDepthResources	= lightDepthResources;
@@ -80,7 +80,7 @@ package aerys.minko.render.effect.lighting
 				for (var i : int = 0; i < castingShadowLightsCount; ++i)
 				{
 					var lightDepthId		: int				= _lightDepthIds[i];
-					var lightDepthResource	: TextureResource	= _lightDepthResources[i];
+					var lightDepthResource	: FlatTextureResource	= _lightDepthResources[i];
 					
 					styleStack.set(lightDepthId, lightDepthResource);
 				}
@@ -125,7 +125,7 @@ package aerys.minko.render.effect.lighting
 				hash += '_colorFromVertex';
 			else if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
 				hash += '_colorFromConstant';
-			else if (diffuseStyleValue is TextureResource)
+			else if (diffuseStyleValue is FlatTextureResource)
 				hash += '_colorFromTexture';
 			else
 				throw new Error('Invalid BasicStyle.DIFFUSE value');
@@ -162,12 +162,7 @@ package aerys.minko.render.effect.lighting
 				var blending : uint = styleStack.get(ReflectionStyle.BLENDING, Blending.NORMAL)
 									  as uint;
 				
-				hash += '_reflection' + String.fromCharCode(
-					33 + (blending & 0xF), 33 + ((blending & 0xF0) >>> 4), 
-					33 + ((blending & 0xF00) >>> 8), 33 + ((blending & 0xF000) >>> 12),
-					33 + ((blending & 0xF0000) >>> 16), 33 + ((blending & 0xF00000) >>> 20),
-					33 + ((blending & 0xF000000) >>> 24), 33 + ((blending & 0xF0000000) >>> 28)
-				);
+				hash += '_reflection' + blending.toString(16);
 			}
 			
 			// shadowing
@@ -199,7 +194,7 @@ package aerys.minko.render.effect.lighting
 			}
 			else if (diffuseStyleValue is uint || diffuseStyleValue is Vector4)
 				pixelColor = new Copy(new StyleParameter(4, BasicStyle.DIFFUSE));
-			else if (diffuseStyleValue is TextureResource)
+			else if (diffuseStyleValue is FlatTextureResource)
 				pixelColor = new DiffuseMapTexture();
 			else
 				throw new Error('Invalid BasicStyle.DIFFUSE value');

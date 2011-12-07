@@ -1,14 +1,14 @@
 package aerys.minko.render.effect.lighting
 {
-	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.IRenderingEffect;
 	import aerys.minko.render.effect.Style;
-	import aerys.minko.render.resource.TextureResource;
+	import aerys.minko.render.resource.texture.FlatTextureResource;
+	import aerys.minko.render.target.AbstractRenderTarget;
+	import aerys.minko.render.target.TextureRenderTarget;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
-	import aerys.minko.scene.data.ViewportData;
 	import aerys.minko.scene.data.WorldDataList;
 	
 	import flash.utils.Dictionary;
@@ -19,9 +19,9 @@ package aerys.minko.render.effect.lighting
 	public class LightingEffect implements IRenderingEffect
 	{
 		private var _passes			: Object;
-		private var _renderTarget	: RenderTarget;
+		private var _renderTarget	: AbstractRenderTarget;
 		
-		public function LightingEffect(renderTarget	: RenderTarget	= null)
+		public function LightingEffect(renderTarget	: AbstractRenderTarget	= null)
 		{
 			super();
 			
@@ -66,14 +66,14 @@ package aerys.minko.render.effect.lighting
 		{
 			var passList			: Vector.<IEffectPass>		= new Vector.<IEffectPass>();
 			
-			var textureResource		: TextureResource;
-			var renderTarget		: RenderTarget;
+			var textureResource		: FlatTextureResource;
+			var renderTarget		: TextureRenderTarget;
 			
 			var lightDatas			: WorldDataList				= world[LightData];
 			var lightDatasLength	: uint						= lightDatas ? lightDatas.length : 0;
 			
 			var targetIds			: Vector.<int>				= new Vector.<int>();
-			var targetResources		: Vector.<TextureResource>	= new Vector.<TextureResource>();
+			var targetResources		: Vector.<FlatTextureResource>	= new Vector.<FlatTextureResource>();
 			
 			for (var i : int = 0; i < lightDatasLength; ++i)
 			{
@@ -81,9 +81,7 @@ package aerys.minko.render.effect.lighting
 				
 				if (lightData.castShadows)
 				{
-					renderTarget = new RenderTarget(
-						RenderTarget.TEXTURE, lightData.shadowMapSize, 
-						lightData.shadowMapSize, 0, true, 0);
+					renderTarget = new TextureRenderTarget(lightData.shadowMapSize, lightData.shadowMapSize, 0, true, 0);
 					
 					textureResource	= renderTarget.textureResource;
 					

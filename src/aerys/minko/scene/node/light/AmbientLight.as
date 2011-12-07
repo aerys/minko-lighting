@@ -1,11 +1,11 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.ns.minko;
+	import aerys.minko.ns.minko_math;
 	import aerys.minko.scene.data.IWorldData;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.TransformData;
 
-	use namespace minko;
+	use namespace minko_math;
 	
 	public class AmbientLight extends AbstractLight
 	{

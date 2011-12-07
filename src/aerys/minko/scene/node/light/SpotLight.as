@@ -1,12 +1,12 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.ns.minko;
+	import aerys.minko.ns.minko_math;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
-	use namespace minko;
+	use namespace minko_math;
 	
 	public class SpotLight extends PointLight
 	{
