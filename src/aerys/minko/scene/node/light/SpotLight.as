@@ -1,97 +1,52 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.ns.minko_math;
-	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.TransformData;
-	import aerys.minko.type.math.Matrix4x4;
-	import aerys.minko.type.math.Vector4;
-	
-	use namespace minko_math;
-	
-	public class SpotLight extends PointLight
+	public class SpotLight extends AbstractLight
 	{
-		protected var _direction			: Vector4
-		protected var _innerRadius			: Number;
-		protected var _outerRadius			: Number;
+		public static const TYPE : uint = 4;
 
-		public function get direction()	: Vector4 
-		{
-			return _direction; 
-		}
+		protected var _distance			: Number;
+		protected var _diffuse			: Number;
+		protected var _specular			: Number;
+		protected var _shininess		: Number;
+		protected var _innerRadius		: Number;
+		protected var _outerRadius		: Number;
+		protected var _shadowMapSize	: uint;
 		
-		public function get innerRadius():Number
-		{
-			return _innerRadius;
-		}
+		public function get distance()		: Number	{ return _distance;			}
+		public function get diffuse()		: Number	{ return _diffuse;			}
+		public function get specular()		: Number	{ return _specular;			} 
+		public function get shininess()		: Number	{ return _shininess;		}
+		public function get innerRadius()	: Number	{ return _innerRadius;		}
+		public function get outerRadius()	: Number	{ return _outerRadius;		}
+		public function get shadowMapSize()	: uint		{ return _shadowMapSize;	}
 		
-		public function get outerRadius():Number
-		{
-			return _outerRadius;
-		}
+		public function set distance		(v : Number)	: void { _distance		= v; }
+		public function set diffuse			(v : Number)	: void { _diffuse		= v; }
+		public function set specular		(v : Number)	: void { _specular		= v; }
+		public function set shininess		(v : Number)	: void { _shininess 	= v; }
+		public function set innerRadius		(v : Number)	: void { _innerRadius	= v; }
+		public function set outerRadius		(v : Number)	: void { _outerRadius	= v; }
+		public function set shadowMapSize	(v : uint) 		: void { _shadowMapSize	= v; }
 		
-		public function set direction(v : Vector4) : void
+		public function SpotLight(color			: uint		= 0xFFFFFF,
+								  diffuse		: Number	= .6,
+								  specular		: Number	= .8,
+								  shininess		: Number	= 64,
+								  distance		: Number	= 0,
+								  outerRadius	: Number	= .4,
+								  innerRadius	: Number	= .4,
+								  group			: uint		= 0x1,
+								  shadowMapSize	: uint		= 0)
 		{
-			_direction = v;
-		}
-		
-		public function set innerRadius(value:Number):void
-		{
-			_innerRadius = value;
-		}
-
-		public function set outerRadius(value:Number):void
-		{
-			_outerRadius = value;
-		}
-		
-		public function SpotLight(color				: uint		= 0xFFFFFF,
-								  diffusion			: Number	= .6,
-								  specular			: Number	= .8,
-								  shininess			: Number	= 64,
-								  position			: Vector4 	= null,
-								  distance			: Number	= 0,
-								  direction			: Vector4	= null,
-								  outerRadius		: Number	= .4,
-								  innerRadius		: Number	= .4,
-								  shadowMapSize		: uint		= 0,
-								  group				: uint		= 0x1)
-		{
-			super(color, diffusion, specular, shininess, position, distance, group);
+			super(color, group);
 			
-			_direction				= direction || new Vector4(0., 0., 1.);
+			_distance				= distance;
+			_diffuse				= diffuse;
+			_specular				= specular;
+			_shininess				= shininess;
 			_innerRadius			= innerRadius;
 			_outerRadius			= outerRadius;
 			_shadowMapSize			= shadowMapSize;
-		}
-		
-		override public function getLightData(transformData : TransformData) : LightData
-		{
-			if ((isNaN(_diffuse) || _diffuse == 0) &&
-				(isNaN(_specular) || _specular == 0))
-				return null;
-			
-			// compute world space position & direction
-			var worldMatrix 	: Matrix4x4	= transformData.world;
-			var worldPosition 	: Vector4 	= worldMatrix.transformVector(_position);
-			var worldDirection	: Vector4 	= worldMatrix.deltaTransformVector(_direction).normalize();
-			
-			var ld : LightData = LIGHT_DATA.create(true) as LightData;
-			
-			ld.reset();
-			ld._type			= LightData.TYPE_SPOT;
-			ld._group			= _group;
-			ld._position		= worldPosition;
-			ld._direction		= worldDirection;
-			ld._color			= _color;
-			ld._outerRadius		= _outerRadius;
-			ld._distance		= _distance;
-			ld._diffuse			= _diffuse;
-			ld._specular		= _specular;
-			ld._shininess		= _shininess;
-			ld._innerRadius		= _innerRadius;
-			ld._shadowMapSize	= _shadowMapSize;
-			
-			return ld;
 		}
 	}
 }

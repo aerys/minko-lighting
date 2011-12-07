@@ -2,101 +2,204 @@ package aerys.minko.render.effect.lighting
 {
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.IRenderingEffect;
-	import aerys.minko.render.effect.Style;
-	import aerys.minko.render.resource.texture.FlatTextureResource;
-	import aerys.minko.render.target.AbstractRenderTarget;
+	import aerys.minko.render.effect.lighting.depth.CubeShadowMapShader;
+	import aerys.minko.render.effect.lighting.depth.DepthPass;
+	import aerys.minko.render.effect.lighting.depth.MatrixShadowMapShader;
+	import aerys.minko.render.effect.lighting.depth.ParaboloidShadowMapShader;
+	import aerys.minko.render.resource.IResource;
+	import aerys.minko.render.resource.texture.CubicTextureResource;
+	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.target.CubicTextureRenderTarget;
 	import aerys.minko.render.target.TextureRenderTarget;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.WorldDataList;
+	import aerys.minko.scene.node.light.DirectionalLight;
+	import aerys.minko.scene.node.light.PointLight;
+	import aerys.minko.scene.node.light.SpotLight;
 	
 	import flash.utils.Dictionary;
-	
-	[StyleParameter(name="basic diffuse map", type="texture")]
-	[StyleParameter(name="light enabled", type="boolean")]
+	import aerys.minko.render.effect.lighting.compositing.LightingPass;
 	
 	public class LightingEffect implements IRenderingEffect
 	{
-		private var _passes			: Object;
-		private var _renderTarget	: AbstractRenderTarget;
+		/**
+		 * Contains render target used to render shadow maps 
+		 */
+		protected var _buffers		: Array	= new Array();
 		
-		public function LightingEffect(renderTarget	: AbstractRenderTarget	= null)
+		/**
+		 * Used to mark used buffers 
+		 */		
+		protected var _usedBuffers	: Array	= new Array();
+		
+		protected var _lastHash	: String;
+		protected var _passes		: Vector.<IEffectPass>;
+		
+		public function LightingEffect()
 		{
-			super();
-			
-			_passes = new Object();
-			_renderTarget = renderTarget;
+			_passes = new Vector.<IEffectPass>();
 		}
 		
-		public function getPasses(styleStack	: StyleData, 
-								  local			: TransformData, 
-								  world			: Dictionary) : Vector.<IEffectPass>
+		public function getPasses(styleData		: StyleData, 
+								  transformData	: TransformData, 
+								  worldData		: Dictionary) : Vector.<IEffectPass>
 		{
-			var hash : String = computePassListHash(styleStack, local, world);
-			
-			if (_passes[hash] == undefined)
-				_passes[hash] = createPassList(styleStack, local, world);
-			
-			return _passes[hash];
-		}
-		
-		protected function computePassListHash(styleStack	: StyleData, 
-											   local		: TransformData, 
-											   world		: Dictionary) : String
-		{
-			var hash				: String					= '';
-			
-			var lightDatas			: WorldDataList				= world[LightData];
-			var lightDatasLength	: uint						= lightDatas ? lightDatas.length : 0;
-			
-			for (var i : int = 0; i < lightDatasLength; ++i)
+			var hash : String = createHash(worldData);
+			if (!_lastHash || _lastHash != hash)
 			{
-				var lightData : LightData = lightDatas.getItem(i) as LightData;
-				
-				hash += lightData.castShadows ? '1' : '0';
+				updatePasses(worldData);
+				_lastHash = hash;
+			}
+			
+			return _passes;
+		}
+		
+		protected function createHash(worldData : Dictionary) : String
+		{
+			var hash		: String		= '';
+			var lights		: WorldDataList	= WorldDataList(worldData[LightData]);
+			var lightCount	: uint			= lights.length;
+			
+			for (var lightId : uint = 0; lightId < lightCount; ++lightId)
+			{
+				var light : LightData = LightData(lights.getItem(lightId));
+				hash += light.shadowMapSize.toString(16) + '|';
 			}
 			
 			return hash;
 		}
 		
-		protected function createPassList(styleStack	: StyleData, 
-										  local			: TransformData, 
-										  world			: Dictionary) : Vector.<IEffectPass>
+		protected function updatePasses(worldData : Dictionary) : void
 		{
-			var passList			: Vector.<IEffectPass>		= new Vector.<IEffectPass>();
+			var depthMaps : Vector.<IResource> = new Vector.<IResource>();
 			
-			var textureResource		: FlatTextureResource;
-			var renderTarget		: TextureRenderTarget;
+			_passes.length = 0;
 			
-			var lightDatas			: WorldDataList				= world[LightData];
-			var lightDatasLength	: uint						= lightDatas ? lightDatas.length : 0;
+			resetTargetUseCounter();
 			
-			var targetIds			: Vector.<int>				= new Vector.<int>();
-			var targetResources		: Vector.<FlatTextureResource>	= new Vector.<FlatTextureResource>();
+			var lights		: WorldDataList	= WorldDataList(worldData[LightData]);
+			var lightCount	: uint			= lights.length;
 			
-			for (var i : int = 0; i < lightDatasLength; ++i)
+			var currentPriority : uint = 2;
+			for (var lightId : uint = 0; lightId < lightCount; ++lightId)
 			{
-				var lightData : LightData = lightDatas.getItem(i) as LightData;
-				
+				var lightData : LightData = LightData(lights.getItem(lightId));
 				if (lightData.castShadows)
-				{
-					renderTarget = new TextureRenderTarget(lightData.shadowMapSize, lightData.shadowMapSize, 0, true, 0);
-					
-					textureResource	= renderTarget.textureResource;
-					
-					targetIds.push(Style.getStyleId('light depthMap' + i));
-					targetResources.push(textureResource);
-					
-					var priority	: Number = lightDatasLength + 2 - i;
-					
-					passList.push(new LightDepthPass(i, priority, renderTarget));
-				}
+					currentPriority = createShadowPasses(lightId, lightData, _passes, depthMaps, currentPriority);
 			}
 			
-			passList.push(new LightingPass(targetIds, targetResources, 0, _renderTarget));
+			disposeOldTargets();
 			
-			return passList;
+			_passes.push(new LightingPass(depthMaps));
+		}
+		
+		protected function createShadowPasses(lightId			: uint,
+											  lightData			: LightData,
+											  passes			: Vector.<IEffectPass>,
+											  depthMaps			: Vector.<IResource>,
+											  currentPriority	: uint) : uint
+		{
+			var shadowMap	: TextureRenderTarget;
+			var pass		: IEffectPass;
+			var depthShader	: ActionScriptShader;
+			var lightType	: uint = lightData.type;
+			var i			: uint;
+			
+			if (lightType == DirectionalLight.TYPE || lightType == SpotLight.TYPE)
+			{
+				shadowMap	= getTextureRenderTarget(lightData.shadowMapSize);
+				depthShader	= new MatrixShadowMapShader(lightId);
+				pass		= new DepthPass(depthShader, currentPriority++, shadowMap);
+				_passes.push(pass);
+				depthMaps.push(shadowMap.textureResource);
+			}
+			else if (lightType == PointLight.TYPE)
+			{
+				if (lightData.useParaboloidShadows)
+				{
+					for (i = 0; i < 2; ++i)
+					{
+						shadowMap	= getTextureRenderTarget(lightData.shadowMapSize);
+						depthShader	= new ParaboloidShadowMapShader(lightId, i == 0);
+						pass		= new DepthPass(depthShader, currentPriority++, shadowMap);
+						_passes.push(pass);
+						depthMaps.push(shadowMap.textureResource);
+					}
+				}
+				else
+				{
+					var cubicTextureResource	: CubicTextureResource = new CubicTextureResource(lightData.shadowMapSize);
+					var cubicShadowMap			: CubicTextureRenderTarget;
+					
+					for (i = 0; i < 6; ++i)
+					{
+						cubicShadowMap	= new CubicTextureRenderTarget(cubicTextureResource, i, 0xbb0000);
+						depthShader		= new CubeShadowMapShader(lightId, i);
+						pass			= new DepthPass(depthShader, currentPriority++, cubicShadowMap);
+						_passes.push(pass);
+						depthMaps.push(cubicShadowMap.cubicTextureResource);
+					}
+				}
+			}
+			else
+			{
+				throw new Error('Unsupported light type');
+			}
+			
+			return currentPriority;
+		}
+		
+		protected function resetTargetUseCounter() : void
+		{
+			_usedBuffers.length = 0;
+		}
+		
+		protected function getTextureRenderTarget(resolution : uint) : TextureRenderTarget
+		{
+			if (!_buffers[resolution])
+				_buffers[resolution] = new Array();
+			
+			var renderTarget		: TextureRenderTarget;
+			var renderTargets		: Array = _buffers[resolution];
+			var renderTargetCount	: uint	= renderTargets.length;
+			
+			for (var renderTargetId : uint = 0; renderTargetId < renderTargetCount; ++renderTargetId)
+			{
+				renderTarget = renderTargets[renderTargetId];
+				if (_usedBuffers.indexOf(renderTarget) != -1)
+					continue;
+				
+				_usedBuffers.push(renderTarget);
+				return renderTarget;
+			}
+			
+			renderTarget = new TextureRenderTarget(resolution, resolution, 0xffffff);
+			renderTargets.push(renderTarget);
+			_usedBuffers.push(renderTarget);
+			
+			return renderTarget;
+		}
+		
+		protected function disposeOldTargets() : void
+		{
+			for (var resolution : Object in _buffers)
+			{
+				var renderTargets : Array = _buffers[uint(resolution)];
+				var renderTargetCount : uint = renderTargets.length;
+				for (var renderTargetId : uint = 0; renderTargetId < renderTargetCount; ++renderTargetId)
+				{
+					var renderTarget : TextureRenderTarget = renderTargets[renderTargetId];
+					if (_usedBuffers.indexOf(renderTarget) == -1)
+					{
+						renderTarget.textureResource.dispose();
+						renderTargets.splice(renderTargetId, 1);
+						--renderTargetId;
+						--renderTargetCount;
+					}
+				}
+			}
 		}
 	}
 }
