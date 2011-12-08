@@ -1,6 +1,6 @@
 package aerys.minko.render.effect.lighting.depth
 {
-	import aerys.minko.render.effect.animation.AnimationShaderPart;
+	import aerys.minko.render.shader.parts.animation.AnimationShaderPart;
 	import aerys.minko.render.effect.animation.AnimationStyle;
 	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.SValue;

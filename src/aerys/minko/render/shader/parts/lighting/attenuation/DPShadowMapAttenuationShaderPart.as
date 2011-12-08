@@ -2,7 +2,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 {
 	import aerys.minko.render.effect.Style;
 	import aerys.minko.render.effect.lighting.LightingStyle;
-	import aerys.minko.render.shader.parts.projection.ParaboloidProjectionShaderPart;
+	import aerys.minko.render.shader.parts.math.projection.ParaboloidProjectionShaderPart;
 	import aerys.minko.render.shader.ActionScriptShaderPart;
 	import aerys.minko.render.shader.SValue;
 	import aerys.minko.render.shader.node.leaf.Sampler;
