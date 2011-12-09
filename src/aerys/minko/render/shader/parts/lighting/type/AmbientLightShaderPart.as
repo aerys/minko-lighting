@@ -8,7 +8,7 @@ package aerys.minko.render.shader.parts.lighting.type
 	{
 		public function getLightContribution(lightId : uint) : SValue
 		{
-			return copy(getWorldParameter(1, LightData, LightData.LOCAL_AMBIENT, lightId));
+			return getWorldParameter(1, LightData, LightData.LOCAL_AMBIENT, lightId);
 		}
 	}
 }
