@@ -2,6 +2,7 @@ package aerys.minko.render.effect.lighting
 {
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.IRenderingEffect;
+	import aerys.minko.render.effect.lighting.compositing.LightingPass;
 	import aerys.minko.render.effect.lighting.depth.CubeShadowMapShader;
 	import aerys.minko.render.effect.lighting.depth.DepthPass;
 	import aerys.minko.render.effect.lighting.depth.MatrixShadowMapShader;
@@ -20,7 +21,6 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.scene.node.light.SpotLight;
 	
 	import flash.utils.Dictionary;
-	import aerys.minko.render.effect.lighting.compositing.LightingPass;
 	
 	public class LightingEffect implements IRenderingEffect
 	{

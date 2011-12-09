@@ -2,6 +2,7 @@ package aerys.minko.render.effect.lighting.depth
 {
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.basic.BasicStyle;
+	import aerys.minko.render.effect.lighting.LightingStyle;
 	import aerys.minko.render.renderer.RendererState;
 	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.target.AbstractRenderTarget;
@@ -13,7 +14,6 @@ package aerys.minko.render.effect.lighting.depth
 	import aerys.minko.type.enum.TriangleCulling;
 	
 	import flash.utils.Dictionary;
-	import aerys.minko.render.effect.lighting.LightingStyle;
 	
 	public class DepthPass implements IEffectPass
 	{

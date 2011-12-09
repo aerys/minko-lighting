@@ -1,13 +1,13 @@
 package aerys.minko.render.shader.parts.lighting.type
 {
-	import aerys.minko.render.shader.parts.lighting.attenuation.MatrixShadowMapAttenuationShaderPart;
+	import aerys.minko.render.shader.ActionScriptShaderPart;
+	import aerys.minko.render.shader.SValue;
 	import aerys.minko.render.shader.parts.lighting.attenuation.HardConicAttenuationShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.MatrixShadowMapAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.attenuation.SmoothConicAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.attenuation.SquaredDistanceAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.contribution.LocalizedDiffuseShaderPart;
 	import aerys.minko.render.shader.parts.lighting.contribution.LocalizedSpecularShaderPart;
-	import aerys.minko.render.shader.ActionScriptShaderPart;
-	import aerys.minko.render.shader.SValue;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;

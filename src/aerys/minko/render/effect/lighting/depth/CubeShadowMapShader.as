@@ -1,15 +1,10 @@
 package aerys.minko.render.effect.lighting.depth
 {
 	import aerys.minko.Minko;
-	import aerys.minko.render.shader.parts.animation.AnimationShaderPart;
 	import aerys.minko.render.effect.animation.AnimationStyle;
-	import aerys.minko.render.effect.basic.BasicStyle;
-	import aerys.minko.render.shader.parts.diffuse.DiffuseShaderPart;
-	import aerys.minko.render.shader.parts.math.projection.CubeMapProjectionShaderPart;
 	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.SValue;
-	import aerys.minko.render.shader.node.leaf.Constant;
-	import aerys.minko.scene.data.CameraData;
+	import aerys.minko.render.shader.parts.animation.AnimationShaderPart;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
@@ -19,7 +14,6 @@ package aerys.minko.render.effect.lighting.depth
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
-	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
 	public class CubeShadowMapShader extends ActionScriptShader
