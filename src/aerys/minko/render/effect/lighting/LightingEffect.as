@@ -2,11 +2,11 @@ package aerys.minko.render.effect.lighting
 {
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.IRenderingEffect;
-	import aerys.minko.render.effect.lighting.compositing.LightingPass;
-	import aerys.minko.render.effect.lighting.depth.CubeShadowMapShader;
-	import aerys.minko.render.effect.lighting.depth.DepthPass;
-	import aerys.minko.render.effect.lighting.depth.MatrixShadowMapShader;
-	import aerys.minko.render.effect.lighting.depth.ParaboloidShadowMapShader;
+	import aerys.minko.render.effect.lighting.onscreen.LightingPass;
+	import aerys.minko.render.effect.lighting.offscreen.CubeShadowMapShader;
+	import aerys.minko.render.effect.lighting.offscreen.DepthPass;
+	import aerys.minko.render.effect.lighting.offscreen.MatrixShadowMapShader;
+	import aerys.minko.render.effect.lighting.offscreen.ParaboloidShadowMapShader;
 	import aerys.minko.render.resource.IResource;
 	import aerys.minko.render.resource.texture.CubicTextureResource;
 	import aerys.minko.render.shader.ActionScriptShader;
@@ -132,6 +132,7 @@ package aerys.minko.render.effect.lighting
 				{
 					var cubicTextureResource	: CubicTextureResource = new CubicTextureResource(lightData.shadowMapSize);
 					var cubicShadowMap			: CubicTextureRenderTarget;
+					depthMaps.push(cubicTextureResource);
 					
 					for (i = 0; i < 6; ++i)
 					{
@@ -139,7 +140,6 @@ package aerys.minko.render.effect.lighting
 						depthShader		= new CubeShadowMapShader(lightId, i);
 						pass			= new DepthPass(depthShader, currentPriority++, cubicShadowMap);
 						_passes.push(pass);
-						depthMaps.push(cubicShadowMap.cubicTextureResource);
 					}
 				}
 			}
