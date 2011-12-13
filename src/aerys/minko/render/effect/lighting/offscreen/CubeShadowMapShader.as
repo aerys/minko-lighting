@@ -1,4 +1,4 @@
-package aerys.minko.render.effect.lighting.depth
+package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.Minko;
 	import aerys.minko.render.effect.animation.AnimationStyle;
@@ -43,9 +43,6 @@ package aerys.minko.render.effect.lighting.depth
 		
 		override protected function getOutputPosition() : SValue
 		{
-			
-			Minko.debugLevel = DebugLevel.SHADER_AGAL;
-			
 			var animationMethod		: uint	 = uint(getStyleConstant(AnimationStyle.METHOD, AnimationMethod.DISABLED));
 			var maxInfluences		: uint	 = uint(getStyleConstant(AnimationStyle.MAX_INFLUENCES, 0));
 			var numBones			: uint	 = uint(getStyleConstant(AnimationStyle.NUM_BONES, 0));

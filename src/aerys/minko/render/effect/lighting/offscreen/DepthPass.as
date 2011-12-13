@@ -1,4 +1,4 @@
-package aerys.minko.render.effect.lighting.depth
+package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.basic.BasicStyle;

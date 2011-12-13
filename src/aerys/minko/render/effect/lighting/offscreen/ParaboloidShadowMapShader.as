@@ -1,4 +1,4 @@
-package aerys.minko.render.effect.lighting.depth
+package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.render.effect.animation.AnimationStyle;
 	import aerys.minko.render.shader.ActionScriptShader;

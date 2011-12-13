@@ -1,4 +1,4 @@
-package aerys.minko.render.effect.lighting.compositing
+package aerys.minko.render.effect.lighting.onscreen
 {
 	import aerys.minko.render.effect.animation.AnimationStyle;
 	import aerys.minko.render.effect.basic.BasicStyle;
@@ -40,9 +40,9 @@ package aerys.minko.render.effect.lighting.compositing
 			vertexNormal = ANIMATION.getVertexNormal(animationMethod, maxInfluences, numBones);
 			vertexNormal = multiply(vertexNormal, normalMultiplier);
 			
-			_vertexPosition	= interpolate(vertexPosition);
-			_vertexUv		= interpolate(vertexUV);
-			_vertexNormal	= normalize(interpolate(vertexNormal));
+			_vertexPosition	= vertexPosition;
+			_vertexUv		= vertexUV;
+			_vertexNormal	= vertexNormal;
 			
 			return multiply4x4(vertexPosition, localToScreenMatrix);
 		}
@@ -61,12 +61,12 @@ package aerys.minko.render.effect.lighting.compositing
 			var shadowsReceive		: Boolean		= Boolean(getStyleConstant(LightingStyle.RECEIVE_SHADOWS, false));
 			var lightDatas			: WorldDataList	= getWorldDataList(LightData);
 			
-			var lighting : SValue = 
-				LIGHTING.getLightingColor(
-					lightEnabled, lightGroup, lightMapEnabled, 
-					shadowsEnabled && shadowsReceive, 
-					lightDatas, 
-					_vertexPosition, _vertexNormal);
+			var lighting : SValue = LIGHTING.getLightingColor(
+				lightEnabled, lightGroup, lightMapEnabled, 
+				shadowsEnabled && shadowsReceive, 
+				lightDatas, 
+				_vertexPosition, _vertexNormal
+			);
 			
 			if (lighting != null)
 				color = blend(lighting, color, Blending.LIGHT);
