@@ -219,7 +219,8 @@ package aerys.minko.scene.data
 		{
 //			Matrix4x4.invert(_lightToWorld, _worldToLight);
 //			return _worldToLight;
-			return Matrix4x4.lookAtLH(position, Vector4.add(position, direction), ConstVector4.Y_AXIS);
+			Vector4.add(position, direction, TMP_VECTOR)
+			return Matrix4x4.lookAtLH(position, TMP_VECTOR, ConstVector4.Y_AXIS);
 		}
 		
 		public function get localToLight() : Matrix4x4
