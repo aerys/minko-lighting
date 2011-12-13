@@ -5,6 +5,7 @@ package aerys.minko.render.shader.parts.lighting.contribution
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	import flash.utils.Dictionary;
 
@@ -18,12 +19,13 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			if (lightData.diffuse == 0)
 				return null;
 			
-			normal ||= normalize(interpolate(vertexNormal));
+			normal ||= getVertexAttribute(VertexComponent.NORMAL);
 			
 			var lightDirection		: SValue = getWorldParameter(3, LightData, LightData.LOCAL_DIRECTION, lightId);
 			var lightDiffuse		: SValue = getWorldParameter(1, LightData, LightData.LOCAL_DIFFUSE, lightId);
 			
-			var lambertProduct		: SValue = saturate(negate(dotProduct3(lightDirection, normal)));
+			var interpolatedNormal	: SValue = normalize(interpolate(normal));
+			var lambertProduct		: SValue = saturate(negate(dotProduct3(lightDirection, interpolatedNormal)));
 			
 			return multiply(lightDiffuse, lambertProduct);
 		}
@@ -40,12 +42,13 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			if (lightData.diffuse == 0)
 				return null;
 			
-			normal ||= normalize(interpolate(vertexNormal));
+			normal ||= getVertexAttribute(VertexComponent.NORMAL);
 			
 			var lightDirection		: SValue = float3(lightData.localDirection);
 			var lightDiffuse		: SValue = float(lightData.localDiffuse);
 			
-			var lambertProduct		: SValue = saturate(negate(dotProduct3(lightDirection, normal)));
+			var interpolatedNormal	: SValue = normalize(interpolate(normal));
+			var lambertProduct		: SValue = saturate(negate(dotProduct3(lightDirection, interpolatedNormal)));
 			
 			return multiply(lightDiffuse, lambertProduct);
 		}

@@ -11,6 +11,7 @@ package aerys.minko.render.shader.parts.lighting.type
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	import flash.utils.Dictionary;
 	
@@ -29,8 +30,8 @@ package aerys.minko.render.shader.parts.lighting.type
 											 position		: SValue = null,
 											 normal			: SValue = null) : SValue
 		{
-			position ||= interpolate(vertexPosition);
-			normal	 ||= normalize(interpolate(vertexNormal));
+			position ||= getVertexAttribute(VertexComponent.XYZ);
+			normal	 ||= getVertexAttribute(VertexComponent.NORMAL);
 			
 			var contribution	: SValue = float(0);
 			

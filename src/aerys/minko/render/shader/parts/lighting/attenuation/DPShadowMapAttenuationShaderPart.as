@@ -7,6 +7,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 	import aerys.minko.render.shader.node.leaf.Sampler;
 	import aerys.minko.render.shader.parts.math.projection.ParaboloidProjectionShaderPart;
 	import aerys.minko.scene.data.LightData;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	import flash.geom.Rectangle;
 	
@@ -19,13 +20,13 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 		public function getDynamicFactor(lightId	: uint,
 										 position	: SValue = null) : SValue
 		{
-			position ||= interpolate(vertexPosition);
+			position ||= getVertexAttribute(VertexComponent.XYZ);
 			
-			var shadowBias		: SValue = getStyleParameter(1, LightingStyle.SHADOWS_BIAS, 1 / 100);
+			var shadowBias				: SValue = getStyleParameter(1, LightingStyle.SHADOWS_BIAS, 1 / 100);
 			
 			// transform position to light space
 			var localToLight			: SValue = getWorldParameter(16, LightData, LightData.LOCAL_TO_LIGHT, lightId);
-			var lightVertexPosition		: SValue = multiply4x4(position, localToLight);
+			var lightVertexPosition		: SValue = interpolate(multiply4x4(position, localToLight));
 			var isFront					: SValue = ifGreaterEqual(lightVertexPosition.z, 0);
 			
 			// retrieve sampler ids.

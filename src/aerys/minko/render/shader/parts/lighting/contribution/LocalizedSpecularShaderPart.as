@@ -6,6 +6,7 @@ package aerys.minko.render.shader.parts.lighting.contribution
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	import flash.utils.Dictionary;
 	
@@ -19,17 +20,20 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			if (lightData.specular == 0)
 				return null;
 			
-			position ||= interpolate(vertexPosition);
-			normal	 ||= interpolate(vertexNormal);
+			position ||= getVertexAttribute(VertexComponent.XYZ);
+			normal	 ||= getVertexAttribute(VertexComponent.NORMAL);
+			
+			var interpolatedPos		: SValue = interpolate(position);
+			var interpolatedNormal	: SValue = normalize(interpolate(normal));
 			
 			var cameraPosition		: SValue = getWorldParameter(3, CameraData, CameraData.LOCAL_POSITION);
 			var lightPosition		: SValue = getWorldParameter(3, LightData, LightData.LOCAL_POSITION, lightId);
 			var lightSpecular		: SValue = getWorldParameter(1, LightData, LightData.LOCAL_SPECULAR, lightId);
 			var lightShininess		: SValue = getWorldParameter(1, LightData, LightData.LOCAL_SHININESS, lightId);
 			
-			var lightDirection		: SValue = normalize(subtract(position, lightPosition));
-			var viewDirection		: SValue = normalize(subtract(cameraPosition, position));
-			var lightReflection		: SValue = reflect(lightDirection, normal);
+			var lightDirection		: SValue = normalize(subtract(interpolatedPos, lightPosition));
+			var viewDirection		: SValue = normalize(subtract(cameraPosition, interpolatedPos));
+			var lightReflection		: SValue = reflect(lightDirection, interpolatedNormal);
 			
 			var lambertProduct		: SValue = saturate(dotProduct3(lightReflection, viewDirection));
 			
@@ -48,20 +52,23 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			if (lightData.specular == 0)
 				return null;
 			
-			position ||= interpolate(vertexPosition);
-			normal	 ||= interpolate(vertexNormal);
+			position ||= getVertexAttribute(VertexComponent.XYZ);
+			normal	 ||= getVertexAttribute(VertexComponent.NORMAL);
 			
-			var cameraPosition	: SValue = getWorldParameter(3, CameraData, CameraData.LOCAL_POSITION);
+			var interpolatedPos		: SValue = interpolate(position);
+			var interpolatedNormal	: SValue = normalize(interpolate(normal));
 			
-			var lightPosition	: SValue = float3(lightData.localPosition);
-			var lightSpecular	: SValue = float(lightData.localSpecular);
-			var lightShininess	: SValue = float(lightData.localShininess);
+			var cameraPosition		: SValue = getWorldParameter(3, CameraData, CameraData.LOCAL_POSITION);
 			
-			var lightDirection	: SValue = normalize(subtract(lightPosition, position));
-			var viewDirection	: SValue = normalize(subtract(position, cameraPosition));
-			var lightReflection	: SValue = reflect(lightDirection, normal);
+			var lightPosition		: SValue = float3(lightData.localPosition);
+			var lightSpecular		: SValue = float(lightData.localSpecular);
+			var lightShininess		: SValue = float(lightData.localShininess);
 			
-			var lambertProduct	: SValue = saturate(negate(dotProduct3(lightReflection, viewDirection)));
+			var lightDirection		: SValue = normalize(subtract(lightPosition, interpolatedPos));
+			var viewDirection		: SValue = normalize(subtract(interpolatedPos, cameraPosition));
+			var lightReflection		: SValue = reflect(lightDirection, interpolatedNormal);
+			
+			var lambertProduct		: SValue = saturate(negate(dotProduct3(lightReflection, viewDirection)));
 			
 			return multiply(lightSpecular, power(lambertProduct, lightShininess));
 		}
