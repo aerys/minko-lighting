@@ -19,13 +19,22 @@ package aerys.minko.render.effect.lighting.onscreen
 	
 	public class LightingShader extends ActionScriptShader
 	{
-		private static const ANIMATION	: AnimationShaderPart	= new AnimationShaderPart();
-		private static const DIFFUSE	: DiffuseShaderPart		= new DiffuseShaderPart();
-		private static const LIGHTING	: LightingShaderPart	= new LightingShaderPart();
+		private var _animationPart	: AnimationShaderPart	= null;
+		private var _diffusePart	: DiffuseShaderPart		= null;
+		private var _lightingPart	: LightingShaderPart	= null;
 		
 		private var _vertexPosition : SValue;
 		private var _vertexUv		: SValue;
 		private var _vertexNormal	: SValue;
+		
+		public function LightingShader()
+		{
+			super();
+			
+			_animationPart = new AnimationShaderPart(this);
+			_diffusePart = new DiffuseShaderPart(this);
+			_lightingPart = new LightingShaderPart(this);
+		}
 		
 		override protected function getOutputPosition() : SValue
 		{
@@ -35,9 +44,9 @@ package aerys.minko.render.effect.lighting.onscreen
 			var maxInfluences		: uint	 = uint(getStyleConstant(AnimationStyle.MAX_INFLUENCES, 0));
 			var numBones			: uint	 = uint(getStyleConstant(AnimationStyle.NUM_BONES, 0));
 			
-			var vertexPosition		: SValue = ANIMATION.getVertexPosition(animationMethod, maxInfluences, numBones);
+			var vertexPosition		: SValue = _animationPart.getVertexPosition(animationMethod, maxInfluences, numBones);
 			var vertexNormal		: SValue;
-			vertexNormal = ANIMATION.getVertexNormal(animationMethod, maxInfluences, numBones);
+			vertexNormal = _animationPart.getVertexNormal(animationMethod, maxInfluences, numBones);
 			vertexNormal = multiply(vertexNormal, normalMultiplier);
 			
 			_vertexPosition	= vertexPosition;
@@ -47,11 +56,11 @@ package aerys.minko.render.effect.lighting.onscreen
 			return multiply4x4(vertexPosition, localToScreenMatrix);
 		}
 		
-		override protected function getOutputColor(kills : Vector.<SValue>) : SValue
+		override protected function getOutputColor() : SValue
 		{
 			// compute diffuse color
 			var diffuseStyle		: Object		= styleIsSet(BasicStyle.DIFFUSE) ? getStyleConstant(BasicStyle.DIFFUSE) : null;
-			var color				: SValue		= DIFFUSE.getDiffuseColor(diffuseStyle);
+			var color				: SValue		= _diffusePart.getDiffuseColor(diffuseStyle);
 			
 			// compute lighting color
 			var lightEnabled		: Boolean		= Boolean(getStyleConstant(LightingStyle.LIGHTS_ENABLED, false));
@@ -61,12 +70,12 @@ package aerys.minko.render.effect.lighting.onscreen
 			var shadowsReceive		: Boolean		= Boolean(getStyleConstant(LightingStyle.RECEIVE_SHADOWS, false));
 			var lightDatas			: WorldDataList	= getWorldDataList(LightData);
 			
-			var lighting : SValue = LIGHTING.getLightingColor(
-				lightEnabled, lightGroup, lightMapEnabled, 
-				shadowsEnabled && shadowsReceive, 
-				lightDatas, 
-				_vertexPosition, _vertexNormal
-			);
+			var lighting : SValue = 
+				_lightingPart.getLightingColor(
+					lightEnabled, lightGroup, lightMapEnabled, 
+					shadowsEnabled && shadowsReceive, 
+					lightDatas, 
+					_vertexPosition, _vertexNormal);
 			
 			if (lighting != null)
 				color = blend(lighting, color, Blending.LIGHT);
@@ -80,9 +89,9 @@ package aerys.minko.render.effect.lighting.onscreen
 		{
 			var hash : String = 'lighting';
 			
-			hash += ANIMATION.getDataHash(styleData, transformData, worldData);
-			hash += DIFFUSE.getDataHash(styleData, transformData, worldData);
-			hash += LIGHTING.getDataHash(styleData, transformData, worldData);
+			hash += _animationPart.getDataHash(styleData, transformData, worldData);
+			hash += _diffusePart.getDataHash(styleData, transformData, worldData);
+			hash += _lightingPart.getDataHash(styleData, transformData, worldData);
 			
 			return hash;
 		}

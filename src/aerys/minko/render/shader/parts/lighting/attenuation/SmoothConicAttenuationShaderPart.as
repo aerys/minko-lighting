@@ -1,5 +1,6 @@
 package aerys.minko.render.shader.parts.lighting.attenuation
 {
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.ActionScriptShaderPart;
 	import aerys.minko.render.shader.SValue;
 	import aerys.minko.scene.data.LightData;
@@ -7,6 +8,11 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 	
 	public class SmoothConicAttenuationShaderPart extends ActionScriptShaderPart implements IAttenuationShaderPart
 	{
+		public function SmoothConicAttenuationShaderPart(main : ActionScriptShader)
+		{
+			super(main);
+		}
+		
 		public function getDynamicFactor(lightId	: uint,
 										 position	: SValue = null) : SValue
 		{

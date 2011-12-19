@@ -16,10 +16,10 @@ package aerys.minko.scene.action
 	
 	import flash.utils.Dictionary;
 	
-	use namespace minko_lighting;
-	
 	public class LightAction implements IAction
 	{
+		use namespace minko_lighting;
+		
 		public static const lightAction : LightAction = new LightAction();
 		
 		private static const FACTORY : Factory = new Factory(LightData);
@@ -50,9 +50,9 @@ package aerys.minko.scene.action
 		{
 			var lightData : LightData = LightData(FACTORY.create(true));
 			
-			lightData.minko_lighting::color = light.color;
-			lightData.minko_lighting::group = light.group;
-			Matrix4x4.copy(world, lightData.lightToWorld);
+			lightData._color = light.color;
+			lightData._group = light.group;
+			Matrix4x4.copy(world, lightData._lightToWorld);
 			
 			if (light is AmbientLight)
 				buildAmbientLightData(AmbientLight(light), lightData);
@@ -72,61 +72,61 @@ package aerys.minko.scene.action
 		private function buildAmbientLightData(light		: AmbientLight,
 											   lightData	: LightData) : void
 		{
-			lightData.minko_lighting::ambient				= light.ambient; 
-			lightData.minko_lighting::diffuse				= 0;
-			lightData.minko_lighting::distance				= 0;
-			lightData.minko_lighting::innerRadius			= 0;
-			lightData.minko_lighting::outerRadius			= 0;
-			lightData.minko_lighting::shadowMapSize			= 0;
-			lightData.minko_lighting::shininess				= 0;
-			lightData.minko_lighting::specular				= 0
-			lightData.minko_lighting::type					= AmbientLight.TYPE;
-			lightData.minko_lighting::useParaboloidShadows	= false;
+			lightData._ambient				= light.ambient; 
+			lightData._diffuse				= 0;
+			lightData._distance				= 0;
+			lightData._innerRadius			= 0;
+			lightData._outerRadius			= 0;
+			lightData._shadowMapSize		= 0;
+			lightData._shininess			= 0;
+			lightData._specular				= 0
+			lightData._type					= AmbientLight.TYPE;
+			lightData._useParaboloidShadows	= false;
 		}
 		
 		private function buildDirectionalLightData(light		: DirectionalLight,
 												   lightData	: LightData) : void
 		{
-			lightData.minko_lighting::ambient				= 0; 
-			lightData.minko_lighting::diffuse				= light.diffuse;
-			lightData.minko_lighting::distance				= 0;
-			lightData.minko_lighting::innerRadius			= 0;
-			lightData.minko_lighting::outerRadius			= 0;
-			lightData.minko_lighting::shadowMapSize			= light.shadowMapSize;
-			lightData.minko_lighting::shininess				= light.shininess;
-			lightData.minko_lighting::specular				= light.specular;
-			lightData.minko_lighting::type					= DirectionalLight.TYPE;
-			lightData.minko_lighting::useParaboloidShadows	= false;
+			lightData._ambient				= 0; 
+			lightData._diffuse				= light.diffuse;
+			lightData._distance				= 0;
+			lightData._innerRadius			= 0;
+			lightData._outerRadius			= 0;
+			lightData._shadowMapSize		= light.shadowMapSize;
+			lightData._shininess			= light.shininess;
+			lightData._specular				= light.specular;
+			lightData._type					= DirectionalLight.TYPE;
+			lightData._useParaboloidShadows	= false;
 		}
 		
 		private function buildPointLightData(light		: PointLight,
 											 lightData	: LightData) : void
 		{
-			lightData.minko_lighting::ambient				= 0; 
-			lightData.minko_lighting::diffuse				= light.diffuse;
-			lightData.minko_lighting::distance				= light.distance;
-			lightData.minko_lighting::innerRadius			= 0;
-			lightData.minko_lighting::outerRadius			= 0;
-			lightData.minko_lighting::shadowMapSize			= light.shadowMapSize;
-			lightData.minko_lighting::shininess				= light.shininess;
-			lightData.minko_lighting::specular				= light.specular;
-			lightData.minko_lighting::type					= PointLight.TYPE;
-			lightData.minko_lighting::useParaboloidShadows	= light.useParaboloidShadows;
+			lightData._ambient				= 0; 
+			lightData._diffuse				= light.diffuse;
+			lightData._distance				= light.distance;
+			lightData._innerRadius			= 0;
+			lightData._outerRadius			= 0;
+			lightData._shadowMapSize		= light.shadowMapSize;
+			lightData._shininess			= light.shininess;
+			lightData._specular				= light.specular;
+			lightData._type					= PointLight.TYPE;
+			lightData._useParaboloidShadows	= light.useParaboloidShadows;
 		}
 		
 		private function buildSpotLightData(light		: SpotLight,
 											lightData	: LightData) : void
 		{
-			lightData.minko_lighting::ambient				= 0; 
-			lightData.minko_lighting::diffuse				= light.diffuse;
-			lightData.minko_lighting::distance				= light.distance;
-			lightData.minko_lighting::innerRadius			= light.innerRadius;
-			lightData.minko_lighting::outerRadius			= light.outerRadius;
-			lightData.minko_lighting::shadowMapSize			= light.shadowMapSize;
-			lightData.minko_lighting::shininess				= light.shininess;
-			lightData.minko_lighting::specular				= light.specular;
-			lightData.minko_lighting::type					= SpotLight.TYPE;
-			lightData.minko_lighting::useParaboloidShadows	= false;
+			lightData._ambient				= 0; 
+			lightData._diffuse				= light.diffuse;
+			lightData._distance				= light.distance;
+			lightData._innerRadius			= light.innerRadius;
+			lightData._outerRadius			= light.outerRadius;
+			lightData._shadowMapSize		= light.shadowMapSize;
+			lightData._shininess			= light.shininess;
+			lightData._specular				= light.specular;
+			lightData._type					= SpotLight.TYPE;
+			lightData._useParaboloidShadows	= false;
 		}
 	}
 }

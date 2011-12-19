@@ -1,5 +1,6 @@
 package aerys.minko.render.shader.parts.lighting.type
 {
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.ActionScriptShaderPart;
 	import aerys.minko.render.shader.SValue;
 	import aerys.minko.render.shader.parts.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
@@ -16,11 +17,22 @@ package aerys.minko.render.shader.parts.lighting.type
 	
 	public class PointLightShaderPart extends ActionScriptShaderPart
 	{
-		private static const LOCALIZED_DIFFUSE				: LocalizedDiffuseShaderPart			= new LocalizedDiffuseShaderPart();
-		private static const LOCALIZED_SPECULAR				: LocalizedSpecularShaderPart			= new LocalizedSpecularShaderPart();
-		private static const SQUARED_DISTANCE_ATTENUATION	: SquaredDistanceAttenuationShaderPart	= new SquaredDistanceAttenuationShaderPart();
-		private static const DP_SHADOW_MAP_ATTENUATION		: DPShadowMapAttenuationShaderPart		= new DPShadowMapAttenuationShaderPart();
-		private static const CUBE_SHADOW_MAP_ATTENUATION	: CubeShadowMapAttenuationShaderPart	= new CubeShadowMapAttenuationShaderPart();
+		private var _localizedDiffusePart				: LocalizedDiffuseShaderPart			= null;
+		private var _localizedSpecularPart				: LocalizedSpecularShaderPart			= null;
+		private var _squaredAttenuationDistancePart		: SquaredDistanceAttenuationShaderPart	= null;
+		private var _dpShadowMapAttenuationPart			: DPShadowMapAttenuationShaderPart		= null;
+		private var _cubeShadowMapAttenuationPart		: CubeShadowMapAttenuationShaderPart	= null;
+		
+		public function PointLightShaderPart(main : ActionScriptShader)
+		{
+			super(main);
+			
+			_localizedDiffusePart = new LocalizedDiffuseShaderPart(main);
+			_localizedSpecularPart = new LocalizedSpecularShaderPart(main);
+			_squaredAttenuationDistancePart = new SquaredDistanceAttenuationShaderPart(main);
+			_dpShadowMapAttenuationPart = new DPShadowMapAttenuationShaderPart(main);
+			_cubeShadowMapAttenuationPart = new CubeShadowMapAttenuationShaderPart(main);
+		}
 		
 		public function getLightContribution(lightId 		: uint,
 											 lightData		: LightData,
@@ -33,11 +45,11 @@ package aerys.minko.render.shader.parts.lighting.type
 			
 			var contribution	: SValue = float(0);
 			
-			var diffuse : SValue = LOCALIZED_DIFFUSE.getDynamicTerm(lightId, lightData, position, normal);
+			var diffuse : SValue = _localizedDiffusePart.getDynamicTerm(lightId, lightData, position, normal);
 			if (diffuse != null)
 				contribution.incrementBy(diffuse);
 			
-			var specular : SValue = LOCALIZED_SPECULAR.getDynamicTerm(lightId, lightData, position, normal);
+			var specular : SValue = _localizedSpecularPart.getDynamicTerm(lightId, lightData, position, normal);
 			if (specular != null)
 				contribution.incrementBy(specular);
 			
@@ -45,14 +57,14 @@ package aerys.minko.render.shader.parts.lighting.type
 				return null;
 			
 			if (lightData.distance != 0)
-				contribution.scaleBy(SQUARED_DISTANCE_ATTENUATION.getDynamicFactor(lightId, position));
+				contribution.scaleBy(_squaredAttenuationDistancePart.getDynamicFactor(lightId, position));
 			
 			if (receiveShadows)
 			{
 				if (lightData.useParaboloidShadows)
-					contribution.scaleBy(DP_SHADOW_MAP_ATTENUATION.getDynamicFactor(lightId, position));
+					contribution.scaleBy(_dpShadowMapAttenuationPart.getDynamicFactor(lightId, position));
 				else
-					contribution.scaleBy(CUBE_SHADOW_MAP_ATTENUATION.getDynamicFactor(lightId, position));
+					contribution.scaleBy(_cubeShadowMapAttenuationPart.getDynamicFactor(lightId, position));
 			}
 			
 			return contribution;
@@ -61,8 +73,8 @@ package aerys.minko.render.shader.parts.lighting.type
 		public function getLightHash(lightData : LightData) : String
 		{
 			// we should add receive shadows here, but it's handled on LightingShaderPart
-			return LOCALIZED_DIFFUSE.getDynamicDataHash(lightData) 
-				+ '|' + LOCALIZED_SPECULAR.getDynamicDataHash(lightData)
+			return _localizedDiffusePart.getDynamicDataHash(lightData) 
+				+ '|' + _localizedSpecularPart.getDynamicDataHash(lightData)
 				+ '|' + uint(lightData.distance != 0).toString()
 				+ '|' + uint(lightData.useParaboloidShadows).toString();
 		}

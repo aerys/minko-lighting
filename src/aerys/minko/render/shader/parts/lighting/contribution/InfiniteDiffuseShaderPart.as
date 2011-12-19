@@ -1,5 +1,6 @@
 package aerys.minko.render.shader.parts.lighting.contribution
 {
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.ActionScriptShaderPart;
 	import aerys.minko.render.shader.SValue;
 	import aerys.minko.scene.data.LightData;
@@ -11,6 +12,11 @@ package aerys.minko.render.shader.parts.lighting.contribution
 
 	public class InfiniteDiffuseShaderPart extends ActionScriptShaderPart implements IContributionShaderPart
 	{
+		public function InfiniteDiffuseShaderPart(main : ActionScriptShader)
+		{
+			super(main);
+		}
+		
 		public function getDynamicTerm(lightId		: uint, 
 									   lightData	: LightData,
 									   position		: SValue = null,

@@ -2,6 +2,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 {
 	import aerys.minko.render.effect.Style;
 	import aerys.minko.render.effect.lighting.LightingStyle;
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.ActionScriptShaderPart;
 	import aerys.minko.render.shader.SValue;
 	import aerys.minko.render.shader.node.leaf.Sampler;
@@ -10,6 +11,11 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 	
 	public class CubeShadowMapAttenuationShaderPart extends ActionScriptShaderPart implements IAttenuationShaderPart
 	{
+		public function CubeShadowMapAttenuationShaderPart(main : ActionScriptShader)
+		{
+			super(main);
+		}
+		
 		public function getDynamicFactor(lightId	: uint, 
 										 position	: SValue = null) : SValue
 		{
@@ -33,7 +39,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			
 			precomputedDepth = multiply(precomputedDepth.x, 255);
 //			precomputedDepth = unpack(precomputedDepth);
-			return ifLessThan(currentDepth, add(shadowBias, precomputedDepth));
+			return lessThan(currentDepth, add(shadowBias, precomputedDepth));
 		}
 		
 		public function getStaticFactor(lightData	: LightData,

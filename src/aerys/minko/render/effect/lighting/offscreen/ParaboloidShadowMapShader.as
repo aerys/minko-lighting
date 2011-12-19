@@ -16,11 +16,12 @@ package aerys.minko.render.effect.lighting.offscreen
 	
 	public class ParaboloidShadowMapShader extends ActionScriptShader
 	{
-		private static const ANIMATION				: AnimationShaderPart	= new AnimationShaderPart();
 		private static const PROJECTION_RECTANGLE	: Rectangle				= new Rectangle(-1, 1, 2, -2);
 		
-		private var _lightId	: uint;
-		private var _projector	: IProjectionShaderPart;
+		private var _animationPart	: AnimationShaderPart	= null;
+		
+		private var _lightId		: uint					= 0;
+		private var _projector		: IProjectionShaderPart	= null;
 		
 		private var _lightSpacePosition	: SValue;
 		
@@ -28,7 +29,9 @@ package aerys.minko.render.effect.lighting.offscreen
 										  front		: Boolean)
 		{
 			_lightId	= lightId;	
-			_projector	= new ParaboloidProjectionShaderPart(front);
+			_projector	= new ParaboloidProjectionShaderPart(this, front);
+			
+			_animationPart = new AnimationShaderPart(this);
 		}
 		
 		override protected function getOutputPosition() : SValue
@@ -36,7 +39,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			var animationMethod		: uint	 = uint(getStyleConstant(AnimationStyle.METHOD, AnimationMethod.DISABLED));
 			var maxInfluences		: uint	 = uint(getStyleConstant(AnimationStyle.MAX_INFLUENCES, 0));
 			var numBones			: uint	 = uint(getStyleConstant(AnimationStyle.NUM_BONES, 0));
-			var vertexPosition		: SValue = ANIMATION.getVertexPosition(animationMethod, maxInfluences, numBones);
+			var vertexPosition		: SValue = _animationPart.getVertexPosition(animationMethod, maxInfluences, numBones);
 			
 			var localToLight		: SValue = getWorldParameter(16, LightData, LightData.LOCAL_TO_LIGHT, _lightId);
 			var lightSpacePosition	: SValue = multiply4x4(vertexPosition, localToLight);
@@ -47,7 +50,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			return float4(clipspacePosition, 1);
 		}
 		
-		override protected function getOutputColor(kills : Vector.<SValue>) : SValue
+		override protected function getOutputColor() : SValue
 		{
 			var clipspacePosition	: SValue = _projector.projectVector(_lightSpacePosition, PROJECTION_RECTANGLE, 0, 50);
 			
@@ -59,7 +62,7 @@ package aerys.minko.render.effect.lighting.offscreen
 											 worldData		: Dictionary) : String
 		{
 			var hash : String = 'frustumShadowMapDepthShader';
-			hash += ANIMATION.getDataHash(styleData, transformData, worldData)
+			hash += _animationPart.getDataHash(styleData, transformData, worldData)
 			hash += _lightId;
 			
 			return hash;

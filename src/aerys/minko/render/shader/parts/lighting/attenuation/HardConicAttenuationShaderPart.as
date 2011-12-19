@@ -1,5 +1,6 @@
 package aerys.minko.render.shader.parts.lighting.attenuation
 {
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.ActionScriptShaderPart;
 	import aerys.minko.render.shader.SValue;
 	import aerys.minko.scene.data.LightData;
@@ -7,6 +8,11 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 	
 	public class HardConicAttenuationShaderPart extends ActionScriptShaderPart implements IAttenuationShaderPart
 	{
+		public function HardConicAttenuationShaderPart(main : ActionScriptShader)
+		{
+			super(main);
+		}
+		
 		public function getDynamicFactor(lightId	: uint,
 										 position	: SValue = null) : SValue
 		{
@@ -20,7 +26,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			var lightToPoint		: SValue = subtract(interpolatedPos, lightPosition);
 			var lightAngleCosine	: SValue = dotProduct3(lightDirection, normalize(lightToPoint));
 			
-			return ifGreaterEqual(lightAngleCosine, lightRadiusCosine);
+			return greaterEqual(lightAngleCosine, lightRadiusCosine);
 		}
 		
 		public function getStaticFactor(lightData	: LightData,
@@ -36,7 +42,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			var lightToPoint		: SValue = subtract(interpolatedPos, lightPosition);
 			var lightAngleCosine	: SValue = dotProduct3(lightDirection, normalize(lightToPoint));
 			
-			return ifGreaterEqual(lightAngleCosine, lightRadiusCosine);
+			return greaterEqual(lightAngleCosine, lightRadiusCosine);
 		}
 		
 		public function getStaticDataHash(lightData : LightData) : String
