@@ -45,19 +45,19 @@ package aerys.minko.scene.data
 		public static const OUTER_RADIUS	: String = 'outerRadius';
 		public static const INNER_RADIUS	: String = 'innerRadius';
 		
-		private var _type					: uint;
-		private var _group					: uint;
-		private var _color					: uint;
-		private var _lightToWorld			: Matrix4x4;
-		private var _ambient				: Number;
-		private var _diffuse				: Number;
-		private var _specular				: Number;
-		private var _shininess				: Number;
-		private var _distance				: Number;
-		private var _innerRadius			: Number;
-		private var _outerRadius			: Number;
-		private var _shadowMapSize			: uint;
-		private var _useParaboloidShadows	: Boolean;
+		minko_lighting var _type					: uint;
+		minko_lighting var _group					: uint;
+		minko_lighting var _color					: uint;
+		minko_lighting var _lightToWorld			: Matrix4x4;
+		minko_lighting var _ambient					: Number;
+		minko_lighting var _diffuse					: Number;
+		minko_lighting var _specular				: Number;
+		minko_lighting var _shininess				: Number;
+		minko_lighting var _distance				: Number;
+		minko_lighting var _innerRadius				: Number;
+		minko_lighting var _outerRadius				: Number;
+		minko_lighting var _shadowMapSize			: uint;
+		minko_lighting var _useParaboloidShadows	: Boolean;
 		
 		public function get type()					: uint		{ return _type;					}
 		public function get group()					: uint		{ return _group;				}
@@ -72,19 +72,6 @@ package aerys.minko.scene.data
 		public function get outerRadius()			: Number	{ return _outerRadius;			}
 		public function get shadowMapSize()			: uint		{ return _shadowMapSize;		}
 		public function get useParaboloidShadows()	: Boolean	{ return _useParaboloidShadows;	}
-		
-		minko_lighting function set type				(v : uint)		: void { _type					= v; }
-		minko_lighting function set group				(v : uint)		: void { _group					= v; }
-		minko_lighting function set color				(v : uint)		: void { _color					= v; }
-		minko_lighting function set ambient				(v : Number)	: void { _ambient				= v; }
-		minko_lighting function set diffuse				(v : Number)	: void { _diffuse				= v; }
-		minko_lighting function set specular			(v : Number)	: void { _specular				= v; }
-		minko_lighting function set shininess			(v : Number)	: void { _shininess				= v; }
-		minko_lighting function set distance			(v : Number)	: void { _distance				= v; }
-		minko_lighting function set innerRadius			(v : Number)	: void { _innerRadius			= v; }
-		minko_lighting function set outerRadius			(v : Number)	: void { _outerRadius			= v; }
-		minko_lighting function set shadowMapSize		(v : uint)		: void { _shadowMapSize			= v; }
-		minko_lighting function set useParaboloidShadows(v : Boolean)	: void { _useParaboloidShadows	= v; }
 		
 		/////////////////////////////////////////////////////////////////
 		// Light computed data (with no cache)
