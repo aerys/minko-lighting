@@ -47,7 +47,7 @@ package aerys.minko.render.effect.lighting.compositing
 			return multiply4x4(vertexPosition, localToScreenMatrix);
 		}
 		
-		override protected function getOutputColor(kills : Vector.<SValue>) : SValue
+		override protected function getOutputColor() : SValue
 		{
 			// compute diffuse color
 			var diffuseStyle		: Object		= styleIsSet(BasicStyle.DIFFUSE) ? getStyleConstant(BasicStyle.DIFFUSE) : null;
