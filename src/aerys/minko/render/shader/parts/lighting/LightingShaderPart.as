@@ -1,14 +1,15 @@
 package aerys.minko.render.shader.parts.lighting
 {
 	import aerys.minko.render.effect.lighting.LightingStyle;
+	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.ActionScriptShaderPart;
+	import aerys.minko.render.shader.SValue;
 	import aerys.minko.render.shader.parts.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.type.AmbientLightShaderPart;
 	import aerys.minko.render.shader.parts.lighting.type.DirectionalLightShaderPart;
 	import aerys.minko.render.shader.parts.lighting.type.LightMapShaderPart;
 	import aerys.minko.render.shader.parts.lighting.type.PointLightShaderPart;
 	import aerys.minko.render.shader.parts.lighting.type.SpotLightShaderPart;
-	import aerys.minko.render.shader.ActionScriptShaderPart;
-	import aerys.minko.render.shader.SValue;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
@@ -22,11 +23,22 @@ package aerys.minko.render.shader.parts.lighting
 	
 	public class LightingShaderPart extends ActionScriptShaderPart
 	{
-		private static const LIGHT_MAP			: LightMapShaderPart			= new LightMapShaderPart();
-		private static const AMBIENT_LIGHT		: AmbientLightShaderPart		= new AmbientLightShaderPart();
-		private static const DIRECTIONAL_LIGHT	: DirectionalLightShaderPart	= new DirectionalLightShaderPart();
-		private static const POINT_LIGHT		: PointLightShaderPart			= new PointLightShaderPart();
-		private static const SPOT_LIGHT			: SpotLightShaderPart			= new SpotLightShaderPart();
+		private var _lightMapPart			: LightMapShaderPart			= null;
+		private var _ambientLightPart		: AmbientLightShaderPart		= null;
+		private var _directionalLightPart	: DirectionalLightShaderPart	= null
+		private var _pointLightPart			: PointLightShaderPart			= null;
+		private var _spotLightPart			: SpotLightShaderPart			= null;
+		
+		public function LightingShaderPart(main : ActionScriptShader)
+		{
+			super(main);
+			
+			_lightMapPart = new LightMapShaderPart(main);
+			_ambientLightPart = new AmbientLightShaderPart(main);
+			_directionalLightPart = new DirectionalLightShaderPart(main);
+			_pointLightPart = new PointLightShaderPart(main);
+			_spotLightPart = new SpotLightShaderPart(main);
+		}
 		
 		public function getLightingColor(lightEnabled		: Boolean, 
 										 lightGroup			: uint,
@@ -44,7 +56,7 @@ package aerys.minko.render.shader.parts.lighting
 			// process static light mapping
 			if (lightMapEnabled)
 			{
-				lighting.incrementBy(LIGHT_MAP.getLightContribution());
+				lighting.incrementBy(_lightMapPart.getLightContribution());
 			}
 			
 			// process dynamic lighting
@@ -83,16 +95,16 @@ package aerys.minko.render.shader.parts.lighting
 			switch (lightData.type)
 			{
 				case AmbientLight.TYPE:
-					return AMBIENT_LIGHT.getLightContribution(lightId);
+					return _ambientLightPart.getLightContribution(lightId);
 				
 				case DirectionalLight.TYPE:
-					return DIRECTIONAL_LIGHT.getLightContribution(lightId, lightData, receiveShadows, position, normal);
+					return _directionalLightPart.getLightContribution(lightId, lightData, receiveShadows, position, normal);
 				
 				case PointLight.TYPE:
-					return POINT_LIGHT.getLightContribution(lightId, lightData, receiveShadows, position, normal);
+					return _pointLightPart.getLightContribution(lightId, lightData, receiveShadows, position, normal);
 				
 				case SpotLight.TYPE:
-					return SPOT_LIGHT.getLightContribution(lightId, lightData, receiveShadows, position, normal);
+					return _spotLightPart.getLightContribution(lightId, lightData, receiveShadows, position, normal);
 			}
 			
 			throw new Error('Unsupported light type');
@@ -146,13 +158,13 @@ package aerys.minko.render.shader.parts.lighting
 					return '2';
 					
 				case DirectionalLight.TYPE:
-					return '3' + uint(lightData.castShadows).toString() + DIRECTIONAL_LIGHT.getLightHash(lightData);
+					return '3' + uint(lightData.castShadows).toString() + _directionalLightPart.getLightHash(lightData);
 					
 				case PointLight.TYPE:
-					return '4' + uint(lightData.castShadows).toString() + POINT_LIGHT.getLightHash(lightData);
+					return '4' + uint(lightData.castShadows).toString() + _pointLightPart.getLightHash(lightData);
 					
 				case SpotLight.TYPE:
-					return '5' + uint(lightData.castShadows).toString() + POINT_LIGHT.getLightHash(lightData);
+					return '5' + uint(lightData.castShadows).toString() + _pointLightPart.getLightHash(lightData);
 			}
 			
 			throw new Error('Unsupported light type');

@@ -13,14 +13,16 @@ package aerys.minko.render.effect.lighting.depth
 	
 	public class MatrixShadowMapShader extends ActionScriptShader
 	{
-		private static const ANIMATION : AnimationShaderPart = new AnimationShaderPart();
+		private var _animationPart 	: AnimationShaderPart 	= null;
 		
-		private var _lightId	: uint;
-		private var _position	: SValue;
+		private var _lightId		: uint					= 0;
+		private var _position		: SValue				= null;
 		
 		public function MatrixShadowMapShader(lightId : uint)
 		{
 			_lightId = lightId;	
+			
+			_animationPart = new AnimationShaderPart(this);
 		}
 		
 		override protected function getOutputPosition() : SValue
@@ -28,7 +30,7 @@ package aerys.minko.render.effect.lighting.depth
 			var animationMethod		: uint	 = uint(getStyleConstant(AnimationStyle.METHOD, AnimationMethod.DISABLED));
 			var maxInfluences		: uint	 = uint(getStyleConstant(AnimationStyle.MAX_INFLUENCES, 0));
 			var numBones			: uint	 = uint(getStyleConstant(AnimationStyle.NUM_BONES, 0));
-			var vertexPosition		: SValue = ANIMATION.getVertexPosition(animationMethod, maxInfluences, numBones);
+			var vertexPosition		: SValue = _animationPart.getVertexPosition(animationMethod, maxInfluences, numBones);
 			
 			_position = interpolate(vertexPosition);
 			
@@ -53,7 +55,7 @@ package aerys.minko.render.effect.lighting.depth
 											 worldData		: Dictionary) : String
 		{
 			var hash : String = 'frustumShadowMapDepthShader';
-			hash += ANIMATION.getDataHash(styleData, transformData, worldData)
+			hash += _animationPart.getDataHash(styleData, transformData, worldData)
 			hash += _lightId;
 			
 			return hash;

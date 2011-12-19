@@ -1,5 +1,6 @@
 package aerys.minko.render.shader.parts.lighting.type
 {
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.ActionScriptShaderPart;
 	import aerys.minko.render.shader.SValue;
 	import aerys.minko.render.shader.parts.lighting.attenuation.HardConicAttenuationShaderPart;
@@ -16,12 +17,24 @@ package aerys.minko.render.shader.parts.lighting.type
 	
 	public class SpotLightShaderPart extends ActionScriptShaderPart
 	{
-		private static const LOCALIZED_DIFFUSE				: LocalizedDiffuseShaderPart			= new LocalizedDiffuseShaderPart();
-		private static const LOCALIZED_SPECULAR				: LocalizedSpecularShaderPart			= new LocalizedSpecularShaderPart();
-		private static const SMOOTH_CONIC_ATTENUATION		: SmoothConicAttenuationShaderPart		= new SmoothConicAttenuationShaderPart();
-		private static const HARD_CONIC_ATTENUATION			: HardConicAttenuationShaderPart		= new HardConicAttenuationShaderPart();
-		private static const SQUARED_DISTANCE_ATTENUATION	: SquaredDistanceAttenuationShaderPart	= new SquaredDistanceAttenuationShaderPart();
-		private static const MATRIX_SHADOW_MAP				: MatrixShadowMapAttenuationShaderPart	= new MatrixShadowMapAttenuationShaderPart();
+		private var _localizedDiffusePart			: LocalizedDiffuseShaderPart			= null;
+		private var _localizedSpecularPart			: LocalizedSpecularShaderPart			= null;
+		private var _smoothConicAttenuationPart		: SmoothConicAttenuationShaderPart		= null;
+		private var _hardConicAttenuationPart		: HardConicAttenuationShaderPart		= null;
+		private var _squaredDistanceAttenuationPart	: SquaredDistanceAttenuationShaderPart	= null;
+		private var _matrixShadowMapPart			: MatrixShadowMapAttenuationShaderPart	= null;
+		
+		public function SpotLightShaderPart(main : ActionScriptShader)
+		{
+			super(main);
+			
+			_localizedDiffusePart = new LocalizedDiffuseShaderPart(main);
+			_localizedSpecularPart = new LocalizedSpecularShaderPart(main);
+			_smoothConicAttenuationPart = new SmoothConicAttenuationShaderPart(main);
+			_hardConicAttenuationPart = new HardConicAttenuationShaderPart(main);
+			_squaredDistanceAttenuationPart = new SquaredDistanceAttenuationShaderPart(main);
+			_matrixShadowMapPart = new MatrixShadowMapAttenuationShaderPart(main);
+		}
 		
 		public function getLightContribution(lightId		: uint,
 											 lightData		: LightData,
@@ -34,11 +47,11 @@ package aerys.minko.render.shader.parts.lighting.type
 			
 			var contribution	: SValue = float(0);
 			
-			var diffuse		: SValue = LOCALIZED_DIFFUSE.getDynamicTerm(lightId, lightData, position, normal);
+			var diffuse		: SValue = _localizedDiffusePart.getDynamicTerm(lightId, lightData, position, normal);
 			if (diffuse != null)
 				contribution.incrementBy(diffuse);
 			
-			var specular	: SValue = LOCALIZED_SPECULAR.getDynamicTerm(lightId, lightData, position, normal);
+			var specular	: SValue = _localizedSpecularPart.getDynamicTerm(lightId, lightData, position, normal);
 			if (specular != null)
 				contribution.incrementBy(specular);
 			
@@ -46,17 +59,17 @@ package aerys.minko.render.shader.parts.lighting.type
 				return null;
 			
 			if (lightData.distance != 0)
-				contribution.scaleBy(SQUARED_DISTANCE_ATTENUATION.getDynamicFactor(lightId, position));
+				contribution.scaleBy(_squaredDistanceAttenuationPart.getDynamicFactor(lightId, position));
 			
 			if (receiveShadows)
-				contribution.scaleBy(MATRIX_SHADOW_MAP.getDynamicFactor(lightId, position));
+				contribution.scaleBy(_matrixShadowMapPart.getDynamicFactor(lightId, position));
 			
 			if (lightData.outerRadius == 0)
 				return null;
 			else if (lightData.outerRadius == lightData.innerRadius)
-				contribution.scaleBy(HARD_CONIC_ATTENUATION.getDynamicFactor(lightId, position));
+				contribution.scaleBy(_hardConicAttenuationPart.getDynamicFactor(lightId, position));
 			else
-				contribution.scaleBy(SMOOTH_CONIC_ATTENUATION.getDynamicFactor(lightId, position));
+				contribution.scaleBy(_smoothConicAttenuationPart.getDynamicFactor(lightId, position));
 			
 			return contribution;
 		}
@@ -71,8 +84,8 @@ package aerys.minko.render.shader.parts.lighting.type
 			else
 				radiusDecision = 2;
 			
-			return LOCALIZED_DIFFUSE.getDynamicDataHash(lightData) 
-				+ '|' + LOCALIZED_SPECULAR.getDynamicDataHash(lightData)
+			return _localizedDiffusePart.getDynamicDataHash(lightData) 
+				+ '|' + _localizedSpecularPart.getDynamicDataHash(lightData)
 				+ '|' + uint(lightData.distance != 0)
 				+ '|' + radiusDecision;				
 		}

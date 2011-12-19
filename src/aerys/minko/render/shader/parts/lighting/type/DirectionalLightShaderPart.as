@@ -1,5 +1,6 @@
 package aerys.minko.render.shader.parts.lighting.type
 {
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.ActionScriptShaderPart;
 	import aerys.minko.render.shader.SValue;
 	import aerys.minko.render.shader.parts.lighting.attenuation.MatrixShadowMapAttenuationShaderPart;
@@ -13,9 +14,18 @@ package aerys.minko.render.shader.parts.lighting.type
 	
 	public class DirectionalLightShaderPart extends ActionScriptShaderPart
 	{
-		private static const INFINITE_DIFFUSE	: InfiniteDiffuseShaderPart				= new InfiniteDiffuseShaderPart();
-		private static const INFINITE_SPECULAR	: InfiniteSpecularShaderPart			= new InfiniteSpecularShaderPart();
-		private static const MATRIX_SHADOW_MAP	: MatrixShadowMapAttenuationShaderPart	= new MatrixShadowMapAttenuationShaderPart();
+		private var _infiniteDiffusePart	: InfiniteDiffuseShaderPart				= null;
+		private var _infiniteSpecularPart	: InfiniteSpecularShaderPart			= null;
+		private var _matrixShadowMapPart	: MatrixShadowMapAttenuationShaderPart	= null;
+		
+		public function DirectionalLightShaderPart(main : ActionScriptShader)
+		{
+			super(main);
+			
+			_infiniteDiffusePart = new InfiniteDiffuseShaderPart(main);
+			_infiniteSpecularPart = new InfiniteSpecularShaderPart(main);
+			_matrixShadowMapPart = new MatrixShadowMapAttenuationShaderPart(main);
+		}
 		
 		public function getLightContribution(lightId		: uint,
 											 lightData		: LightData,
@@ -28,11 +38,11 @@ package aerys.minko.render.shader.parts.lighting.type
 			
 			var contribution : SValue = float(0);
 			
-			var diffuse : SValue = INFINITE_DIFFUSE.getDynamicTerm(lightId, lightData, position, normal);
+			var diffuse : SValue = _infiniteDiffusePart.getDynamicTerm(lightId, lightData, position, normal);
 			if (diffuse != null)
 				contribution.incrementBy(diffuse);
 			
-			var specular : SValue = INFINITE_SPECULAR.getDynamicTerm(lightId, lightData, position, normal);
+			var specular : SValue = _infiniteSpecularPart.getDynamicTerm(lightId, lightData, position, normal);
 			if (specular != null)
 				contribution.incrementBy(specular);
 			
@@ -40,14 +50,14 @@ package aerys.minko.render.shader.parts.lighting.type
 				return null;
 			
 			if (receiveShadows)
-				contribution.scaleBy(MATRIX_SHADOW_MAP.getDynamicFactor(lightId, position));
+				contribution.scaleBy(_matrixShadowMapPart.getDynamicFactor(lightId, position));
 			
 			return contribution;
 		}
 		
 		public function getLightHash(lightData : LightData) : String
 		{
-			return INFINITE_DIFFUSE.getDynamicDataHash(lightData) + '|' + INFINITE_SPECULAR.getDynamicDataHash(lightData);
+			return _infiniteDiffusePart.getDynamicDataHash(lightData) + '|' + _infiniteSpecularPart.getDynamicDataHash(lightData);
 		}
 		
 		override public function getDataHash(styleData		: StyleData, 
