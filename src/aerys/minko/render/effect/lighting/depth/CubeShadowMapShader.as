@@ -61,7 +61,7 @@ package aerys.minko.render.effect.lighting.depth
 			return multiply4x4(_positionFromLight, lightToScreen);
 		}
 		
-		override protected function getOutputColor(kills : Vector.<SValue>) : SValue
+		override protected function getOutputColor() : SValue
 		{
 			var distance : SValue = length(interpolate(_positionFromLight).xyz);
 			distance = divide(distance, 255);

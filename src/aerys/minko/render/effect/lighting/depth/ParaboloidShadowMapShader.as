@@ -47,7 +47,7 @@ package aerys.minko.render.effect.lighting.depth
 			return float4(clipspacePosition, 1);
 		}
 		
-		override protected function getOutputColor(kills : Vector.<SValue>) : SValue
+		override protected function getOutputColor() : SValue
 		{
 			var clipspacePosition	: SValue = _projector.projectVector(_lightSpacePosition, PROJECTION_RECTANGLE, 0, 50);
 			

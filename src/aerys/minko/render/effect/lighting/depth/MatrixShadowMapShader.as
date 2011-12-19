@@ -38,7 +38,7 @@ package aerys.minko.render.effect.lighting.depth
 			return clipSpacePosition;
 		}
 		
-		override protected function getOutputColor(kills : Vector.<SValue>) : SValue
+		override protected function getOutputColor() : SValue
 		{
 			var lightLocalToScreen	: SValue = getWorldParameter(16, LightData, LightData.LOCAL_TO_SCREEN, _lightId);
 			var clipSpacePosition	: SValue = multiply4x4(_position, lightLocalToScreen);
