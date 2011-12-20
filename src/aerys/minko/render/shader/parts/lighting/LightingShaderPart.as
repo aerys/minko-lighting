@@ -4,7 +4,6 @@ package aerys.minko.render.shader.parts.lighting
 	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.ActionScriptShaderPart;
 	import aerys.minko.render.shader.SValue;
-	import aerys.minko.render.shader.parts.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.type.AmbientLightShaderPart;
 	import aerys.minko.render.shader.parts.lighting.type.DirectionalLightShaderPart;
 	import aerys.minko.render.shader.parts.lighting.type.LightMapShaderPart;
@@ -15,12 +14,20 @@ package aerys.minko.render.shader.parts.lighting
 	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.WorldDataList;
 	import aerys.minko.scene.node.light.AmbientLight;
+	import aerys.minko.scene.node.light.ConstDirectionalLight;
+	import aerys.minko.scene.node.light.ConstPointLight;
+	import aerys.minko.scene.node.light.ConstSpotLight;
 	import aerys.minko.scene.node.light.DirectionalLight;
 	import aerys.minko.scene.node.light.PointLight;
 	import aerys.minko.scene.node.light.SpotLight;
 	
 	import flash.utils.Dictionary;
 	
+	/**
+	 * This shader part compute the lighting contribution of all lights
+	 * 
+	 * @author Romain Gilliotte <romain.gilliotte@aerys.in>
+	 */	
 	public class LightingShaderPart extends ActionScriptShaderPart
 	{
 		private var _lightMapPart			: LightMapShaderPart			= null;
@@ -62,7 +69,7 @@ package aerys.minko.render.shader.parts.lighting
 			// process dynamic lighting
 			if (lightEnabled)
 			{
-				var numLights		: uint		= lightDatas.length;
+				var numLights		: uint		= lightDatas ? lightDatas.length : 0;
 				
 				for (var lightId : uint = 0; lightId < numLights; ++lightId)
 				{
@@ -73,7 +80,7 @@ package aerys.minko.render.shader.parts.lighting
 					if (lightContribution == null)
 						continue;
 					
-					lighting.incrementBy(multiply(lightColor, lightContribution));
+					lighting.incrementBy(lightContribution);
 				}
 			}
 			
@@ -95,16 +102,25 @@ package aerys.minko.render.shader.parts.lighting
 			switch (lightData.type)
 			{
 				case AmbientLight.TYPE:
-					return _ambientLightPart.getLightContribution(lightId);
+					return _ambientLightPart.getDynamicLightContribution(lightId);
 				
 				case DirectionalLight.TYPE:
-					return _directionalLightPart.getLightContribution(lightId, lightData, receiveShadows, position, normal);
+					return _directionalLightPart.getDynamicLightContribution(lightId, lightData, receiveShadows, position, normal);
 				
 				case PointLight.TYPE:
-					return _pointLightPart.getLightContribution(lightId, lightData, receiveShadows, position, normal);
+					return _pointLightPart.getDynamicLightContribution(lightId, lightData, receiveShadows, position, normal);
 				
 				case SpotLight.TYPE:
-					return _spotLightPart.getLightContribution(lightId, lightData, receiveShadows, position, normal);
+					return _spotLightPart.getDynamicLightContribution(lightId, lightData, receiveShadows, position, normal);
+				
+				case ConstDirectionalLight.TYPE:
+					return _directionalLightPart.getStaticLightContribution(lightId, lightData, receiveShadows, position, normal);
+				
+				case ConstPointLight.TYPE:
+					return _pointLightPart.getStaticLightContribution(lightId, lightData, receiveShadows, position, normal);
+				
+				case ConstSpotLight.TYPE:
+					return _spotLightPart.getStaticLightContribution(lightId, lightData, receiveShadows, position, normal);
 			}
 			
 			throw new Error('Unsupported light type');
@@ -128,7 +144,7 @@ package aerys.minko.render.shader.parts.lighting
 			
 			if (lightEnabled)
 			{
-				var numLights		: uint		= lightDatas.length;
+				var numLights		: uint		= lightDatas ? lightDatas.length : 0;
 				var receiveShadows	: Boolean	= shadowsEnabled && shadowsReceive;
 				
 				hash += numLights.toString();
@@ -145,6 +161,10 @@ package aerys.minko.render.shader.parts.lighting
 			return hash;
 		}
 		
+		/**
+		 * There is a known bug here: if the user replaces a const light, by another one of the same type, the changes will not be reflected on the scene
+		 * It is unlikely to happen, and allow us to save some performance
+		 */		
 		private function getLightHash(lightId		: uint,
 									  lightData		: LightData,
 									  lightGroup	: uint) : String
@@ -158,13 +178,22 @@ package aerys.minko.render.shader.parts.lighting
 					return '2';
 					
 				case DirectionalLight.TYPE:
-					return '3' + uint(lightData.castShadows).toString() + _directionalLightPart.getLightHash(lightData);
+					return '3' + uint(lightData.castShadows).toString() + _directionalLightPart.getDynamicLightHash(lightData);
 					
 				case PointLight.TYPE:
-					return '4' + uint(lightData.castShadows).toString() + _pointLightPart.getLightHash(lightData);
+					return '4' + uint(lightData.castShadows).toString() + _pointLightPart.getDynamicLightHash(lightData);
 					
 				case SpotLight.TYPE:
-					return '5' + uint(lightData.castShadows).toString() + _pointLightPart.getLightHash(lightData);
+					return '5' + uint(lightData.castShadows).toString() + _spotLightPart.getDynamicLightHash(lightData);
+				
+				case ConstDirectionalLight.TYPE:
+					return '7' + uint(lightData.castShadows).toString();
+					
+				case ConstPointLight.TYPE:
+					return '8' + uint(lightData.castShadows).toString();
+					
+				case ConstSpotLight.TYPE:
+					return '9' + uint(lightData.castShadows).toString();
 			}
 			
 			throw new Error('Unsupported light type');

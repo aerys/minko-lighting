@@ -12,9 +12,10 @@ package aerys.minko.render.shader.parts.lighting.type
 			super(main);
 		}
 		
-		public function getLightContribution(lightId : uint) : SValue
+		public function getDynamicLightContribution(lightId : uint) : SValue
 		{
 			return getWorldParameter(1, LightData, LightData.LOCAL_AMBIENT, lightId);
 		}
+		
 	}
 }

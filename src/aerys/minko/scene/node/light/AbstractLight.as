@@ -13,11 +13,15 @@ package aerys.minko.scene.node.light
 		protected var _color		: uint;
 		protected var _group		: uint;
 		
-		public function get transform() : Matrix4x4	{ return _transform; }
-		public function get color()	: uint	{ return _color; }
-		public function get group() : uint	{ return _group; }
+		public function get transform()	: Matrix4x4	{ return _transform; }
+		public function get color()		: uint		{ return _color; }
+		public function get group()		: uint		{ return _group; }
 		
-		public function set color(v : uint) : void 	{ _color = v; }
+		public function get type() : uint
+		{
+			throw new Error('Must be overriden');
+		}
+		
 		public function set group(v : uint) : void	{ _group = v; }
 		
 		public function AbstractLight(color : uint, group : uint)

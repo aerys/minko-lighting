@@ -29,14 +29,15 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			return greaterEqual(lightAngleCosine, lightRadiusCosine);
 		}
 		
-		public function getStaticFactor(lightData	: LightData,
+		public function getStaticFactor(lightId		: uint,
+										lightData	: LightData,
 										position	: SValue = null) : SValue
 		{
 			position ||= getVertexAttribute(VertexComponent.XYZ);
 			
 			var interpolatedPos		: SValue = interpolate(position);
-			var lightPosition		: SValue = float3(lightData.localPosition);
-			var lightDirection		: SValue = float3(lightData.localDirection);
+			var lightPosition		: SValue = getWorldParameter(3, LightData, LightData.LOCAL_POSITION, lightId);
+			var lightDirection		: SValue = getWorldParameter(3, LightData, LightData.LOCAL_DIRECTION, lightId);
 			var lightRadiusCosine	: SValue = float(lightData.outerRadiusCosine);
 			
 			var lightToPoint		: SValue = subtract(interpolatedPos, lightPosition);
@@ -47,9 +48,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 		
 		public function getStaticDataHash(lightData : LightData) : String
 		{
-			return lightData.localPosition
-				+ lightData.localDirection
-				+ lightData.outerRadiusCosine;
+			return lightData.outerRadiusCosine.toString();
 		}
 	}
 }

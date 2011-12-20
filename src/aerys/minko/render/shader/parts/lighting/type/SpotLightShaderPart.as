@@ -37,16 +37,17 @@ package aerys.minko.render.shader.parts.lighting.type
 			_matrixShadowMapPart = new MatrixShadowMapAttenuationShaderPart(main);
 		}
 		
-		public function getLightContribution(lightId		: uint,
-											 lightData		: LightData,
-											 receiveShadows	: Boolean,
-											 position		: SValue = null,
-											 normal			: SValue = null) : SValue
+		public function getDynamicLightContribution(lightId			: uint,
+													lightData		: LightData,
+													receiveShadows	: Boolean,
+													position		: SValue = null,
+													normal			: SValue = null) : SValue
 		{
 			position ||= getVertexAttribute(VertexComponent.XYZ);
 			normal	 ||= getVertexAttribute(VertexComponent.NORMAL);
 			
 			var contribution	: SValue = float(0);
+			var color			: SValue = getWorldParameter(3, LightData, LightData.COLOR, lightId);
 			
 			var diffuse		: SValue = _localizedDiffusePart.getDynamicTerm(lightId, lightData, position, normal);
 			if (diffuse != null)
@@ -72,10 +73,10 @@ package aerys.minko.render.shader.parts.lighting.type
 			else
 				contribution.scaleBy(_smoothConicAttenuationPart.getDynamicFactor(lightId, position));
 			
-			return contribution;
+			return multiply(color, contribution);
 		}
 		
-		public function getLightHash(lightData : LightData) : String
+		public function getDynamicLightHash(lightData : LightData) : String
 		{
 			var radiusDecision : uint;
 			if (lightData.outerRadius == 0)
@@ -89,6 +90,49 @@ package aerys.minko.render.shader.parts.lighting.type
 				+ '|' + _localizedSpecularPart.getDynamicDataHash(lightData)
 				+ '|' + uint(lightData.distance != 0)
 				+ '|' + radiusDecision;				
+		}
+		
+		public function getStaticLightContribution(lightId			: uint,
+												   lightData		: LightData,
+												   receiveShadows	: Boolean,
+												   position			: SValue = null,
+												   normal			: SValue = null) : SValue
+		{
+			position ||= getVertexAttribute(VertexComponent.XYZ);
+			normal	 ||= getVertexAttribute(VertexComponent.NORMAL);
+			
+			var contribution	: SValue = float(0);
+			var color			: SValue = float3(
+				((lightData.color >>> 16) & 0xff) / 255, 
+				((lightData.color >>> 8) & 0xff) / 255, 
+				(lightData.color & 0xff) / 255
+			); 
+			
+			var diffuse		: SValue = _localizedDiffusePart.getStaticTerm(lightId, lightData, position, normal);
+			if (diffuse != null)
+				contribution.incrementBy(diffuse);
+			
+			var specular	: SValue = _localizedSpecularPart.getStaticTerm(lightId, lightData, position, normal);
+			if (specular != null)
+				contribution.incrementBy(specular);
+			
+			if (diffuse == null && specular == null)
+				return null;
+			
+			if (lightData.distance != 0)
+				contribution.scaleBy(_squaredDistanceAttenuationPart.getStaticFactor(lightId, lightData, position));
+			
+			if (receiveShadows)
+				contribution.scaleBy(_matrixShadowMapPart.getStaticFactor(lightId, lightData, position));
+			
+			if (lightData.outerRadius == 0)
+				return null;
+			else if (lightData.outerRadius == lightData.innerRadius)
+				contribution.scaleBy(_hardConicAttenuationPart.getStaticFactor(lightId, lightData, position));
+			else
+				contribution.scaleBy(_smoothConicAttenuationPart.getStaticFactor(lightId, lightData, position));
+			
+			return multiply(color, contribution);
 		}
 		
 		override public function getDataHash(styleData		: StyleData,

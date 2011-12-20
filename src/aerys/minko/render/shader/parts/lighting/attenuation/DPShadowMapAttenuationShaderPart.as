@@ -63,10 +63,11 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			return lessThan(currentDepth, add(shadowBias, precomputedDepth));
 		}
 		
-		public function getStaticFactor(lightData	: LightData,
+		public function getStaticFactor(lightId		: uint,
+										lightData	: LightData,
 										position	: SValue = null) : SValue
 		{
-			throw new Error('Not yet implemented');
+			return getDynamicFactor(lightId, position);
 		}
 	}
 }

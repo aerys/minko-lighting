@@ -1,47 +1,30 @@
 package aerys.minko.scene.node.light
 {
-	public class PointLight extends AbstractLight
+	public class PointLight extends ConstPointLight
 	{
-		public static const TYPE : uint = 3;
-
-		protected var _distance				: Number;
-		protected var _diffuse				: Number;
-		protected var _specular				: Number;
-		protected var _shininess			: Number;
-		protected var _shadowMapSize		: uint;
-		protected var _useParaboloidShadows	: Boolean;
+		public static const TYPE : uint = 7;
 		
-		public function get distance()				: Number	{ return _distance;				}
-		public function get diffuse()				: Number	{ return _diffuse;				}
-		public function get specular()				: Number	{ return _specular;				} 
-		public function get shininess()				: Number	{ return _shininess;			}
-		public function get shadowMapSize()			: uint		{ return _shadowMapSize;		}
-		public function get useParaboloidShadows()	: Boolean	{ return _useParaboloidShadows;	}
-
-		public function set distance			(v : Number)	: void	{ _distance	= v;				}
-		public function set diffuse				(v : Number)	: void	{ _diffuse	= v;				}
-		public function set specular			(v : Number)	: void	{ _specular = v;				}
-		public function set shininess			(v : Number)	: void	{ _shininess = v;				}
-		public function set shadowMapSize		(v : uint) 		: void	{ _shadowMapSize = v;			}
-		public function set useParaboloidShadows(v : Boolean)	: void	{ _useParaboloidShadows = v;	}
+		override public function get type() : uint
+		{
+			return TYPE;
+		}
 		
-		public function PointLight(color				: uint		= 0xFFFFFF,
-								   diffuse				: Number	= .6,
-								   specular				: Number	= .8,
-								   shininess			: Number	= 64,
-								   distance				: Number	= 0,
-								   group				: uint		= 0x1,
-								   shadowMapSize		: uint		= 0,
+		public function set color		(v : uint)		: void { _color		= v; }
+		public function set distance	(v : Number)	: void { _distance	= v; }
+		public function set diffuse		(v : Number)	: void { _diffuse	= v; }
+		public function set specular	(v : Number)	: void { _specular	= v; }
+		public function set shininess	(v : Number)	: void { _shininess = v; }
+		
+		public function PointLight(color				: uint		= 0xFFFFFF, 
+								   diffuse				: Number	= .6, 
+								   specular				: Number	= .8, 
+								   shininess			: Number	= 64, 
+								   distance				: Number	= 0, 
+								   group				: uint		= 0x1, 
+								   shadowMapSize		: uint		= 0, 
 								   useParaboloidShadows	: Boolean	= false)
 		{
-			super(color, group); 
-			
-			_distance				= distance;
-			_diffuse				= diffuse;
-			_specular				= specular;
-			_shininess				= shininess;
-			_shadowMapSize			= shadowMapSize;
-			_useParaboloidShadows	= useParaboloidShadows;
+			super(color, diffuse, specular, shininess, distance, group, shadowMapSize, useParaboloidShadows);
 		}
 	}
 }

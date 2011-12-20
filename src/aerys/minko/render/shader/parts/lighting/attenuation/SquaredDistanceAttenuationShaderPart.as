@@ -29,20 +29,11 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			return saturate(divide(lightSquareDistance, squareDistance));
 		}
 		
-		public function getStaticFactor(lightData : LightData,
+		public function getStaticFactor(lightId 	: uint,
+										lightData	: LightData,
 										position	: SValue = null) : SValue
 		{
-			position ||= getVertexAttribute(VertexComponent.XYZ);
-			
-			var interpolatedPos		: SValue = interpolate(position);
-			
-			var lightPosition		: SValue = float3(lightData.localPosition);
-			var lightSquareDistance : SValue = float(lightData.squareLocalDistance);
-			
-			var lightToPoint		: SValue = subtract(interpolatedPos, lightPosition);
-			var squareDistance		: SValue = dotProduct3(lightToPoint, lightToPoint);
-			
-			return saturate(divide(lightSquareDistance, squareDistance));
+			return getDynamicFactor(lightId, position);
 		}
 		
 		public function getStaticDataHash(lightData : LightData) : String

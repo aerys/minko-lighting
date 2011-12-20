@@ -12,7 +12,8 @@ package aerys.minko.render.shader.parts.lighting.contribution
 		
 		function getDynamicDataHash(lightData : LightData) : String;
 		
-		function getStaticTerm(lightData	: LightData,
+		function getStaticTerm(lightId		: uint,
+							   lightData	: LightData,
 							   position		: SValue = null,
 							   normal		: SValue = null) : SValue;
 		

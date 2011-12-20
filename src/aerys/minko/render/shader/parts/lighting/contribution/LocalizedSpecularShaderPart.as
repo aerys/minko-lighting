@@ -51,7 +51,8 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			return uint(lightData.specular == 0).toString();
 		}
 		
-		public function getStaticTerm(lightData : LightData,
+		public function getStaticTerm(lightId	: uint,
+									  lightData : LightData,
 									  position	: SValue = null,
 									  normal	: SValue = null) : SValue
 		{
@@ -65,16 +66,15 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			var interpolatedNormal	: SValue = normalize(interpolate(normal));
 			
 			var cameraPosition		: SValue = getWorldParameter(3, CameraData, CameraData.LOCAL_POSITION);
-			
-			var lightPosition		: SValue = float3(lightData.localPosition);
+			var lightPosition		: SValue = getWorldParameter(3, LightData, LightData.LOCAL_POSITION, lightId);
 			var lightSpecular		: SValue = float(lightData.localSpecular);
 			var lightShininess		: SValue = float(lightData.localShininess);
 			
-			var lightDirection		: SValue = normalize(subtract(lightPosition, interpolatedPos));
-			var viewDirection		: SValue = normalize(subtract(interpolatedPos, cameraPosition));
+			var lightDirection		: SValue = normalize(subtract(interpolatedPos, lightPosition));
+			var viewDirection		: SValue = normalize(subtract(cameraPosition, interpolatedPos));
 			var lightReflection		: SValue = reflect(lightDirection, interpolatedNormal);
 			
-			var lambertProduct		: SValue = saturate(negate(dotProduct3(lightReflection, viewDirection)));
+			var lambertProduct		: SValue = saturate(dotProduct3(lightReflection, viewDirection));
 			
 			return multiply(lightSpecular, power(lambertProduct, lightShininess));
 		}

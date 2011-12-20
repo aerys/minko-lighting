@@ -4,9 +4,9 @@ package aerys.minko.scene.data
 	import aerys.minko.render.effect.lighting.LightingStyle;
 	import aerys.minko.render.shader.node.operation.builtin.Multiply4x4;
 	import aerys.minko.scene.node.light.AmbientLight;
-	import aerys.minko.scene.node.light.DirectionalLight;
-	import aerys.minko.scene.node.light.PointLight;
-	import aerys.minko.scene.node.light.SpotLight;
+	import aerys.minko.scene.node.light.ConstDirectionalLight;
+	import aerys.minko.scene.node.light.ConstPointLight;
+	import aerys.minko.scene.node.light.ConstSpotLight;
 	import aerys.minko.type.math.ConstVector4;
 	import aerys.minko.type.math.Frustum;
 	import aerys.minko.type.math.Matrix4x4;
@@ -234,10 +234,10 @@ package aerys.minko.scene.data
 		{
 			switch (_type)
 			{
-				case AmbientLight.TYPE:		throw new Error('Ambient Lights cannot project');
-				case DirectionalLight.TYPE:	computeDirectionalProjection(); break;
-				case PointLight.TYPE:		throw new Error('Point Lights cannot project');
-				case SpotLight.TYPE:		computeSpotProjection(); break;
+				case AmbientLight.TYPE:				throw new Error('Ambient Lights cannot project');
+				case ConstDirectionalLight.TYPE:	computeDirectionalProjection(); break;
+				case ConstPointLight.TYPE:			throw new Error('Point Lights cannot project');
+				case ConstSpotLight.TYPE:			computeSpotProjection(); break;
 			}
 			
 			return _projection;

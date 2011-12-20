@@ -41,7 +41,8 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			return uint(lightData.diffuse == 0).toString();
 		}
 		
-		public function getStaticTerm(lightData : LightData,
+		public function getStaticTerm(lightId	: uint,
+									  lightData : LightData,
 									  position	: SValue = null,
 									  normal	: SValue = null) : SValue
 		{
@@ -50,7 +51,7 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			
 			normal ||= getVertexAttribute(VertexComponent.NORMAL);
 			
-			var lightDirection		: SValue = float3(lightData.localDirection);
+			var lightDirection		: SValue = getWorldParameter(3, LightData, LightData.LOCAL_DIRECTION, lightId);
 			var lightDiffuse		: SValue = float(lightData.localDiffuse);
 			
 			var interpolatedNormal	: SValue = normalize(interpolate(normal));
@@ -61,7 +62,7 @@ package aerys.minko.render.shader.parts.lighting.contribution
 		
 		public function getStaticDataHash(lightData : LightData) : String
 		{
-			return lightData.localDirection.toString() + lightData.diffuse.toString();
+			return lightData.diffuse.toString();
 		}
 		
 		override public function getDataHash(styleData		: StyleData, 

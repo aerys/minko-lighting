@@ -51,7 +51,8 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			return uint(lightData.specular == 0).toString();
 		}
 		
-		public function getStaticTerm(lightData : LightData,
+		public function getStaticTerm(lightId	: uint,
+									  lightData : LightData,
 									  position	: SValue = null,
 									  normal	: SValue = null) : SValue
 		{
@@ -66,7 +67,7 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			
 			var cameraPosition		: SValue = getWorldParameter(3, CameraData, CameraData.LOCAL_POSITION);
 			
-			var lightDirection		: SValue = float3(lightData.localDirection);
+			var lightDirection		: SValue = getWorldParameter(3, LightData, LightData.LOCAL_DIRECTION, lightId);
 			var lightSpecular		: SValue = float(lightData.localSpecular);
 			var lightShininess		: SValue = float(lightData.localShininess);
 			
@@ -80,10 +81,9 @@ package aerys.minko.render.shader.parts.lighting.contribution
 		
 		public function getStaticDataHash(lightData : LightData) : String
 		{
-			return lightData.localDirection.toString()
-				+ lightData.color.toString()
+			return lightData.color.toString()
 				+ lightData.localSpecular.toString() 
-				+ lightData.localDiffuse.toString();
+				+ lightData.localShininess.toString();
 		}
 		
 		override public function getDataHash(styleData		: StyleData, 

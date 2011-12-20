@@ -11,9 +11,9 @@ package aerys.minko.render.effect.lighting.onscreen
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.WorldDataList;
-	import aerys.minko.scene.node.light.DirectionalLight;
-	import aerys.minko.scene.node.light.PointLight;
-	import aerys.minko.scene.node.light.SpotLight;
+	import aerys.minko.scene.node.light.ConstDirectionalLight;
+	import aerys.minko.scene.node.light.ConstPointLight;
+	import aerys.minko.scene.node.light.ConstSpotLight;
 	import aerys.minko.type.math.Vector4;
 	
 	import flash.utils.Dictionary;
@@ -43,7 +43,7 @@ package aerys.minko.render.effect.lighting.onscreen
 			if (styleData.get(LightingStyle.RECEIVE_SHADOWS, false))
 			{
 				var lightDatas		: WorldDataList = worldData[LightData];
-				var lightDataCount	: uint			= lightDatas.length;
+				var lightDataCount	: uint			= lightDatas ? lightDatas.length : 0;
 				
 				var textureId		: uint			= 0;
 				for (var lightId : int = 0; lightId < lightDataCount; ++lightId)
@@ -52,9 +52,9 @@ package aerys.minko.render.effect.lighting.onscreen
 					if (!lightData.castShadows)
 						continue;
 					
-					if (lightData.type == SpotLight.TYPE || lightData.type == DirectionalLight.TYPE)
+					if (lightData.type == ConstSpotLight.TYPE || lightData.type == ConstDirectionalLight.TYPE)
 						styleData.set(Style.getStyleId('lighting matrixDepthMap' + lightId), _lightDepthResources[textureId++]);
-					else if (lightData.type == PointLight.TYPE)
+					else if (lightData.type == ConstPointLight.TYPE)
 					{
 						if (lightData.useParaboloidShadows)
 						{

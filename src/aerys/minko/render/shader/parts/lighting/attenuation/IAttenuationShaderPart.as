@@ -8,7 +8,8 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 		function getDynamicFactor(lightId	: uint,
 								  position	: SValue = null) : SValue;
 		
-		function getStaticFactor(lightData	: LightData,
+		function getStaticFactor(lightId	: uint,
+								 lightData	: LightData,
 								 position	: SValue = null) : SValue
 	}
 }
