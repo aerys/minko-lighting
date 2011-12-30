@@ -76,7 +76,7 @@ package aerys.minko.scene.data
 		
 		public function get localToView() : Matrix4x4
 		{
-			var localToWorld : Matrix4x4 = _transformData.world;
+			var localToWorld : Matrix4x4 = _transformData.localToWorld;
 			Matrix4x4.multiply(worldToView, localToWorld, _localToView);
 			
 			return _localToView;
@@ -111,7 +111,7 @@ package aerys.minko.scene.data
 		
 		public function get localToPlane() : Matrix4x4
 		{
-			var localToWorld : Matrix4x4 = _transformData.world;
+			var localToWorld : Matrix4x4 = _transformData.localToWorld;
 			Matrix4x4.multiply(worldToPlane, localToWorld, _localToPlane);
 			
 			return _localToPlane;

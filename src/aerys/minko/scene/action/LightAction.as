@@ -35,7 +35,7 @@ package aerys.minko.scene.action
 							renderer	: IRenderer) : Boolean
 		{
 			var light		: AbstractLight	= AbstractLight(scene);
-			var lightData	: LightData		= buildLightData(light, visitor.transformData.world)
+			var lightData	: LightData		= buildLightData(light, visitor.transformData.localToWorld)
 			var worldData	: Dictionary	= visitor.worldData;
 			
 			// add the light data on the AbstractLightData field

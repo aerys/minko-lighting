@@ -140,7 +140,7 @@ package aerys.minko.scene.data
 		
 		public function get localDistance() : Number
 		{
-			return _distance * _lightToWorld.scaleX * _transformData.worldInverse.scaleX;
+			return _distance * _lightToWorld.scaleX * _transformData.worldToLocal.scaleX;
 		}
 		
 		public function get squareLocalDistance() : Number
@@ -174,7 +174,7 @@ package aerys.minko.scene.data
 		
 		public function get localPosition() : Vector4
 		{
-			_transformData.worldInverse.transformVector(position, _localPosition);
+			_transformData.worldToLocal.transformVector(position, _localPosition);
 			return _localPosition;
 		}
 		
@@ -187,7 +187,7 @@ package aerys.minko.scene.data
 		
 		public function get localDirection() : Vector4
 		{
-			_transformData.worldInverse.deltaTransformVector(direction, _localDirection);
+			_transformData.worldToLocal.deltaTransformVector(direction, _localDirection);
 			_localDirection.normalize();
 			return _localDirection;
 		}
@@ -212,7 +212,7 @@ package aerys.minko.scene.data
 		
 		public function get localToLight() : Matrix4x4
 		{
-			Matrix4x4.multiply(worldToLight, _transformData.world, _localToLight);
+			Matrix4x4.multiply(worldToLight, _transformData.localToWorld, _localToLight);
 			return _localToLight;
 		}
 		
@@ -325,7 +325,7 @@ package aerys.minko.scene.data
 			for (var pointId : uint = 0; pointId < 8; ++pointId)
 			{
 				Vector4.copy(points[pointId], TMP_VECTOR);
-				_transformData.viewInverse.transformVector(TMP_VECTOR, TMP_VECTOR);
+				CameraData(_worldData[CameraData]).cameraToWorld.transformVector(TMP_VECTOR, TMP_VECTOR);
 				worldToLight.transformVector(TMP_VECTOR, TMP_VECTOR);
 				
 				(TMP_VECTOR.x > right)	&& (right	= TMP_VECTOR.x);
@@ -341,7 +341,7 @@ package aerys.minko.scene.data
 		
 		private function computeSpotProjection() : void
 		{
-			var viewInverse		: Matrix4x4			= _transformData.viewInverse;
+			var viewInverse		: Matrix4x4			= CameraData(_worldData[CameraData]).cameraToWorld;
 			var worldToLight	: Matrix4x4			= this.worldToLight;
 			
 			// compute zNear & zFar, depending on camera frustum
