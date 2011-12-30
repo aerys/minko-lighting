@@ -2,14 +2,15 @@ package aerys.minko.render.effect.lighting
 {
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.IRenderingEffect;
-	import aerys.minko.render.effect.lighting.onscreen.LightingPass;
 	import aerys.minko.render.effect.lighting.offscreen.CubeShadowMapShader;
 	import aerys.minko.render.effect.lighting.offscreen.DepthPass;
 	import aerys.minko.render.effect.lighting.offscreen.MatrixShadowMapShader;
 	import aerys.minko.render.effect.lighting.offscreen.ParaboloidShadowMapShader;
+	import aerys.minko.render.effect.lighting.onscreen.LightingPass;
 	import aerys.minko.render.resource.IResource;
 	import aerys.minko.render.resource.texture.CubicTextureResource;
 	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.target.AbstractRenderTarget;
 	import aerys.minko.render.target.CubicTextureRenderTarget;
 	import aerys.minko.render.target.TextureRenderTarget;
 	import aerys.minko.scene.data.LightData;
@@ -34,11 +35,14 @@ package aerys.minko.render.effect.lighting
 		 */		
 		protected var _usedBuffers	: Array	= new Array();
 		
-		protected var _lastHash	: String;
+		protected var _lastHash		: String;
 		protected var _passes		: Vector.<IEffectPass>;
 		
-		public function LightingEffect()
+		private var _renderTarget	: AbstractRenderTarget	= null;
+		
+		public function LightingEffect(renderTarget	: AbstractRenderTarget = null)
 		{
+			_renderTarget = renderTarget;
 			_passes = new Vector.<IEffectPass>();
 		}
 		
@@ -92,7 +96,7 @@ package aerys.minko.render.effect.lighting
 			
 			disposeOldTargets();
 			
-			_passes.push(new LightingPass(depthMaps));
+			_passes.push(new LightingPass(depthMaps, 0, _renderTarget));
 		}
 		
 		protected function createShadowPasses(lightId			: uint,
