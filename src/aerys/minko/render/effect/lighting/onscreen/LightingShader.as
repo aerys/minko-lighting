@@ -59,7 +59,7 @@ package aerys.minko.render.effect.lighting.onscreen
 		override protected function getOutputColor() : SValue
 		{
 			// compute diffuse color
-			var diffuseStyle		: Object		= styleIsSet(BasicStyle.DIFFUSE) ? getStyleConstant(BasicStyle.DIFFUSE) : null;
+			var diffuseStyle		: Object		= getStyleConstant(BasicStyle.DIFFUSE, StyleData.EMPTY);
 			var color				: SValue		= _diffusePart.getDiffuseColor(diffuseStyle);
 			
 			// compute lighting color

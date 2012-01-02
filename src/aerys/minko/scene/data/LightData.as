@@ -325,7 +325,7 @@ package aerys.minko.scene.data
 			for (var pointId : uint = 0; pointId < 8; ++pointId)
 			{
 				Vector4.copy(points[pointId], TMP_VECTOR);
-				CameraData(_worldData[CameraData]).cameraToWorld.transformVector(TMP_VECTOR, TMP_VECTOR);
+				CameraData(_worldData[CameraData]).viewToWorld.transformVector(TMP_VECTOR, TMP_VECTOR);
 				worldToLight.transformVector(TMP_VECTOR, TMP_VECTOR);
 				
 				(TMP_VECTOR.x > right)	&& (right	= TMP_VECTOR.x);
@@ -341,7 +341,7 @@ package aerys.minko.scene.data
 		
 		private function computeSpotProjection() : void
 		{
-			var viewInverse		: Matrix4x4			= CameraData(_worldData[CameraData]).cameraToWorld;
+			var viewInverse		: Matrix4x4			= CameraData(_worldData[CameraData]).viewToWorld;
 			var worldToLight	: Matrix4x4			= this.worldToLight;
 			
 			// compute zNear & zFar, depending on camera frustum
