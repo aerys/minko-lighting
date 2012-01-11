@@ -22,8 +22,6 @@ package aerys.minko.render.shader.parts.reflection
 		private var _blinnNewellProjectionPart	: BlinnNewellProjectionShaderPart;
 		private var _probeProjectionPart		: ProbeProjectionShaderPart;
 		
-		
-		
 		public function ReflectionShaderPart(main : ActionScriptShader)
 		{
 			super(main);

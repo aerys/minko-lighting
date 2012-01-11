@@ -3,6 +3,7 @@ package aerys.minko.render.effect.reflection
 	import aerys.minko.render.effect.AbstractSinglePassEffect;
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.IRenderingEffect;
+	import aerys.minko.render.effect.SinglePassRenderingEffect;
 	import aerys.minko.render.effect.reflection.offscreen.PlanarReflectionMapPass;
 	import aerys.minko.render.effect.reflection.onscreen.ReflectionPass;
 	import aerys.minko.render.resource.IResource;
