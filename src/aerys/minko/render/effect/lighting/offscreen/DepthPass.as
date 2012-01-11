@@ -10,7 +10,7 @@ package aerys.minko.render.effect.lighting.offscreen
 	import aerys.minko.scene.data.TransformData;
 	import aerys.minko.scene.data.ViewportData;
 	import aerys.minko.type.enum.Blending;
-	import aerys.minko.type.enum.CompareMode;
+	import aerys.minko.type.enum.DepthTest;
 	import aerys.minko.type.enum.TriangleCulling;
 	
 	import flash.utils.Dictionary;
@@ -41,7 +41,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			_shader.fillRenderState(state, styleData, transformData, worldData);
 			
 			state.blending			= Blending.NORMAL;
-			state.depthTest			= CompareMode.LESS;
+			state.depthTest			= DepthTest.LESS;
 			state.priority			= _priority;
 			state.renderTarget		= _renderTarget || worldData[ViewportData].renderTarget;
 			state.triangleCulling	= styleData.get(BasicStyle.TRIANGLE_CULLING, TriangleCulling.BACK) as uint;

@@ -33,7 +33,7 @@ package aerys.minko.scene.action
 							renderer	: IRenderer) : Boolean
 		{
 			var reflectionSurface	: ReflectionSurface = ReflectionSurface(scene);
-			var localToWorld		: Matrix4x4			= visitor.transformData.world;
+			var localToWorld		: Matrix4x4			= visitor.transformData.localToWorld;
 			
 			localToWorld
 				.push()

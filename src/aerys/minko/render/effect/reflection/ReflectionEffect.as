@@ -1,12 +1,9 @@
 package aerys.minko.render.effect.reflection
 {
-	import aerys.minko.render.effect.IEffect;
+	import aerys.minko.render.effect.AbstractSinglePassEffect;
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.IRenderingEffect;
-	import aerys.minko.render.effect.SinglePassEffect;
-	import aerys.minko.render.effect.SinglePassRenderingEffect;
 	import aerys.minko.render.effect.reflection.offscreen.PlanarReflectionMapPass;
-	import aerys.minko.render.effect.reflection.offscreen.PlanarReflectionMapShader;
 	import aerys.minko.render.effect.reflection.onscreen.ReflectionPass;
 	import aerys.minko.render.resource.IResource;
 	import aerys.minko.render.target.TextureRenderTarget;
@@ -82,8 +79,8 @@ package aerys.minko.render.effect.reflection
 			{
 				var reflectionData : ReflectionData = ReflectionData(reflections.getItem(reflectionId));
 				
-				var reflectionMap		: TextureRenderTarget	= getTextureRenderTarget(reflectionData.size);
-				var pass		 		: SinglePassEffect		= new PlanarReflectionMapPass(reflectionId, currentPriority++, reflectionMap);
+				var reflectionMap		: TextureRenderTarget		= getTextureRenderTarget(reflectionData.size);
+				var pass		 		: AbstractSinglePassEffect	= new PlanarReflectionMapPass(reflectionId, currentPriority++, reflectionMap);
 				
 				_passes.push(pass);
 				reflectionMaps.push(reflectionMap.textureResource);
