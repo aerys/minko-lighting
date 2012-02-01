@@ -4,7 +4,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.IRenderingEffect;
 	import aerys.minko.render.effect.Style;
-	import aerys.minko.render.resource.Texture3DResource;
+	import aerys.minko.render.resource.TextureResource;
 	import aerys.minko.scene.data.LightData;
 	import aerys.minko.scene.data.StyleData;
 	import aerys.minko.scene.data.TransformData;
@@ -66,14 +66,14 @@ package aerys.minko.render.effect.lighting
 		{
 			var passList			: Vector.<IEffectPass>		= new Vector.<IEffectPass>();
 			
-			var textureResource		: Texture3DResource;
+			var textureResource		: TextureResource;
 			var renderTarget		: RenderTarget;
 			
 			var lightDatas			: WorldDataList				= world[LightData];
 			var lightDatasLength	: uint						= lightDatas ? lightDatas.length : 0;
 			
 			var targetIds			: Vector.<int>				= new Vector.<int>();
-			var targetResources		: Vector.<Texture3DResource>	= new Vector.<Texture3DResource>();
+			var targetResources		: Vector.<TextureResource>	= new Vector.<TextureResource>();
 			
 			for (var i : int = 0; i < lightDatasLength; ++i)
 			{
