@@ -1,40 +1,133 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.scene.action.LightAction;
-	import aerys.minko.scene.action.transform.PopTransformAction;
-	import aerys.minko.scene.action.transform.PushTransformAction;
-	import aerys.minko.scene.node.AbstractScene;
-	import aerys.minko.scene.node.ITransformableScene;
-	import aerys.minko.type.math.Matrix4x4;
+	import aerys.minko.ns.minko_lighting;
+	import aerys.minko.scene.node.AbstractSceneNode;
+	import aerys.minko.scene.node.ISceneNode;
+	import aerys.minko.scene.node.Scene;
+	import aerys.minko.type.Signal;
+	import aerys.minko.type.data.IDataProvider;
 	
-	public class AbstractLight extends AbstractScene implements ITransformableScene
+	use namespace minko_lighting;
+	
+	public class AbstractLight extends AbstractSceneNode implements IDataProvider
 	{
-		protected var _transform	: Matrix4x4;
-		protected var _color		: uint;
-		protected var _group		: uint;
+		private var _changed			: Signal;
 		
-		public function get transform()	: Matrix4x4	{ return _transform; }
-		public function get color()		: uint		{ return _color; }
-		public function get group()		: uint		{ return _group; }
+		protected var _lightId			: uint;
+		protected var _dataDescriptor	: Object;
+		
+		protected var _color			: uint;
+		protected var _group			: uint;
+		protected var _locked			: Boolean;
+		
+		public function get dataDescriptor() : Object
+		{
+			return _dataDescriptor;
+		}
+		
+		public function get changed() : Signal
+		{ 
+			return _changed;
+		}
+		
+		public function get locked() : Boolean
+		{
+			return _locked;
+		}
+		
+		minko_lighting function get lightId() : uint
+		{
+			return _lightId;
+		}
 		
 		public function get type() : uint
 		{
 			throw new Error('Must be overriden');
 		}
 		
-		public function set group(v : uint) : void	{ _group = v; }
+		public function get shadowCastingType() : uint
+		{
+			throw new Error('Must be overriden'); 
+		}
+		
+		public function get group() : uint
+		{
+			return _group;
+		}
+		
+		public function get color() : uint
+		{
+			return _color;
+		}
+		
+		public function set color(v : uint)	: void
+		{
+			_color	= v;
+			changed.execute(this, 'color');
+		}
+		
+		public function set group(v : uint) : void
+		{
+			_group = v;
+			changed.execute(this, 'group');
+		}
 		
 		public function AbstractLight(color : uint, group : uint)
 		{
+			_changed	= new Signal();
+			
 			_color		= color;
 			_group		= group;
-			_transform	= new Matrix4x4();
+		}
+
+		public function lock() : void
+		{
+			_locked = true;
+		}
+		
+		public function unlock() : void
+		{
+			_locked = false;
+		}
+		
+		protected function setLightId(lightId : uint) : void
+		{
+			throw new Error('Must be overriden');
+		}
+		
+		override protected function addedToSceneHandler(child : ISceneNode, scene : Scene):void
+		{
+			super.addedToSceneHandler(child, scene);
 			
-			actions.push(
-				PushTransformAction.pushTransformAction,
-				LightAction.lightAction,
-				PopTransformAction.popTransformAction
-			);
+			var lights		: Vector.<ISceneNode>	= scene.getDescendantsByType(AbstractLight);
+			var numLights	: uint					= lights.length;
+			
+			setLightId(numLights - 1);
+			
+			scene.bindings.add(this);
+		}
+		
+		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene):void
+		{
+			super.removedFromSceneHandler(child, scene);
+			
+			scene.bindings.remove(this);
+			
+			var lights		: Vector.<ISceneNode>	= scene.getDescendantsByType(AbstractLight);
+			var numLights	: uint					= lights.length;
+			var numLightsM1	: uint					= numLights - 1;
+			
+			for (var lightId : uint = 0; lightId < numLights; ++lightId)
+			{
+				var light : AbstractLight = AbstractLight(lights[lightId]);
+				if (light._lightId == numLightsM1)
+				{
+					light.setLightId(_lightId);
+					break;
+				}
+			}
+			
+			_changed.execute(this, null);
 		}
 	}
 }

@@ -1,23 +1,19 @@
 package aerys.minko.render.shader.parts.lighting.contribution
 {
-	import aerys.minko.render.shader.SValue;
-	import aerys.minko.scene.data.LightData;
+	import aerys.minko.render.shader.SFloat;
 
 	public interface IContributionShaderPart
 	{
-		function getDynamicTerm(lightId		: uint,
-								lightData	: LightData,
-								position	: SValue = null,
-							    normal		: SValue = null) : SValue;
+		function getDiffuseTerm(lightId						: uint, 
+								worldPosition				: SFloat,
+								worldNormal					: SFloat,
+								worldInterpolatedPosition	: SFloat,
+								worldInterpolatedNormal		: SFloat) : SFloat;
 		
-		function getDynamicDataHash(lightData : LightData) : String;
-		
-		function getStaticTerm(lightId		: uint,
-							   lightData	: LightData,
-							   position		: SValue = null,
-							   normal		: SValue = null) : SValue;
-		
-		function getStaticDataHash(lightData : LightData) : String;
-		
+		function getSpecularTerm(lightId					: uint, 
+								 worldPosition				: SFloat,
+								 worldNormal				: SFloat,
+								 worldInterpolatedPosition	: SFloat,
+								 worldInterpolatedNormal	: SFloat) : SFloat;
 	}
 }

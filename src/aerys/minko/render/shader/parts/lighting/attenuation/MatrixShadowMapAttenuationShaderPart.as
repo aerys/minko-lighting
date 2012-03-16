@@ -1,12 +1,13 @@
 package aerys.minko.render.shader.parts.lighting.attenuation
 {
-	import aerys.minko.render.effect.Style;
-	import aerys.minko.render.effect.lighting.LightingStyle;
+	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.ActionScriptShader;
-	import aerys.minko.render.shader.ActionScriptShaderPart;
-	import aerys.minko.render.shader.SValue;
-	import aerys.minko.render.shader.node.leaf.Sampler;
-	import aerys.minko.scene.data.LightData;
+	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.part.ShaderPart;
+	import aerys.minko.type.enum.SamplerDimension;
+	import aerys.minko.type.enum.SamplerFilter;
+	import aerys.minko.type.enum.SamplerMipmap;
+	import aerys.minko.type.enum.SamplerWrapping;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
 	/**
@@ -14,46 +15,52 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 	 * Where m = max( | ∂z/∂x | , | ∂z/∂y | )
 	 * ftp://download.nvidia.com/developer/presentations/2004/GPU_Jackpot/Shadow_Mapping.pdf
 	 * 
-	 * @author Romain Gilliotte <romain.gilliotte@aerys.in>
+	 * or maybe implement dual shadow mapping to stop asking the user to manage shadow bias...
 	 * 
-	 */	
-	public class MatrixShadowMapAttenuationShaderPart extends ActionScriptShaderPart implements IAttenuationShaderPart
+	 * @author Romain Gilliotte
+	 */
+	public class MatrixShadowMapAttenuationShaderPart extends ShaderPart implements IAttenuationShaderPart
 	{
 		public function MatrixShadowMapAttenuationShaderPart(main : ActionScriptShader)
 		{
 			super(main);
 		}
 		
-		public function getDynamicFactor(lightId	: uint,
-										 position	: SValue = null) : SValue
+		public function getAttenuationFactor(lightId					: uint,
+											 worldPosition				: SFloat,
+											 worldNormal				: SFloat,
+											 worldInterpolatedPosition	: SFloat,
+											 worldInterpolatedNormal	: SFloat) : SFloat
 		{
-			position ||= getVertexAttribute(VertexComponent.XYZ);
+			var depthMap		: SFloat = sceneBindings.getTextureParameter(
+				'lightDepthMap' + lightId,
+				SamplerFilter.NEAREST, 
+				SamplerMipmap.DISABLE, 
+				SamplerWrapping.CLAMP, 
+				SamplerDimension.FLAT
+			);
 			
-			var lightDepthSamplerId	: uint	 = Style.getStyleId('lighting matrixDepthMap' + lightId);
-			var lightLocalToUV		: SValue = getWorldParameter(16, LightData, LightData.LOCAL_TO_UV, lightId)
-			var shadowBias			: SValue = getStyleParameter(1, LightingStyle.SHADOWS_BIAS, 1 / 100);
+			var worldToLightUV	: SFloat = sceneBindings.getParameter('lightWorldToUV' + lightId, 16);
+			var shadowBias		: SFloat;
 			
-			var uv : SValue;
-			uv = multiply4x4(position, lightLocalToUV);
+			if (meshBindings.propertyExists('lightShadowBias'))
+				shadowBias = meshBindings.getParameter('lightShadowBias', 1);
+			else
+				shadowBias = sceneBindings.getParameter('lightShadowBias' + lightId, 1);
+			
+			var uv : SFloat;
+			uv = multiply4x4(worldPosition, worldToLightUV);
 			uv = divide(uv, uv.w);
 			uv = interpolate(uv);
 			
-			var currentDepth : SValue = uv.z;
+			var currentDepth : SFloat = uv.z;
 			
-			var precomputedDepth : SValue;
-			precomputedDepth = sampleTexture(lightDepthSamplerId, uv, Sampler.FILTER_LINEAR, Sampler.MIPMAP_DISABLE, Sampler.WRAPPING_CLAMP);
+			var precomputedDepth : SFloat;
+			precomputedDepth = sampleTexture(depthMap, uv);
 			precomputedDepth = precomputedDepth.x;
 //			precomputedDepth = unpack(precomputedDepth);
 			
 			return lessThan(currentDepth, add(shadowBias, precomputedDepth));
 		}
-		
-		public function getStaticFactor(lightId		: uint,
-										lightData	: LightData,
-										position	: SValue = null) : SValue
-		{
-			return getDynamicFactor(lightId, position);
-		}
-		
 	}
 }

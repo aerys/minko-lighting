@@ -1,28 +1,26 @@
 package aerys.minko.render.effect.reflection
 {
-	import aerys.minko.render.effect.Style;
-
-	public final class ReflectionStyle
+	public final class ReflectionProperties
 	{
 		/**
 		 * Enabled or disable reflections 
 		 */		
-		public static const ENABLED : int = Style.getStyleId("ref_enabled");
+		public static const ENABLED		: String = "ref_enabled";
 		
 		/**
 		 * final reflection multiplier (before blending)
 		 */
-		public static const RGBA : int = Style.getStyleId("ref_rgba");
+		public static const RGBA		: String = "ref_rgba";
 		
 		/**
 		 * Texture or cubemap used to store the reflections
 		 */		
-		public static const MAP : int = Style.getStyleId("ref_environmentMap");
+		public static const MAP			: String = "ref_environmentMap";
 		
 		/**
 		 * How reflections should be blended
 		 */		
-		public static const BLENDING : int = Style.getStyleId("ref_blending");
+		public static const BLENDING	: String = "ref_blending";
 		
 		/**
 		 * Which reflection map should be used, and how
@@ -33,12 +31,12 @@ package aerys.minko.render.effect.reflection
 		 *  -1		: do not receive reflections
 		 *  n >= 0	: receive reflections from dynamic reflection n
 		 */
-		public static const RECEIVE : int = Style.getStyleId('ref receive');
+		public static const RECEIVE		: String = 'ref receive';
 		
 		/**
 		 * This item casts reflections on the following dynamic maps
 		 * (this is a bitmask)
 		 */		
-		public static const CAST : int = Style.getStyleId('ref cast');
+		public static const CAST		: String = 'ref cast';
 	}
 }

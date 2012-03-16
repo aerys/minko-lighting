@@ -1,208 +1,118 @@
 package aerys.minko.render.effect.lighting
 {
-	import aerys.minko.render.effect.IEffectPass;
-	import aerys.minko.render.effect.IRenderingEffect;
-	import aerys.minko.render.effect.lighting.offscreen.CubeShadowMapShader;
-	import aerys.minko.render.effect.lighting.offscreen.DepthPass;
-	import aerys.minko.render.effect.lighting.offscreen.MatrixShadowMapShader;
-	import aerys.minko.render.effect.lighting.offscreen.ParaboloidShadowMapShader;
-	import aerys.minko.render.effect.lighting.onscreen.LightingPass;
-	import aerys.minko.render.resource.IResource;
-	import aerys.minko.render.resource.texture.CubicTextureResource;
+	import aerys.minko.ns.minko_lighting;
+	import aerys.minko.ns.minko_render;
+	import aerys.minko.render.effect.Effect;
+	import aerys.minko.render.effect.lighting.onscreen.LightingShader;
 	import aerys.minko.render.shader.ActionScriptShader;
-	import aerys.minko.render.target.AbstractRenderTarget;
-	import aerys.minko.render.target.CubicTextureRenderTarget;
-	import aerys.minko.render.target.TextureRenderTarget;
-	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.StyleData;
-	import aerys.minko.scene.data.TransformData;
-	import aerys.minko.scene.data.WorldDataList;
-	import aerys.minko.scene.node.light.ConstDirectionalLight;
-	import aerys.minko.scene.node.light.ConstPointLight;
-	import aerys.minko.scene.node.light.ConstSpotLight;
+	import aerys.minko.scene.node.ISceneNode;
+	import aerys.minko.scene.node.Scene;
+	import aerys.minko.scene.node.light.AbstractLight;
+	import aerys.minko.scene.node.light.DirectionalLight;
+	import aerys.minko.scene.node.light.PointLight;
+	import aerys.minko.scene.node.light.SpotLight;
+	import aerys.minko.type.enum.ShadowMappingType;
 	
-	import flash.utils.Dictionary;
-	
-	public class LightingEffect implements IRenderingEffect
+	public class LightingEffect extends Effect
 	{
-		/**
-		 * Contains render target used to render shadow maps 
-		 */
-		protected var _buffers		: Array	= new Array();
+		use namespace minko_render;
+		use namespace minko_lighting;
 		
-		/**
-		 * Used to mark used buffers 
-		 */		
-		protected var _usedBuffers	: Array	= new Array();
+		private var _scene					: Scene;
+		private var _renderingPass			: LightingShader;
 		
-		protected var _lastHash		: String;
-		protected var _passes		: Vector.<IEffectPass>;
+		private var _watchedLights			: Vector.<AbstractLight>;
+		private var _watchedLightsCastType	: Vector.<uint>;
 		
-		private var _renderTarget	: AbstractRenderTarget	= null;
-		
-		public function LightingEffect(renderTarget	: AbstractRenderTarget = null)
+		public function LightingEffect(scene : Scene)
 		{
-			_renderTarget = renderTarget;
-			_passes = new Vector.<IEffectPass>();
+			_scene					= scene;
+			_renderingPass			= new LightingShader();
+			
+			_watchedLights			= new Vector.<AbstractLight>();
+			_watchedLightsCastType	= new Vector.<uint>();
+			
+			scene.childAdded.add(onSceneChildAdded);
+			scene.childRemoved.add(onSceneChildRemoved);
+			
+			updatePasses();
 		}
 		
-		public function getPasses(styleData		: StyleData, 
-								  transformData	: TransformData, 
-								  worldData		: Dictionary) : Vector.<IEffectPass>
+		private function updatePasses() : void
 		{
-			var hash : String = createHash(worldData);
-			if (!_lastHash || _lastHash != hash)
-			{
-				updatePasses(worldData);
-				_lastHash = hash;
-			}
+			reset();
+			initPasses();
 			
-			return _passes;
+			changed.execute(this, null);
 		}
 		
-		protected function createHash(worldData : Dictionary) : String
+		private function reset() : void
 		{
-			var hash		: String		= '';
-			var lights		: WorldDataList	= WorldDataList(worldData[LightData]);
-			var lightCount	: uint			= lights ? lights.length : 0;
+			var numLights : uint = _watchedLights.length;
 			
-			for (var lightId : uint = 0; lightId < lightCount; ++lightId)
-			{
-				var light : LightData = LightData(lights.getItem(lightId));
-				hash += light.shadowMapSize.toString(16) + '|';
-			}
+			for (var lightId : uint = 0; lightId < numLights; ++lightId)
+				_watchedLights[lightId].changed.remove(onLightChanged);
 			
-			return hash;
+			_passes.length					= 0;
+			_watchedLights.length			= 0;
+			_watchedLightsCastType.length	= 0;
 		}
 		
-		protected function updatePasses(worldData : Dictionary) : void
+		private function initPasses() : void
 		{
-			var depthMaps : Vector.<IResource> = new Vector.<IResource>();
+			var lights		: Vector.<ISceneNode>	= _scene.getDescendantsByType(AbstractLight);
+			var numLights	: uint					= lights.length;
+			var passId		: uint					= 0;
 			
-			_passes.length = 0;
-			
-			resetTargetUseCounter();
-			
-			var lights		: WorldDataList	= WorldDataList(worldData[LightData]);
-			var lightCount	: uint			= lights ? lights.length : 0;
-			
-			var currentPriority : uint = 2;
-			for (var lightId : uint = 0; lightId < lightCount; ++lightId)
+			for (var lightId : uint = 0; lightId < numLights; ++lightId)
 			{
-				var lightData : LightData = LightData(lights.getItem(lightId));
-				if (lightData.castShadows)
-					currentPriority = createShadowPasses(lightId, lightData, _passes, depthMaps, currentPriority);
-			}
-			
-			disposeOldTargets();
-			
-			_passes.push(new LightingPass(depthMaps, 0, _renderTarget));
-		}
-		
-		protected function createShadowPasses(lightId			: uint,
-											  lightData			: LightData,
-											  passes			: Vector.<IEffectPass>,
-											  depthMaps			: Vector.<IResource>,
-											  currentPriority	: uint) : uint
-		{
-			var shadowMap	: TextureRenderTarget;
-			var pass		: IEffectPass;
-			var depthShader	: ActionScriptShader;
-			var lightType	: uint = lightData.type;
-			var i			: uint;
-			
-			if (lightType == ConstDirectionalLight.TYPE || lightType == ConstSpotLight.TYPE)
-			{
-				shadowMap	= getTextureRenderTarget(lightData.shadowMapSize);
-				depthShader	= new MatrixShadowMapShader(lightId);
-				pass		= new DepthPass(depthShader, currentPriority++, shadowMap);
-				_passes.push(pass);
-				depthMaps.push(shadowMap.textureResource);
-			}
-			else if (lightType == ConstPointLight.TYPE)
-			{
-				if (lightData.useParaboloidShadows)
-				{
-					for (i = 0; i < 2; ++i)
-					{
-						shadowMap	= getTextureRenderTarget(lightData.shadowMapSize);
-						depthShader	= new ParaboloidShadowMapShader(lightId, i == 0);
-						pass		= new DepthPass(depthShader, currentPriority++, shadowMap);
-						_passes.push(pass);
-						depthMaps.push(shadowMap.textureResource);
-					}
-				}
-				else
-				{
-					var cubicTextureResource	: CubicTextureResource = new CubicTextureResource(lightData.shadowMapSize);
-					var cubicShadowMap			: CubicTextureRenderTarget;
-					depthMaps.push(cubicTextureResource);
+				var light				: AbstractLight	= AbstractLight(lights[lightId]);
+				var shadowCastingType	: uint			= light.shadowCastingType;
 					
-					for (i = 0; i < 6; ++i)
-					{
-						cubicShadowMap	= new CubicTextureRenderTarget(cubicTextureResource, i, 0xbb0000);
-						depthShader		= new CubeShadowMapShader(lightId, i);
-						pass			= new DepthPass(depthShader, currentPriority++, cubicShadowMap);
-						_passes.push(pass);
-					}
-				}
-			}
-			else
-			{
-				throw new Error('Unsupported light type');
-			}
-			
-			return currentPriority;
-		}
-		
-		protected function resetTargetUseCounter() : void
-		{
-			_usedBuffers.length = 0;
-		}
-		
-		protected function getTextureRenderTarget(resolution : uint) : TextureRenderTarget
-		{
-			if (!_buffers[resolution])
-				_buffers[resolution] = new Array();
-			
-			var renderTarget		: TextureRenderTarget;
-			var renderTargets		: Array = _buffers[resolution];
-			var renderTargetCount	: uint	= renderTargets.length;
-			
-			for (var renderTargetId : uint = 0; renderTargetId < renderTargetCount; ++renderTargetId)
-			{
-				renderTarget = renderTargets[renderTargetId];
-				if (_usedBuffers.indexOf(renderTarget) != -1)
-					continue;
+				_watchedLights[lightId]			= light;
+				_watchedLightsCastType[lightId]	= shadowCastingType;
 				
-				_usedBuffers.push(renderTarget);
-				return renderTarget;
+				light.changed.add(onLightChanged);
+				
+				if (shadowCastingType != ShadowMappingType.NONE)
+				{
+					if (light is DirectionalLight)
+						_passes[passId++] = DirectionalLight(light).depthMapShader;
+					else if (light is SpotLight)
+						_passes[passId++] = SpotLight(light).depthMapShader;
+					else if (light is PointLight)
+						for each (var pass : ActionScriptShader in PointLight(light).depthMapShaders)
+							_passes[passId++] = pass;
+				}
 			}
 			
-			renderTarget = new TextureRenderTarget(resolution, resolution, 0xffffff);
-			renderTargets.push(renderTarget);
-			_usedBuffers.push(renderTarget);
-			
-			return renderTarget;
+			_passes[passId++] = _renderingPass;
 		}
 		
-		protected function disposeOldTargets() : void
+		private function onSceneChildAdded(scene	: Scene,
+										   child	: ISceneNode) : void
 		{
-			for (var resolution : Object in _buffers)
+			if (child is AbstractLight)
+				updatePasses();
+		}
+		
+		private function onSceneChildRemoved(scene	: Scene,
+											 child	: ISceneNode) : void
+		{
+			if (child is AbstractLight)
+				updatePasses();
+		}
+		
+		private function onLightChanged(light			: AbstractLight,
+										propertyName	: String) : void
+		{
+			// for now, we recompile everything
+			switch (propertyName)
 			{
-				var renderTargets : Array = _buffers[uint(resolution)];
-				var renderTargetCount : uint = renderTargets.length;
-				for (var renderTargetId : uint = 0; renderTargetId < renderTargetCount; ++renderTargetId)
-				{
-					var renderTarget : TextureRenderTarget = renderTargets[renderTargetId];
-					if (_usedBuffers.indexOf(renderTarget) == -1)
-					{
-						renderTarget.textureResource.dispose();
-						renderTargets.splice(renderTargetId, 1);
-						--renderTargetId;
-						--renderTargetCount;
-					}
-				}
+				case 'depthMapShader':
+				case 'depthMapShaders':
+					updatePasses();
+					break;
 			}
 		}
 	}

@@ -1,64 +1,59 @@
 package aerys.minko.render.effect.lighting.offscreen
 {
-	import aerys.minko.render.effect.animation.AnimationStyle;
+	import aerys.minko.render.RenderTarget;
+	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.ActionScriptShader;
-	import aerys.minko.render.shader.SValue;
-	import aerys.minko.render.shader.parts.animation.AnimationShaderPart;
-	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.StyleData;
-	import aerys.minko.scene.data.TransformData;
-	import aerys.minko.type.animation.AnimationMethod;
-	
-	import flash.utils.Dictionary;
+	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
+	import aerys.minko.type.enum.Blending;
 	
 	public class MatrixShadowMapShader extends ActionScriptShader
 	{
-		private var _animationPart 	: AnimationShaderPart 	= null;
+		private var _vertexAnimationPart	: VertexAnimationShaderPart;
+		private var _lightId				: uint		= 0;
+		private var _vertexPosition			: SFloat	= null;
 		
-		private var _lightId		: uint					= 0;
-		private var _position		: SValue				= null;
-		
-		public function MatrixShadowMapShader(lightId : uint)
+		public function MatrixShadowMapShader(lightId	: uint,
+											  priority	: Number,
+											  target	: RenderTarget)
 		{
-			_lightId = lightId;	
+			super(priority, target);
 			
-			_animationPart = new AnimationShaderPart(this);
+			_lightId				= lightId;	
+			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
+			
+			forkTemplate.blending	= Blending.NORMAL;
 		}
 		
-		override protected function getOutputPosition() : SValue
+		override protected function initializeFork(fork : Shader) : void
 		{
-			var animationMethod		: uint	 = uint(getStyleConstant(AnimationStyle.METHOD, AnimationMethod.DISABLED));
-			var maxInfluences		: uint	 = uint(getStyleConstant(AnimationStyle.MAX_INFLUENCES, 0));
-			var numBones			: uint	 = uint(getStyleConstant(AnimationStyle.NUM_BONES, 0));
-			var vertexPosition		: SValue = _animationPart.getVertexPosition(animationMethod, maxInfluences, numBones);
+			super.initializeFork(fork);
 			
-			_position = interpolate(vertexPosition);
+			fork.enabled = meshBindings.propertyExists(LightingProperties.CAST_SHADOWS) 
+				&& !meshBindings.getProperty(LightingProperties.CAST_SHADOWS)
+		}
+		
+		override protected function getVertexPosition() : SFloat
+		{
+			_vertexPosition = _vertexAnimationPart.getAnimatedVertexPosition();
 			
-			var lightLocalToScreen	: SValue = getWorldParameter(16, LightData, LightData.LOCAL_TO_SCREEN, _lightId);
-			var clipSpacePosition	: SValue = multiply4x4(vertexPosition, lightLocalToScreen);
+			var worldPosition		: SFloat = localToWorld(_vertexPosition);
+			var worldToLightScreen	: SFloat = sceneBindings.getParameter('lightWorldToLightScreen' + _lightId, 16);
+			var clipSpacePosition	: SFloat = multiply4x4(worldPosition, worldToLightScreen);
 			
 			return clipSpacePosition;
 		}
 		
-		override protected function getOutputColor() : SValue
+		override protected function getPixelColor() : SFloat
 		{
-			var lightLocalToScreen	: SValue = getWorldParameter(16, LightData, LightData.LOCAL_TO_SCREEN, _lightId);
-			var clipSpacePosition	: SValue = multiply4x4(_position, lightLocalToScreen);
+			var worldPosition		: SFloat = localToWorld(interpolate(_vertexPosition));
+			var worldToLightScreen	: SFloat = sceneBindings.getParameter('lightWorldToLightScreen' + _lightId, 16);
+			var clipSpacePosition	: SFloat = multiply4x4(worldPosition, worldToLightScreen);
+			var depth				: SFloat = divide(clipSpacePosition.zzz, clipSpacePosition.www);
 			
-			var depth				: SValue = divide(clipSpacePosition.zzz, clipSpacePosition.www);
 			return float4(depth.xxx, 1);
 //			return pack(depth);
-		}
-		
-		override public function getDataHash(styleData		: StyleData, 
-											 transformData	: TransformData, 
-											 worldData		: Dictionary) : String
-		{
-			var hash : String = 'frustumShadowMapDepthShader';
-			hash += _animationPart.getDataHash(styleData, transformData, worldData)
-			hash += _lightId;
-			
-			return hash;
 		}
 	}
 }

@@ -1,99 +1,84 @@
 package aerys.minko.render.effect.lighting.onscreen
 {
-	import aerys.minko.render.effect.animation.AnimationStyle;
-	import aerys.minko.render.effect.basic.BasicStyle;
-	import aerys.minko.render.effect.lighting.LightingStyle;
+	import aerys.minko.render.RenderTarget;
+	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.ActionScriptShader;
-	import aerys.minko.render.shader.SValue;
-	import aerys.minko.render.shader.parts.animation.AnimationShaderPart;
-	import aerys.minko.render.shader.parts.diffuse.DiffuseShaderPart;
+	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.part.BlendingShaderPart;
+	import aerys.minko.render.shader.part.PixelColorShaderPart;
+	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.LightingShaderPart;
-	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.StyleData;
-	import aerys.minko.scene.data.TransformData;
-	import aerys.minko.scene.data.WorldDataList;
-	import aerys.minko.type.animation.AnimationMethod;
 	import aerys.minko.type.enum.Blending;
-	
-	import flash.utils.Dictionary;
+	import aerys.minko.type.enum.DepthTest;
+	import aerys.minko.type.enum.TriangleCulling;
+	import aerys.minko.type.stream.format.VertexComponent;
 	
 	public class LightingShader extends ActionScriptShader
 	{
-		private var _animationPart	: AnimationShaderPart	= null;
-		private var _diffusePart	: DiffuseShaderPart		= null;
-		private var _lightingPart	: LightingShaderPart	= null;
+		private var _vertexAnimationPart	: VertexAnimationShaderPart;
+		private var _pixelColorPart			: PixelColorShaderPart;
+		private var _blendingPart			: BlendingShaderPart;
+		private var _lightingPart			: LightingShaderPart;
 		
-		private var _vertexPosition : SValue;
-		private var _vertexUv		: SValue;
-		private var _vertexNormal	: SValue;
+		private var _vertexPosition			: SFloat;
+		private var _vertexUV				: SFloat;
+		private var _vertexNormal			: SFloat;
 		
-		public function LightingShader()
+		public function LightingShader(priority	: Number		= 0,
+									   target	: RenderTarget	= null)
 		{
-			super();
+			super(priority, target);
 			
-			_animationPart = new AnimationShaderPart(this);
-			_diffusePart = new DiffuseShaderPart(this);
-			_lightingPart = new LightingShaderPart(this);
+			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
+			_pixelColorPart			= new PixelColorShaderPart(this);
+			_blendingPart			= new BlendingShaderPart(this);
+			_lightingPart			= new LightingShaderPart(this);
+			
+			defaultMeshProperties = {
+				blending 			: Blending.NORMAL,
+				triangleCulling 	: TriangleCulling.BACK,
+				depthTest			: DepthTest.LESS,
+				enableDepthWrite	: true,
+				lightGroup			: 1
+			};
 		}
 		
-		override protected function getOutputPosition() : SValue
+		override protected function initializeFork(fork : Shader) : void
 		{
-			var normalMultiplier	: SValue = getStyleParameter(1, BasicStyle.NORMAL_MULTIPLIER);
+			super.initializeFork(fork);
 			
-			var animationMethod		: uint	 = uint(getStyleConstant(AnimationStyle.METHOD, AnimationMethod.DISABLED));
-			var maxInfluences		: uint	 = uint(getStyleConstant(AnimationStyle.MAX_INFLUENCES, 0));
-			var numBones			: uint	 = uint(getStyleConstant(AnimationStyle.NUM_BONES, 0));
+			var blending : uint = meshBindings.getProperty("blending");
 			
-			var vertexPosition		: SValue = _animationPart.getVertexPosition(animationMethod, maxInfluences, numBones);
-			var vertexNormal		: SValue;
-			vertexNormal = _animationPart.getVertexNormal(animationMethod, maxInfluences, numBones);
-			vertexNormal = multiply(vertexNormal, normalMultiplier);
+			if (blending == Blending.ALPHA || blending == Blending.ADDITIVE)
+				fork.priority -= 0.5;
 			
-			_vertexPosition	= vertexPosition;
-			_vertexUv		= vertexUV;
-			_vertexNormal	= vertexNormal;
-			
-			return multiply4x4(vertexPosition, localToScreenMatrix);
+			fork.depthTest			= meshBindings.getProperty("depthTest");
+			fork.blending			= blending;
+			fork.triangleCulling	= meshBindings.getProperty("triangleCulling");
 		}
 		
-		override protected function getOutputColor() : SValue
+		override protected function getVertexPosition() : SFloat
 		{
-			// compute diffuse color
-			var diffuseStyle		: Object		= getStyleConstant(BasicStyle.DIFFUSE, StyleData.EMPTY);
-			var color				: SValue		= _diffusePart.getDiffuseColor(diffuseStyle);
+			_vertexPosition = _vertexAnimationPart.getAnimatedVertexPosition();
+			_vertexUV		= getVertexAttribute(VertexComponent.UV);
+			_vertexNormal	= _vertexAnimationPart.getAnimatedVertexNormal();
 			
-			// compute lighting color
-			var lightEnabled		: Boolean		= Boolean(getStyleConstant(LightingStyle.LIGHTS_ENABLED, false));
-			var lightGroup			: uint			= uint(getStyleConstant(LightingStyle.GROUP, 1));
-			var lightMapEnabled		: Boolean		= styleIsSet(LightingStyle.LIGHTMAP);
-			var shadowsEnabled		: Boolean		= Boolean(getStyleConstant(LightingStyle.SHADOWS_ENABLED, false));
-			var shadowsReceive		: Boolean		= Boolean(getStyleConstant(LightingStyle.RECEIVE_SHADOWS, false));
-			var lightDatas			: WorldDataList	= getWorldDataList(LightData);
+//			if (meshBindings.propertyExists("triangleCulling")
+//				&& meshBindings.getProperty('triangleCulling') == TriangleCulling.FRONT)
+//				_vertexNormal = negate(_vertexNormal);
 			
-			var lighting : SValue = 
-				_lightingPart.getLightingColor(
-					lightEnabled, lightGroup, lightMapEnabled, 
-					shadowsEnabled && shadowsReceive, 
-					lightDatas, 
-					_vertexPosition, _vertexNormal);
+			return localToScreen(_vertexPosition);
+		}
+		
+		override protected function getPixelColor() : SFloat
+		{
+			var color		: SFloat	= _pixelColorPart.getPixelColor();
+			var lighting	: SFloat	= _lightingPart.getLightingColor(_vertexPosition, _vertexUV, _vertexNormal);
 			
-			if (lighting != null)
-				color = blend(lighting, color, Blending.LIGHT);
+			color.scaleBy(lighting);
 			
 			return color;
-		}
-		
-		override public function getDataHash(styleData		: StyleData, 
-											 transformData	: TransformData, 
-											 worldData		: Dictionary) : String
-		{
-			var hash : String = 'lighting';
-			
-			hash += _animationPart.getDataHash(styleData, transformData, worldData);
-			hash += _diffusePart.getDataHash(styleData, transformData, worldData);
-			hash += _lightingPart.getDataHash(styleData, transformData, worldData);
-			
-			return hash;
 		}
 		
 	}

@@ -1,83 +1,78 @@
 package aerys.minko.render.effect.lighting.offscreen
 {
-	import aerys.minko.Minko;
-	import aerys.minko.render.effect.animation.AnimationStyle;
+	import aerys.minko.render.RenderTarget;
+	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.ActionScriptShader;
-	import aerys.minko.render.shader.SValue;
-	import aerys.minko.render.shader.parts.animation.AnimationShaderPart;
-	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.StyleData;
-	import aerys.minko.scene.data.TransformData;
-	import aerys.minko.type.animation.AnimationMethod;
-	import aerys.minko.type.log.DebugLevel;
-	import aerys.minko.type.math.ConstVector4;
+	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
+	import aerys.minko.type.enum.Blending;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
-	import flash.utils.Dictionary;
-	
 	public class CubeShadowMapShader extends ActionScriptShader
 	{
-		private var _animationPart 		: AnimationShaderPart = null;
-		
-		private var _lightId			: uint;
-		private var _side				: uint;
-		
-		private var _positionFromLight	: SValue;
-		
-		public function CubeShadowMapShader(lightId	: uint,
-											side	: uint)
-		{
-			_lightId	= lightId;	
-			_side		= side;
-			
-			_animationPart = new AnimationShaderPart(this);
-		}
-		
 		private static const VIEW_MATRICES : Vector.<Matrix4x4> = Vector.<Matrix4x4>([
-			Matrix4x4.lookAtLH(ConstVector4.ZERO, ConstVector4.X_AXIS,		ConstVector4.Y_AXIS),	 // look at positive x
-			Matrix4x4.lookAtLH(ConstVector4.ZERO, new Vector4(-1, 0, 0),	ConstVector4.Y_AXIS),	 // look at negative x
-			Matrix4x4.lookAtLH(ConstVector4.ZERO, ConstVector4.Y_AXIS,		new Vector4(0, 0, -1)),	 // look at positive y
-			Matrix4x4.lookAtLH(ConstVector4.ZERO, new Vector4(0, -1, 0),	ConstVector4.Z_AXIS),	 // look at negative y
-			Matrix4x4.lookAtLH(ConstVector4.ZERO, ConstVector4.Z_AXIS,		ConstVector4.Y_AXIS),	 // look at positive z // identity!!
-			Matrix4x4.lookAtLH(ConstVector4.ZERO, new Vector4(0, 0, -1),	ConstVector4.Y_AXIS),	 // look at negative z
+			Matrix4x4.lookAtLH(Vector4.ZERO, Vector4.X_AXIS,		Vector4.Y_AXIS),		// look at positive x
+			Matrix4x4.lookAtLH(Vector4.ZERO, new Vector4(-1, 0, 0),	Vector4.Y_AXIS),		// look at negative x
+			Matrix4x4.lookAtLH(Vector4.ZERO, Vector4.Y_AXIS,		new Vector4(0, 0, -1)),	// look at positive y
+			Matrix4x4.lookAtLH(Vector4.ZERO, new Vector4(0, -1, 0),	Vector4.Z_AXIS),		// look at negative y
+			Matrix4x4.lookAtLH(Vector4.ZERO, Vector4.Z_AXIS,		Vector4.Y_AXIS),		// look at positive z, that's identity!!
+			Matrix4x4.lookAtLH(Vector4.ZERO, new Vector4(0, 0, -1),	Vector4.Y_AXIS),		// look at negative z
 		]);
 		
-		override protected function getOutputPosition() : SValue
+		private var _vertexAnimationPart	: VertexAnimationShaderPart;
+		
+		private var _lightId				: uint;
+		
+		private var _lightToScreen			: SFloat;
+		private var _positionFromLight		: SFloat;
+		
+		public function CubeShadowMapShader(lightId		: uint, 
+											side		: uint, 
+											priority	: Number,
+											target		: RenderTarget)
 		{
-			var animationMethod		: uint	 = uint(getStyleConstant(AnimationStyle.METHOD, AnimationMethod.DISABLED));
-			var maxInfluences		: uint	 = uint(getStyleConstant(AnimationStyle.MAX_INFLUENCES, 0));
-			var numBones			: uint	 = uint(getStyleConstant(AnimationStyle.NUM_BONES, 0));
-			var vertexPosition		: SValue = _animationPart.getVertexPosition(animationMethod, maxInfluences, numBones);
+			super(priority, target);
 			
-			var localToLight		: SValue = getWorldParameter(16, LightData, LightData.LOCAL_TO_LIGHT, _lightId);
-			var lightToScreen		: SValue = new SValue(Matrix4x4.multiply(
-				Matrix4x4.perspectiveFoVLH(Math.PI / 2, 1, 1, 1000),
-				VIEW_MATRICES[_side]
-			));
+			var viewMatrix			: Matrix4x4 = VIEW_MATRICES[side];
+			var modifierMatrix		: Matrix4x4 = Matrix4x4.perspectiveFoVLH(Math.PI / 2, 1, 1, 1000);
+			var lightToScreenMatrix	: Matrix4x4 = Matrix4x4.multiply(modifierMatrix, viewMatrix);
 			
-			_positionFromLight = multiply4x4(vertexPosition, localToLight);
-			return multiply4x4(_positionFromLight, lightToScreen);
+			_lightId				= lightId;	
+			_lightToScreen			= new SFloat(lightToScreenMatrix)
+			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
+			
+			forkTemplate.blending	= Blending.NORMAL;
 		}
 		
-		override protected function getOutputColor() : SValue
+		override protected function initializeFork(fork : Shader) : void
 		{
-			var distance : SValue = length(interpolate(_positionFromLight).xyz);
+			super.initializeFork(fork);
+			
+			fork.enabled = meshBindings.propertyExists(LightingProperties.CAST_SHADOWS) 
+				&& !meshBindings.getProperty(LightingProperties.CAST_SHADOWS)
+		}
+		
+		override protected function getVertexPosition() : SFloat
+		{
+			var worldToLight		: SFloat = sceneBindings.getParameter('lightWorldToLight' + _lightId, 16);
+			var position			: SFloat = _vertexAnimationPart.getAnimatedVertexPosition();
+			var worldPosition		: SFloat = localToWorld(position);
+			
+			_positionFromLight = multiply4x4(worldPosition, worldToLight);
+			
+			return multiply4x4(_positionFromLight, _lightToScreen);
+		}
+		
+		override protected function getPixelColor() : SFloat
+		{
+			var positionFromLight	: SFloat = interpolate(_positionFromLight);
+			var distance			: SFloat = length(positionFromLight.xyz);
+			
 			distance = divide(distance, 255);
+			
 			return float4(distance.xxx, 1);
 		}
-		
-		override public function getDataHash(styleData		: StyleData, 
-											 transformData	: TransformData, 
-											 worldData		: Dictionary) : String
-		{
-			var hash : String = 'frustumShadowMapDepthShader';
-			hash += _animationPart.getDataHash(styleData, transformData, worldData)
-			hash += _lightId
-			hash += _side;
-			
-			return hash;
-		}
-		
 	}
 }

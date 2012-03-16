@@ -1,15 +1,13 @@
 package aerys.minko.render.shader.parts.lighting.attenuation
 {
-	import aerys.minko.render.shader.SValue;
-	import aerys.minko.scene.data.LightData;
+	import aerys.minko.render.shader.SFloat;
 
 	public interface IAttenuationShaderPart
 	{
-		function getDynamicFactor(lightId	: uint,
-								  position	: SValue = null) : SValue;
-		
-		function getStaticFactor(lightId	: uint,
-								 lightData	: LightData,
-								 position	: SValue = null) : SValue
+		function getAttenuationFactor(lightId					: uint, 
+									  worldPosition				: SFloat,
+									  worldNormal				: SFloat,
+									  worldInterpolatedPosition	: SFloat,
+									  worldInterpolatedNormal	: SFloat) : SFloat;
 	}
 }

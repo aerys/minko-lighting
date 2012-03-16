@@ -2,7 +2,7 @@ package aerys.minko.render.effect.reflection.onscreen
 {
 	import aerys.minko.render.effect.IEffectPass;
 	import aerys.minko.render.effect.SinglePassRenderingEffect;
-	import aerys.minko.render.effect.reflection.ReflectionStyle;
+	import aerys.minko.render.effect.reflection.ReflectionProperties;
 	import aerys.minko.render.renderer.RendererState;
 	import aerys.minko.render.resource.IResource;
 	import aerys.minko.render.shader.ActionScriptShader;
@@ -36,10 +36,10 @@ package aerys.minko.render.effect.reflection.onscreen
 												 transformData	: TransformData, 
 												 worldData		: Dictionary):Boolean
 		{
-			var reflectionSourceId : int = int(styleData.get(ReflectionStyle.RECEIVE, -1));
+			var reflectionSourceId : int = int(styleData.get(ReflectionProperties.RECEIVE, -1));
 			
 			if (reflectionSourceId >= 0)
-				styleData.set(ReflectionStyle.MAP, _reflectionResources[reflectionSourceId]);
+				styleData.set(ReflectionProperties.MAP, _reflectionResources[reflectionSourceId]);
 			
 			return super.fillRenderState(state, styleData, transformData, worldData);
 		}

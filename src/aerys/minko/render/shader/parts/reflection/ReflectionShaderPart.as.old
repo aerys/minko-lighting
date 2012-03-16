@@ -1,0 +1,139 @@
+package aerys.minko.render.shader.parts.reflection
+{
+	import aerys.minko.render.effect.reflection.ReflectionProperties;
+	import aerys.minko.render.effect.reflection.ReflectionType;
+	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.part.ShaderPart;
+	import aerys.minko.render.shader.part.projection.BlinnNewellProjectionShaderPart;
+	import aerys.minko.render.shader.part.projection.ProbeProjectionShaderPart;
+	import aerys.minko.type.enum.SamplerDimension;
+	import aerys.minko.type.enum.SamplerFilter;
+	import aerys.minko.type.enum.SamplerMipmap;
+	import aerys.minko.type.enum.SamplerWrapping;
+	
+	import flash.geom.Rectangle;
+	
+	public class ReflectionShaderPart extends ShaderPart
+	{
+		private var _blinnNewellProjectionPart	: BlinnNewellProjectionShaderPart;
+		private var _probeProjectionPart		: ProbeProjectionShaderPart;
+		
+		public function ReflectionShaderPart(main : ActionScriptShader)
+		{
+			super(main);
+			
+			_blinnNewellProjectionPart	= new BlinnNewellProjectionShaderPart(main);
+			_probeProjectionPart		= new ProbeProjectionShaderPart(main);
+		}
+		
+		public function getReflectionColor(position	: SFloat,
+										   normal	: SFloat) : SFloat
+		{
+			
+			if (meshBindings.propertyExists(ReflectionProperties.RECEIVE))
+			{
+				switch (meshBindings.getProperty(ReflectionProperties.RECEIVE))
+				{
+					case ReflectionType.NONE:
+						break;
+					
+					case ReflectionType.PLANAR:
+						break;
+					
+					case ReflectionType.PROBE:
+						break;
+					
+					case ReflectionType.BLINN_NEWELL:
+						break;
+					
+					case ReflectionType.CUBE:
+						break;
+					
+					default:
+						var reflectionData : ReflectionData = ReflectionData(reflectionDatas.getItem(reflectionId));
+						
+						if (reflectionData.type == ReflectionType.PLANAR)
+						{
+							var localToUv	: SFloat = getWorldParameter(16, ReflectionData, ReflectionData.LOCAL_TO_SCREEN, reflectionId);
+							uv = multiply4x4(interpolate(position), localToUv);
+							uv = divide(uv, uv.w);
+							uv.scaleBy(float2(1/2, -1/2));
+							uv.incrementBy(1/2);
+							
+							return sampleTexture(ReflectionProperties.MAP, uv, SamplerFilter.LINEAR, SamplerMipmap.DISABLE, SamplerWrapping.CLAMP);
+						}
+						else
+						{
+							return getReflectionColor(reflectionData.type, null, position, normal);
+						}
+					
+				}
+			}
+			
+			
+			var uv : SFloat;
+			
+			if (reflectionId == ReflectionType.NONE)
+				return null;
+			
+			else if (reflectionId == ReflectionType.PLANAR)
+				throw new Error('This reflection type is only supported ' +
+					'for dynamic reflections. You should insert a ' +
+					'ReflectionSurface node into your scene');
+			
+			
+			
+			
+			
+			
+			else if (reflectionId == ReflectionType.PROBE || reflectionId == ReflectionType.BLINN_NEWELL || reflectionId == ReflectionType.CUBE)
+			{
+				var reflected : SFloat = getReflectedVector(position, normal);
+				
+				if (reflectionId == ReflectionType.PROBE)
+				{
+					
+				}
+				else if (reflectionId == ReflectionType.BLINN_NEWELL)
+				{
+					uv = _blinnNewellProjectionPart.projectVector(reflected, new Rectangle(0, 0, 1, 1));
+					return sampleTexture(ReflectionProperties.MAP, uv, SamplerFilter.LINEAR, SamplerMipmap.LINEAR, SamplerWrapping.CLAMP);
+				}
+				else
+				{
+					return sampleTexture(ReflectionProperties.MAP, reflected, SamplerFilter.LINEAR, SamplerMipmap.DISABLE, SamplerWrapping.CLAMP, SamplerDimension.CUBE);
+				}
+			}
+			
+			else if (reflectionId >= 0)
+			{
+				
+			}
+			
+			throw new Error('Invalid reflection type and|or id');
+		}
+		
+		private function computeReflectedVector(position : SFloat, normal : SFloat) : SFloat
+		{
+			// wrong, we should do the substration of cameraPosition in worldspace to save the matrix calculation
+			var cameraLocalPosition	: SFloat = getWorldParameter(3, CameraData, CameraData.LOCAL_POSITION)
+			var vertexToCam			: SFloat = normalize(subtract(cameraLocalPosition, position));
+			var reflected			: SFloat = reflect(vertexToCam, normalize(interpolate(normal)));
+			reflected = interpolate(normalize(multiply3x3(reflected, localToWorldMatrix)));
+			
+			return reflected;
+		}
+		
+		private function computeProbeReflectedColor(reflectionId : uint, position : SFloat, normal : SFloat) : SFloat
+		{
+			var reflected	: SFloat = computeReflectedVector(position, normal);
+			var uv			: SFloat = _probeProjectionPart.projectVector(reflected, new Rectangle(0, 0, 1, 1));
+			var texture		: SFloat = reflectionId > 0 ? 
+				sceneBindings.getTextureParameter('', SamplerFilter.LINEAR, SamplerMipmap.LINEAR, SamplerWrapping.CLAMP) :
+				meshBindings.getTextureParameter(ReflectionProperties.MAP, SamplerFilter.LINEAR, SamplerMipmap.LINEAR, SamplerWrapping.CLAMP);
+			
+			return sampleTexture(texture, uv);
+		}
+	}
+}

@@ -1,202 +1,323 @@
 package aerys.minko.render.shader.parts.lighting
 {
-	import aerys.minko.render.effect.lighting.LightingStyle;
+	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.ActionScriptShader;
-	import aerys.minko.render.shader.ActionScriptShaderPart;
-	import aerys.minko.render.shader.SValue;
-	import aerys.minko.render.shader.parts.lighting.type.AmbientLightShaderPart;
-	import aerys.minko.render.shader.parts.lighting.type.DirectionalLightShaderPart;
-	import aerys.minko.render.shader.parts.lighting.type.LightMapShaderPart;
-	import aerys.minko.render.shader.parts.lighting.type.PointLightShaderPart;
-	import aerys.minko.render.shader.parts.lighting.type.SpotLightShaderPart;
-	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.StyleData;
-	import aerys.minko.scene.data.TransformData;
-	import aerys.minko.scene.data.WorldDataList;
+	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.part.ShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.DPShadowMapAttenuationShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.DistanceAttenuationShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.HardConicAttenuationShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.MatrixShadowMapAttenuationShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.SmoothConicAttenuationShaderPart;
+	import aerys.minko.render.shader.parts.lighting.contribution.InfiniteShaderPart;
+	import aerys.minko.render.shader.parts.lighting.contribution.LocalizedShaderPart;
 	import aerys.minko.scene.node.light.AmbientLight;
-	import aerys.minko.scene.node.light.ConstDirectionalLight;
-	import aerys.minko.scene.node.light.ConstPointLight;
-	import aerys.minko.scene.node.light.ConstSpotLight;
 	import aerys.minko.scene.node.light.DirectionalLight;
 	import aerys.minko.scene.node.light.PointLight;
 	import aerys.minko.scene.node.light.SpotLight;
-	
-	import flash.utils.Dictionary;
+	import aerys.minko.type.enum.ShadowMappingType;
 	
 	/**
 	 * This shader part compute the lighting contribution of all lights
 	 * 
-	 * @author Romain Gilliotte <romain.gilliotte@aerys.in>
+	 * @author Romain Gilliotte
 	 */	
-	public class LightingShaderPart extends ActionScriptShaderPart
+	public class LightingShaderPart extends ShaderPart
 	{
-		private var _lightMapPart			: LightMapShaderPart			= null;
-		private var _ambientLightPart		: AmbientLightShaderPart		= null;
-		private var _directionalLightPart	: DirectionalLightShaderPart	= null
-		private var _pointLightPart			: PointLightShaderPart			= null;
-		private var _spotLightPart			: SpotLightShaderPart			= null;
-		
+		private var _infinitePart					: InfiniteShaderPart;
+		private var _localizedPart					: LocalizedShaderPart;
+		private var _matrixShadowMapPart			: MatrixShadowMapAttenuationShaderPart;
+		private var _distanceAttenuationPart		: DistanceAttenuationShaderPart;
+		private var _dpShadowMapAttenuationPart		: DPShadowMapAttenuationShaderPart;
+		private var _cubeShadowMapAttenuationPart	: CubeShadowMapAttenuationShaderPart;
+		private var _smoothConicAttenuationPart		: SmoothConicAttenuationShaderPart;
+		private var _hardConicAttenuationPart		: HardConicAttenuationShaderPart;
+				
 		public function LightingShaderPart(main : ActionScriptShader)
 		{
 			super(main);
 			
-			_lightMapPart = new LightMapShaderPart(main);
-			_ambientLightPart = new AmbientLightShaderPart(main);
-			_directionalLightPart = new DirectionalLightShaderPart(main);
-			_pointLightPart = new PointLightShaderPart(main);
-			_spotLightPart = new SpotLightShaderPart(main);
+			_infinitePart					= new InfiniteShaderPart(main);
+			_localizedPart					= new LocalizedShaderPart(main);
+			_matrixShadowMapPart			= new MatrixShadowMapAttenuationShaderPart(main);
+			_distanceAttenuationPart		= new DistanceAttenuationShaderPart(main);
+			_dpShadowMapAttenuationPart		= new DPShadowMapAttenuationShaderPart(main);
+			_cubeShadowMapAttenuationPart	= new CubeShadowMapAttenuationShaderPart(main);
+			_smoothConicAttenuationPart		= new SmoothConicAttenuationShaderPart(main);
+			_hardConicAttenuationPart		= new HardConicAttenuationShaderPart(main);
 		}
 		
-		public function getLightingColor(lightEnabled		: Boolean, 
-										 lightGroup			: uint,
-										 lightMapEnabled	: Boolean,
-										 shadowsReceive		: Boolean,
-										 lightDatas			: WorldDataList,
-										 position			: SValue = null,
-										 normal				: SValue = null) : SValue
+		public function getLightingColor(position	: SFloat,
+										 uv			: SFloat, 
+										 normal		: SFloat) : SFloat
 		{
-			var lighting : SValue = float3(0);
+			// compute positions and normals once, to make compiler work easier
+			var worldPosition				: SFloat = localToWorld(position);
+			var worldNormal					: SFloat = normalize(deltaLocalToWorld(normal));
+			var interpolatedWorldPosition	: SFloat = interpolate(worldPosition);
+//			var interpolatedWorldNormal		: SFloat = normalize(interpolate(deltaLocalToWorld(normal)));
+			var interpolatedWorldNormal		: SFloat = normalize(interpolate(float4(deltaLocalToWorld(normal), 1)).xyz);
 			
-			if (!lightMapEnabled && !lightEnabled)
-				return null;
+			// declare accumulator
+			var lightValue					: SFloat = float3(0, 0, 0);
+			var lightContribution			: SFloat;
 			
 			// process static light mapping
-			if (lightMapEnabled)
+			if (meshBindings.propertyExists(LightingProperties.LIGHTMAP))
 			{
-				lighting.incrementBy(_lightMapPart.getLightContribution());
+				var lightMap : SFloat = meshBindings.getTextureParameter(LightingProperties.LIGHTMAP);
+				
+				lightContribution = sampleTexture(lightMap, interpolate(uv));
+				
+				if (meshBindings.propertyExists(LightingProperties.LIGHTMAP_MULTIPLIER))
+					lightContribution.scaleBy(meshBindings.getParameter(LightingProperties.LIGHTMAP_MULTIPLIER, 4));
+				
+				lightValue.incrementBy(lightContribution);
 			}
 			
 			// process dynamic lighting
-			if (lightEnabled)
+			var lightId		: uint = 0;
+			var meshGroup	: uint = meshBindings.getProperty(LightingProperties.GROUP);
+			
+			while (sceneBindings.propertyExists('lightGroup' + lightId))
 			{
-				var numLights		: uint		= lightDatas ? lightDatas.length : 0;
+				var lightGroup : uint = uint(sceneBindings.getProperty('lightGroup' + lightId));
 				
-				for (var lightId : uint = 0; lightId < numLights; ++lightId)
-				{
-					var lightData			: LightData	= LightData(lightDatas.getItem(lightId));
-					var lightContribution	: SValue	= getLightContribution(lightId, lightData, lightGroup, shadowsReceive, position, normal);
-					var lightColor			: SValue	= getWorldParameter(3, LightData, LightData.COLOR, lightId); 
-					
-					if (lightContribution == null)
-						continue;
-					
-					lighting.incrementBy(lightContribution);
-				}
+				if ((lightGroup & meshGroup) == 0)
+					continue;
+				
+				lightContribution = getLightContribution(
+					lightId, 
+					worldPosition, worldNormal, 
+					interpolatedWorldPosition, interpolatedWorldNormal
+				);
+				
+				lightValue.incrementBy(lightContribution);
+				
+				++lightId;
 			}
 			
-			return float4(lighting, 1);
+			return float4(lightValue, 1);
 		}
 		
-		private function getLightContribution(lightId			: uint,
-											  lightData			: LightData,
-											  lightGroup		: uint,
-											  receiveShadows	: Boolean,
-											  position			: SValue,
-											  normal			: SValue) : SValue
+		private function getLightContribution(lightId					: uint,
+											  worldPosition				: SFloat,
+											  worldNormal				: SFloat,
+											  interpolatedWorldPosition	: SFloat,
+											  interpolatedWorldNormal	: SFloat) : SFloat
 		{
-			if ((lightData.group & lightGroup) == 0)
-				return null;
+			var lightColor			: SFloat = sceneBindings.getParameter('lightColor' + lightId, 3);
+			var lightContribution	: SFloat;
+			var lightType			: uint = sceneBindings.getProperty('lightType' + lightId);
 			
-			receiveShadows &&= lightData.castShadows;
-			
-			switch (lightData.type)
+			switch (lightType)
 			{
 				case AmbientLight.TYPE:
-					return _ambientLightPart.getDynamicLightContribution(lightId);
+					lightContribution = getAmbientLightContribution(lightId);
+					break;
 				
 				case DirectionalLight.TYPE:
-					return _directionalLightPart.getDynamicLightContribution(lightId, lightData, receiveShadows, position, normal);
+					lightContribution = getDirectionalLightContribution(
+						lightId, 
+						worldPosition, worldNormal, 
+						interpolatedWorldPosition, interpolatedWorldNormal
+					);
+					break;
 				
 				case PointLight.TYPE:
-					return _pointLightPart.getDynamicLightContribution(lightId, lightData, receiveShadows, position, normal);
+					lightContribution = getPointLightContribution(
+						lightId, 
+						worldPosition, worldNormal, 
+						interpolatedWorldPosition, interpolatedWorldNormal
+					);
+					break;
 				
 				case SpotLight.TYPE:
-					return _spotLightPart.getDynamicLightContribution(lightId, lightData, receiveShadows, position, normal);
-				
-				case ConstDirectionalLight.TYPE:
-					return _directionalLightPart.getStaticLightContribution(lightId, lightData, receiveShadows, position, normal);
-				
-				case ConstPointLight.TYPE:
-					return _pointLightPart.getStaticLightContribution(lightId, lightData, receiveShadows, position, normal);
-				
-				case ConstSpotLight.TYPE:
-					return _spotLightPart.getStaticLightContribution(lightId, lightData, receiveShadows, position, normal);
+					lightContribution = getSpotLightContribution(
+						lightId, 
+						worldPosition, worldNormal, 
+						interpolatedWorldPosition, interpolatedWorldNormal
+					);
+					break;
+					
+				default:
+					throw new Error('Unsupported light type: ' + lightType);
 			}
 			
-			throw new Error('Unsupported light type');
+			return multiply(lightColor, lightContribution);
 		}
 		
-		override public function getDataHash(styleData		: StyleData, 
-											 transformData	: TransformData, 
-											 worldData		: Dictionary) : String
+		private function getAmbientLightContribution(lightId : uint) : SFloat
 		{
-			var lightEnabled		: Boolean		= Boolean(styleData.get(LightingStyle.LIGHTS_ENABLED, false));
-			var lightGroup			: uint			= uint(styleData.get(LightingStyle.GROUP, 1));
-			var lightMapEnabled		: Boolean		= styleData.isSet(LightingStyle.LIGHTMAP);
-			var shadowsEnabled		: Boolean		= Boolean(styleData.get(LightingStyle.SHADOWS_ENABLED, false));
-			var shadowsReceive		: Boolean		= Boolean(styleData.get(LightingStyle.RECEIVE_SHADOWS, false));
-			var lightDatas			: WorldDataList	= worldData[LightData];
+			var lightAmbient : SFloat = sceneBindings.getParameter('lightAmbient' + lightId, 1);
 			
-			var hash				: String		= 'lightingsp';
+			if (meshBindings.propertyExists('lightAmbientMultiplier'))
+				lightAmbient.scaleBy(sceneBindings.getParameter('lightAmbientModifier', 1));
 			
-			hash += uint(lightMapEnabled).toString();
-			hash += uint(lightEnabled).toString();
-			
-			if (lightEnabled)
-			{
-				var numLights		: uint		= lightDatas ? lightDatas.length : 0;
-				var receiveShadows	: Boolean	= shadowsEnabled && shadowsReceive;
-				
-				hash += numLights.toString();
-				hash += uint(receiveShadows).toString();
-				
-				for (var lightId : uint = 0; lightId < numLights; ++lightId)
-				{
-					var lightData : LightData = LightData(lightDatas.getItem(lightId));
-					
-					hash += getLightHash(lightId, lightData, lightGroup);
-				}
-			}
-			
-			return hash;
+			return lightAmbient;
 		}
 		
-		/**
-		 * There is a known bug here: if the user replaces a const light, by another one of the same type, the changes will not be reflected on the scene
-		 * It is unlikely to happen, and allow us to save some performance
-		 */		
-		private function getLightHash(lightId		: uint,
-									  lightData		: LightData,
-									  lightGroup	: uint) : String
+		private function getDirectionalLightContribution(lightId					: uint,
+														 worldPosition				: SFloat,
+														 worldNormal				: SFloat,
+														 interpolatedWorldPosition	: SFloat,
+														 interpolatedWorldNormal	: SFloat) : SFloat
 		{
-			if ((lightData.group & lightGroup) == 0)
-				return '0';
+			var lightHasDiffuse		: Boolean	= sceneBindings.getProperty('lightDiffuseEnabled' + lightId);
+			var lightHasSpecular	: Boolean	= sceneBindings.getProperty('lightSpecularEnabled' + lightId);
+			var lightShadowCasting	: uint		= sceneBindings.getProperty('lightShadowCastingType' + lightId);
+			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
+			var computeShadows		: Boolean	= lightShadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
-			switch (lightData.type)
+			var contribution	: SFloat = float(0);
+			
+			if (lightHasDiffuse)
+				contribution.incrementBy(_infinitePart.getDiffuseTerm(
+					lightId, 
+					worldPosition, worldNormal, 
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			
+			if (lightHasSpecular)
+				contribution.incrementBy(_infinitePart.getSpecularTerm(
+					lightId, 
+					worldPosition, worldNormal, 
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			
+			if (computeShadows)
+				contribution.scaleBy(
+					_matrixShadowMapPart.getAttenuationFactor(
+						lightId, 
+						worldPosition, worldNormal, 
+						interpolatedWorldPosition, interpolatedWorldNormal
+					)
+				);
+			
+			return contribution;
+		}
+		
+		private function getPointLightContribution(lightId						: uint,
+												   worldPosition				: SFloat,
+												   worldNormal					: SFloat,
+												   interpolatedWorldPosition	: SFloat,
+												   interpolatedWorldNormal		: SFloat) : SFloat
+		{
+			var lightHasDiffuse		: Boolean	= sceneBindings.getProperty('lightDiffuseEnabled' + lightId);
+			var lightHasSpecular	: Boolean	= sceneBindings.getProperty('lightSpecularEnabled' + lightId);
+			var lightShadowCasting	: uint		= sceneBindings.getProperty('lightShadowCastingType' + lightId);
+			var lightIsAttenuated	: Boolean	= sceneBindings.getProperty('lightAttenuationEnabled' + lightId);
+			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
+			var computeShadows		: Boolean	= lightShadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
+			
+			var contribution		: SFloat	= float(0);
+			
+			if (lightHasDiffuse)
+				contribution.incrementBy(_localizedPart.getDiffuseTerm(
+					lightId, 
+					worldPosition, worldNormal, 
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			
+			if (lightHasSpecular)
+				contribution.incrementBy(_localizedPart.getSpecularTerm(
+					lightId, 
+					worldPosition, worldNormal, 
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			
+			if (lightIsAttenuated)
+				contribution.scaleBy(_distanceAttenuationPart.getAttenuationFactor(
+					lightId, 
+					worldPosition, worldNormal, 
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			
+			if (computeShadows)
 			{
-				case AmbientLight.TYPE:
-					return '2';
-					
-				case DirectionalLight.TYPE:
-					return '3' + uint(lightData.castShadows).toString() + _directionalLightPart.getDynamicLightHash(lightData);
-					
-				case PointLight.TYPE:
-					return '4' + uint(lightData.castShadows).toString() + _pointLightPart.getDynamicLightHash(lightData);
-					
-				case SpotLight.TYPE:
-					return '5' + uint(lightData.castShadows).toString() + _spotLightPart.getDynamicLightHash(lightData);
+				var useCubeMap : Boolean = sceneBindings.propertyExists('lightCubeDepthMap');
 				
-				case ConstDirectionalLight.TYPE:
-					return '7' + uint(lightData.castShadows).toString();
-					
-				case ConstPointLight.TYPE:
-					return '8' + uint(lightData.castShadows).toString();
-					
-				case ConstSpotLight.TYPE:
-					return '9' + uint(lightData.castShadows).toString();
+				if (useCubeMap)
+					contribution.scaleBy(_cubeShadowMapAttenuationPart.getAttenuationFactor(
+						lightId, 
+						worldPosition, worldNormal, 
+						interpolatedWorldPosition, interpolatedWorldNormal
+					));
+				else
+					contribution.scaleBy(_dpShadowMapAttenuationPart.getAttenuationFactor(
+						lightId, 
+						worldPosition, worldNormal, 
+						interpolatedWorldPosition, interpolatedWorldNormal
+					));
 			}
 			
-			throw new Error('Unsupported light type');
+			return contribution;
+		}
+		
+		private function getSpotLightContribution(lightId					: uint,
+												  worldPosition				: SFloat,
+												  worldNormal				: SFloat,
+												  interpolatedWorldPosition	: SFloat,
+												  interpolatedWorldNormal	: SFloat) : SFloat
+		{
+			
+			var lightHasDiffuse		: Boolean	= sceneBindings.getProperty('lightDiffuseEnabled' + lightId);
+			var lightHasSpecular	: Boolean	= sceneBindings.getProperty('lightSpecularEnabled' + lightId);
+			var lightShadowCasting	: uint		= sceneBindings.getProperty('lightShadowCastingType' + lightId);
+			var lightIsAttenuated	: Boolean	= sceneBindings.getProperty('lightAttenuationEnabled' + lightId);
+			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
+			var computeShadows		: Boolean	= lightShadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
+			
+			var lightHasHardEdge	: Boolean	= 
+				sceneBindings.getProperty('lightInnerRadius' + lightId) == sceneBindings.getProperty('lightOuterRadius' + lightId);
+			
+			var contribution		: SFloat	= float(0);
+			
+			if (lightHasDiffuse)
+				contribution.incrementBy(_localizedPart.getDiffuseTerm(
+					lightId,
+					worldPosition, worldNormal,
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			
+			if (lightHasSpecular)
+				contribution.incrementBy(_localizedPart.getSpecularTerm(
+					lightId,
+					worldPosition, worldNormal,
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			
+			if (lightIsAttenuated)
+				contribution.scaleBy(_distanceAttenuationPart.getAttenuationFactor(
+					lightId,
+					worldPosition, worldNormal,
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			
+			if (lightHasHardEdge)
+				contribution.scaleBy(_hardConicAttenuationPart.getAttenuationFactor(
+					lightId,
+					worldPosition, worldNormal,
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			else
+				contribution.scaleBy(_smoothConicAttenuationPart.getAttenuationFactor(
+					lightId,
+					worldPosition, worldNormal,
+					interpolatedWorldPosition, interpolatedWorldNormal
+				));
+			
+			if (computeShadows)
+				contribution.scaleBy(
+					_matrixShadowMapPart.getAttenuationFactor(
+						lightId, 
+						worldPosition, worldNormal, 
+						interpolatedWorldPosition, interpolatedWorldNormal
+					)
+				);
+			
+			return contribution;
 		}
 	}
 }

@@ -2,7 +2,7 @@ package aerys.minko.render.effect.reflection.offscreen
 {
 	import aerys.minko.render.effect.SinglePassRenderingEffect;
 	import aerys.minko.render.effect.basic.BasicStyle;
-	import aerys.minko.render.effect.reflection.ReflectionStyle;
+	import aerys.minko.render.effect.reflection.ReflectionProperties;
 	import aerys.minko.render.renderer.RendererState;
 	import aerys.minko.render.shader.IShader;
 	import aerys.minko.render.target.AbstractRenderTarget;
@@ -25,7 +25,7 @@ package aerys.minko.render.effect.reflection.offscreen
 		
 		override public function fillRenderState(state:RendererState, styleData:StyleData, transformData:TransformData, worldData:Dictionary):Boolean
 		{
-			if (styleData.get(ReflectionStyle.CAST, 0) == 0)
+			if (styleData.get(ReflectionProperties.CAST, 0) == 0)
 				return false;
 			styleData.set(BasicStyle.TRIANGLE_CULLING, TriangleCulling.DISABLED);
 			
