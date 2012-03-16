@@ -50,15 +50,11 @@ package aerys.minko.scene.node.light
 		{
 			var sceneBindings : DataBindings = Scene(root).bindings;
 			
-			sceneBindings.remove(this);
-			
 			_dataDescriptor = new Object();
 			_dataDescriptor['light type ' + lightId]	= 'type';
 			_dataDescriptor['light color ' + lightId]	= 'color';
 			_dataDescriptor['light group ' + lightId]	= 'group';
 			_dataDescriptor['light ambient ' + lightId]	= 'ambient';
-			
-			sceneBindings.add(this);
 			
 			_lightId = lightId;
 			changed.execute(this, 'lightId');
