@@ -338,7 +338,7 @@ package aerys.minko.scene.node.light
 				zNear = zFar / 10000;
 			
 			// update world to screen and projection
-			_projection = Matrix4x4.perspectiveFoVLH(_outerRadius, 1, zNear, zFar, _projection);
+			_projection = Matrix4x4.perspectiveFoV(_outerRadius, 1, zNear, zFar, _projection);
 			_worldToScreen = Matrix4x4.multiply(_projection, worldToLocal, _worldToScreen);
 		}
 		
