@@ -13,17 +13,20 @@ package aerys.minko.render.effect.lighting.offscreen
 	
 	import flash.geom.Rectangle;
 	
-	public class ParaboloidShadowMapShader extends PassTemplate
+	public class ParaboloidShadowMapPass extends PassTemplate
 	{
 		private static const PROJECTION_RECTANGLE : Rectangle = new Rectangle(-1, 1, 2, -2);
 		
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		private var _projectorPart			: IProjectionShaderPart;
 		
-		private var _lightId				: uint = 0;
+		private var _lightId				: uint;
+		private var _priority				: Number;
+		private var _renderTarget			: RenderTarget;
+		
 		private var _lightSpacePosition		: SFloat;
 		
-		public function ParaboloidShadowMapShader(lightId	: uint,
+		public function ParaboloidShadowMapPass(lightId	: uint,
 												  front		: Boolean,
 												  priority	: Number,
 												  target	: RenderTarget)
@@ -35,7 +38,10 @@ package aerys.minko.render.effect.lighting.offscreen
 		
 		override protected function configurePass(passConfig : PassConfig) : void
 		{
-			passConfig.blending = Blending.NORMAL;
+			passConfig.blending		= Blending.NORMAL;
+			passConfig.priority		= _priority;
+			passConfig.renderTarget	= _renderTarget;
+			
 			passConfig.enabled = 
 				meshBindings.getPropertyOrFallback(LightingProperties.CAST_SHADOWS, true);
 		}

@@ -9,23 +9,32 @@ package aerys.minko.render.effect.lighting.offscreen
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.type.enum.Blending;
 	
-	public class MatrixShadowMapShader extends PassTemplate
+	public class MatrixShadowMapPass extends PassTemplate
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
-		private var _lightId				: uint		= 0;
-		private var _vertexPosition			: SFloat	= null;
 		
-		public function MatrixShadowMapShader(lightId	: uint,
-											  priority	: Number,
-											  target	: RenderTarget)
+		private var _lightId		: uint;
+		private var _priority		: Number;
+		private var _renderTarget	: RenderTarget;
+		
+		private var _vertexPosition	: SFloat;
+		
+		public function MatrixShadowMapPass(lightId			: uint,
+											priority		: Number,
+											renderTarget	: RenderTarget)
 		{
-			_lightId				= lightId;	
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
+			
+			_lightId				= lightId;
+			_priority				= priority;
+			_renderTarget			= renderTarget;
 		}
 		
 		override protected function configurePass(passConfig : PassConfig) : void
 		{
-			passConfig.blending = Blending.NORMAL;
+			passConfig.blending		= Blending.NORMAL;
+			passConfig.priority		= _priority;
+			passConfig.renderTarget = _renderTarget;
 			
 			passConfig.enabled = 
 				meshBindings.getPropertyOrFallback(LightingProperties.CAST_SHADOWS, true);

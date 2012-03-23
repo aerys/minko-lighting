@@ -2,7 +2,7 @@ package aerys.minko.scene.node.light
 {
 	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.render.RenderTarget;
-	import aerys.minko.render.effect.lighting.offscreen.MatrixShadowMapShader;
+	import aerys.minko.render.effect.lighting.offscreen.MatrixShadowMapPass;
 	import aerys.minko.render.resource.texture.TextureResource;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.data.DataBindings;
@@ -26,7 +26,7 @@ package aerys.minko.scene.node.light
 		protected var _worldDirection	: Vector4;
 		
 		protected var _shadowMap		: TextureResource;
-		protected var _depthMapShader	: MatrixShadowMapShader;
+		protected var _depthMapShader	: MatrixShadowMapPass;
 		
 		override public function get type()					: uint
 		{
@@ -38,7 +38,7 @@ package aerys.minko.scene.node.light
 			return _shadowMap != null ? ShadowMappingType.MATRIX : ShadowMappingType.NONE;
 		}
 		
-		minko_lighting function get depthMapShader() : MatrixShadowMapShader
+		minko_lighting function get depthMapShader() : MatrixShadowMapPass
 		{
 			return _depthMapShader;
 		}
@@ -152,7 +152,7 @@ package aerys.minko.scene.node.light
 				_shadowMap.setSize(v, v);
 				
 				_depthMapShader = 
-					new MatrixShadowMapShader(_lightId, 0, new RenderTarget(v, v, _shadowMap));
+					new MatrixShadowMapPass(_lightId, 0, new RenderTarget(v, v, _shadowMap));
 			}
 			else
 			{

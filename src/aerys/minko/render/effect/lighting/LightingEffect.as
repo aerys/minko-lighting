@@ -3,7 +3,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.ns.minko_render;
 	import aerys.minko.render.effect.Effect;
-	import aerys.minko.render.effect.lighting.onscreen.LightingShader;
+	import aerys.minko.render.effect.lighting.onscreen.LightingPass;
 	import aerys.minko.render.shader.PassTemplate;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
@@ -19,7 +19,7 @@ package aerys.minko.render.effect.lighting
 		use namespace minko_lighting;
 		
 		private var _scene					: Scene;
-		private var _renderingPass			: LightingShader;
+		private var _renderingPass			: LightingPass;
 		
 		private var _watchedLights			: Vector.<AbstractLight>;
 		private var _watchedLightsCastType	: Vector.<uint>;
@@ -27,7 +27,7 @@ package aerys.minko.render.effect.lighting
 		public function LightingEffect(scene : Scene)
 		{
 			_scene					= scene;
-			_renderingPass			= new LightingShader();
+			_renderingPass			= new LightingPass();
 			
 			_watchedLights			= new Vector.<AbstractLight>();
 			_watchedLightsCastType	= new Vector.<uint>();

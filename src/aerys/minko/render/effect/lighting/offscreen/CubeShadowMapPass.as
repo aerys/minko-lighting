@@ -11,41 +11,50 @@ package aerys.minko.render.effect.lighting.offscreen
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
-	public class CubeShadowMapShader extends PassTemplate
+	public class CubeShadowMapPass extends PassTemplate
 	{
 		private static const VIEW_MATRICES : Vector.<Matrix4x4> = Vector.<Matrix4x4>([
 			Matrix4x4.lookAt(Vector4.ZERO, Vector4.X_AXIS,		Vector4.Y_AXIS),		// look at positive x
-			Matrix4x4.lookAt(Vector4.ZERO, new Vector4(-1, 0, 0),	Vector4.Y_AXIS),		// look at negative x
+			Matrix4x4.lookAt(Vector4.ZERO, new Vector4(-1, 0, 0),	Vector4.Y_AXIS),	// look at negative x
 			Matrix4x4.lookAt(Vector4.ZERO, Vector4.Y_AXIS,		new Vector4(0, 0, -1)),	// look at positive y
-			Matrix4x4.lookAt(Vector4.ZERO, new Vector4(0, -1, 0),	Vector4.Z_AXIS),		// look at negative y
+			Matrix4x4.lookAt(Vector4.ZERO, new Vector4(0, -1, 0),	Vector4.Z_AXIS),	// look at negative y
 			Matrix4x4.lookAt(Vector4.ZERO, Vector4.Z_AXIS,		Vector4.Y_AXIS),		// look at positive z, that's identity!!
-			Matrix4x4.lookAt(Vector4.ZERO, new Vector4(0, 0, -1),	Vector4.Y_AXIS),		// look at negative z
+			Matrix4x4.lookAt(Vector4.ZERO, new Vector4(0, 0, -1),	Vector4.Y_AXIS),	// look at negative z
 		]);
 		
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		
 		private var _lightId				: uint;
+		private var _priority				: Number;
+		private var _renderTarget			: RenderTarget;
 		
 		private var _lightToScreen			: SFloat;
 		private var _positionFromLight		: SFloat;
 		
-		public function CubeShadowMapShader(lightId		: uint, 
-											side		: uint, 
-											priority	: Number,
-											target		: RenderTarget)
+		public function CubeShadowMapPass(lightId		: uint, 
+										  side			: uint, 
+										  priority		: Number,
+										  renderTarget	: RenderTarget)
 		{
+			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
+			
+			_priority				= priority;
+			_renderTarget			= renderTarget;
+			
 			var viewMatrix			: Matrix4x4 = VIEW_MATRICES[side];
 			var modifierMatrix		: Matrix4x4 = Matrix4x4.perspectiveFoV(Math.PI / 2, 1, 1, 1000);
 			var lightToScreenMatrix	: Matrix4x4 = Matrix4x4.multiply(modifierMatrix, viewMatrix);
 			
 			_lightId				= lightId;	
 			_lightToScreen			= new SFloat(lightToScreenMatrix)
-			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
 		}
 		
 		override protected function configurePass(passConfig : PassConfig) : void
 		{
-			passConfig.blending = Blending.NORMAL;
+			passConfig.blending		= Blending.NORMAL;
+			passConfig.priority		= _priority;
+			passConfig.renderTarget	= _renderTarget;
+			
 			passConfig.enabled = 
 				meshBindings.getPropertyOrFallback(LightingProperties.CAST_SHADOWS, true);
 		}

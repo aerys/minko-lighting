@@ -15,20 +15,26 @@ package aerys.minko.render.effect.lighting.onscreen
 	import aerys.minko.type.enum.TriangleCulling;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
-	public class LightingShader extends PassTemplate
+	public class LightingPass extends PassTemplate
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		private var _pixelColorPart			: PixelColorShaderPart;
 		private var _blendingPart			: BlendingShaderPart;
 		private var _lightingPart			: LightingShaderPart;
 		
+		private var _priority				: Number;
+		private var _renderTarget			: RenderTarget;
+		
 		private var _vertexPosition			: SFloat;
 		private var _vertexUV				: SFloat;
 		private var _vertexNormal			: SFloat;
 		
-		public function LightingShader(priority	: Number		= 0,
-									   target	: RenderTarget	= null)
+		public function LightingPass(priority		: Number		= 0,
+									 renderTarget	: RenderTarget	= null)
 		{
+			_priority				= priority;
+			_renderTarget			= renderTarget;
+			
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
 			_pixelColorPart			= new PixelColorShaderPart(this);
 			_blendingPart			= new BlendingShaderPart(this);
@@ -41,6 +47,9 @@ package aerys.minko.render.effect.lighting.onscreen
 			
 			if (blending == Blending.ALPHA || blending == Blending.ADDITIVE)
 				passConfig.priority -= 0.5;
+			
+			passConfig.priority			= _priority;
+			passConfig.renderTarget		= _renderTarget;
 			
 			passConfig.depthTest		= meshBindings.getPropertyOrFallback("depthTest", DepthTest.LESS);
 			passConfig.blending			= blending;
