@@ -2,9 +2,10 @@ package aerys.minko.render.effect.lighting.onscreen
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.PassConfig;
+	import aerys.minko.render.shader.PassInstance;
+	import aerys.minko.render.shader.PassTemplate;
 	import aerys.minko.render.shader.SFloat;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
 	import aerys.minko.render.shader.part.PixelColorShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
@@ -14,7 +15,7 @@ package aerys.minko.render.effect.lighting.onscreen
 	import aerys.minko.type.enum.TriangleCulling;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
-	public class LightingShader extends ActionScriptShader
+	public class LightingShader extends PassTemplate
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		private var _pixelColorPart			: PixelColorShaderPart;
@@ -28,34 +29,22 @@ package aerys.minko.render.effect.lighting.onscreen
 		public function LightingShader(priority	: Number		= 0,
 									   target	: RenderTarget	= null)
 		{
-			super(priority, target);
-			
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
 			_pixelColorPart			= new PixelColorShaderPart(this);
 			_blendingPart			= new BlendingShaderPart(this);
 			_lightingPart			= new LightingShaderPart(this);
-			
-			defaultMeshProperties = {
-				blending 			: Blending.NORMAL,
-				triangleCulling 	: TriangleCulling.BACK,
-				depthTest			: DepthTest.LESS,
-				enableDepthWrite	: true,
-				lightGroup			: 1
-			};
 		}
 		
-		override protected function initializeFork(fork : Shader) : void
+		override protected function configurePass(passConfig : PassConfig) : void
 		{
-			super.initializeFork(fork);
-			
-			var blending : uint = meshBindings.getProperty("blending");
+			var blending : uint = meshBindings.getPropertyOrFallback("blending", Blending.NORMAL);
 			
 			if (blending == Blending.ALPHA || blending == Blending.ADDITIVE)
-				fork.priority -= 0.5;
+				passConfig.priority -= 0.5;
 			
-			fork.depthTest			= meshBindings.getProperty("depthTest");
-			fork.blending			= blending;
-			fork.triangleCulling	= meshBindings.getProperty("triangleCulling");
+			passConfig.depthTest		= meshBindings.getPropertyOrFallback("depthTest", DepthTest.LESS);
+			passConfig.blending			= blending;
+			passConfig.triangleCulling	= meshBindings.getPropertyOrFallback("triangleCulling", TriangleCulling.BACK);
 		}
 		
 		override protected function getVertexPosition() : SFloat

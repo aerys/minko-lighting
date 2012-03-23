@@ -217,13 +217,13 @@ package aerys.minko.scene.node.light
 			
 			_locked = true;
 			
-			this.attenuationDistance		= distance;
-			this.diffuse		= diffuse;
-			this.specular		= specular;
-			this.shininess		= shininess;
-			this.innerRadius	= innerRadius;
-			this.outerRadius	= outerRadius;
-			this.shadowMapSize	= shadowMapSize;
+			this.attenuationDistance	= distance;
+			this.diffuse				= diffuse;
+			this.specular				= specular;
+			this.shininess				= shininess;
+			this.innerRadius			= innerRadius;
+			this.outerRadius			= outerRadius;
+			this.shadowMapSize			= shadowMapSize;
 			
 			_locked = false;
 		}
@@ -235,7 +235,7 @@ package aerys.minko.scene.node.light
 			scene.childAdded.add(onChildAddedToScene);
 			scene.childRemoved.add(onChildRemovedFromScene);
 			
-			retrieveCameraFromScene();
+			updateCamera();
 		}
 		
 		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene) : void
@@ -245,7 +245,7 @@ package aerys.minko.scene.node.light
 			scene.childAdded.remove(onChildAddedToScene);
 			scene.childRemoved.remove(onChildRemovedFromScene);
 			
-			_camera = null;
+			updateCamera();
 		}
 		
 		override protected function transformChangedHandler(transform : Matrix4x4, propertyName : String) : void
@@ -263,16 +263,16 @@ package aerys.minko.scene.node.light
 		private function onChildAddedToScene(scene : Scene, child : ISceneNode) : void
 		{
 			if (child is Camera)
-				retrieveCameraFromScene();
+				updateCamera();
 		}
 		
 		private function onChildRemovedFromScene(scene : Scene, child : ISceneNode) : void
 		{
 			if (child == _camera)
-				retrieveCameraFromScene();
+				updateCamera();
 		}
 		
-		private function retrieveCameraFromScene() : void
+		private function updateCamera() : void
 		{
 			if (_camera)
 			{
@@ -283,7 +283,7 @@ package aerys.minko.scene.node.light
 			
 			if (root is Scene)
 			{
-				var scene : Scene = root as Scene;
+				var scene : Scene = Scene(root);
 				if (scene != null)
 				{
 					var cameras : Vector.<ISceneNode> = scene.getDescendantsByType(Camera);
@@ -344,8 +344,6 @@ package aerys.minko.scene.node.light
 		
 		override protected function setLightId(lightId : uint) : void
 		{
-			var sceneBindings : DataBindings = Scene(root).bindings;
-			
 			_dataDescriptor = new Object();
 			
 			_dataDescriptor['lightType' + lightId]					= 'type';
@@ -368,10 +366,6 @@ package aerys.minko.scene.node.light
 			_dataDescriptor['lightWorldDirection' + lightId]		= 'worldDirection';
 			_dataDescriptor['lightWorldToLight' + lightId]			= 'worldToLocal';
 			_dataDescriptor['lightWorldToLightScreen' + lightId]	= 'worldToLightScreen';
-			
-			_lightId = lightId;
-			changed.execute(this, 'lightId');
-			changed.execute(this, 'dataDescriptor');
 		}
 	}
 }

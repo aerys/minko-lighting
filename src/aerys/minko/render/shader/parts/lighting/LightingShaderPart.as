@@ -1,7 +1,7 @@
 package aerys.minko.render.shader.parts.lighting
 {
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.PassTemplate;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.render.shader.parts.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
@@ -34,7 +34,7 @@ package aerys.minko.render.shader.parts.lighting
 		private var _smoothConicAttenuationPart		: SmoothConicAttenuationShaderPart;
 		private var _hardConicAttenuationPart		: HardConicAttenuationShaderPart;
 				
-		public function LightingShaderPart(main : ActionScriptShader)
+		public function LightingShaderPart(main : PassTemplate)
 		{
 			super(main);
 			
@@ -78,7 +78,7 @@ package aerys.minko.render.shader.parts.lighting
 			
 			// process dynamic lighting
 			var lightId		: uint = 0;
-			var meshGroup	: uint = meshBindings.getProperty(LightingProperties.GROUP);
+			var meshGroup	: uint = meshBindings.getPropertyOrFallback(LightingProperties.GROUP, 1);
 			
 			while (sceneBindings.propertyExists('lightGroup' + lightId))
 			{

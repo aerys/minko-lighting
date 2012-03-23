@@ -4,7 +4,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.ns.minko_render;
 	import aerys.minko.render.effect.Effect;
 	import aerys.minko.render.effect.lighting.onscreen.LightingShader;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.PassTemplate;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.scene.node.light.AbstractLight;
@@ -43,7 +43,7 @@ package aerys.minko.render.effect.lighting
 			reset();
 			initPasses();
 			
-			changed.execute(this, null);
+			passesChanged.execute(this);
 		}
 		
 		private function reset() : void
@@ -81,7 +81,7 @@ package aerys.minko.render.effect.lighting
 					else if (light is SpotLight)
 						_passes[passId++] = SpotLight(light).depthMapShader;
 					else if (light is PointLight)
-						for each (var pass : ActionScriptShader in PointLight(light).depthMapShaders)
+						for each (var pass : PassTemplate in PointLight(light).depthMapShaders)
 							_passes[passId++] = pass;
 				}
 			}
@@ -92,28 +92,28 @@ package aerys.minko.render.effect.lighting
 		private function onSceneChildAdded(scene	: Scene,
 										   child	: ISceneNode) : void
 		{
-			if (child is AbstractLight)
-				updatePasses();
+//			if (child is AbstractLight)
+//				updatePasses();
 		}
 		
 		private function onSceneChildRemoved(scene	: Scene,
 											 child	: ISceneNode) : void
 		{
-			if (child is AbstractLight)
-				updatePasses();
+//			if (child is AbstractLight)
+//				updatePasses();
 		}
 		
 		private function onLightChanged(light			: AbstractLight,
 										propertyName	: String) : void
 		{
 			// for now, we recompile everything
-			switch (propertyName)
-			{
-				case 'depthMapShader':
-				case 'depthMapShaders':
-					updatePasses();
-					break;
-			}
+//			switch (propertyName)
+//			{
+//				case 'depthMapShader':
+//				case 'depthMapShaders':
+//					updatePasses();
+//					break;
+//			}
 		}
 	}
 }

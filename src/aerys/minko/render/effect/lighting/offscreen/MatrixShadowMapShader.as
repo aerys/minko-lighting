@@ -2,13 +2,14 @@ package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.PassConfig;
+	import aerys.minko.render.shader.PassInstance;
+	import aerys.minko.render.shader.PassTemplate;
 	import aerys.minko.render.shader.SFloat;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.type.enum.Blending;
 	
-	public class MatrixShadowMapShader extends ActionScriptShader
+	public class MatrixShadowMapShader extends PassTemplate
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		private var _lightId				: uint		= 0;
@@ -18,20 +19,16 @@ package aerys.minko.render.effect.lighting.offscreen
 											  priority	: Number,
 											  target	: RenderTarget)
 		{
-			super(priority, target);
-			
 			_lightId				= lightId;	
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
-			
-			forkTemplate.blending	= Blending.NORMAL;
 		}
 		
-		override protected function initializeFork(fork : Shader) : void
+		override protected function configurePass(passConfig : PassConfig) : void
 		{
-			super.initializeFork(fork);
+			passConfig.blending = Blending.NORMAL;
 			
-			fork.enabled = meshBindings.propertyExists(LightingProperties.CAST_SHADOWS) 
-				&& !meshBindings.getProperty(LightingProperties.CAST_SHADOWS)
+			passConfig.enabled = 
+				meshBindings.getPropertyOrFallback(LightingProperties.CAST_SHADOWS, true);
 		}
 		
 		override protected function getVertexPosition() : SFloat

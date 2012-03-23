@@ -33,7 +33,8 @@ package aerys.minko.scene.node.light
 		{
 			_ambient = v;
 			
-			changed.execute(this, 'ambient');
+			if (!_locked)
+				changed.execute(this, 'ambient');
 		}
 		
 		public function AmbientLight(color		: uint		= 0xFFFFFF, 
@@ -48,18 +49,14 @@ package aerys.minko.scene.node.light
 		
 		override protected function setLightId(lightId : uint) : void
 		{
-			var sceneBindings : DataBindings = Scene(root).bindings;
-			
 			_dataDescriptor = new Object();
-			_dataDescriptor['light type ' + lightId]	= 'type';
-			_dataDescriptor['light color ' + lightId]	= 'color';
-			_dataDescriptor['light group ' + lightId]	= 'group';
-			_dataDescriptor['light ambient ' + lightId]	= 'ambient';
+			
+			_dataDescriptor['lightType' + lightId]		= 'type';
+			_dataDescriptor['lightColor' + lightId]		= 'color';
+			_dataDescriptor['lightGroup' + lightId]		= 'group';
+			_dataDescriptor['lightAmbient' + lightId]	= 'ambient';
 			
 			_lightId = lightId;
-			changed.execute(this, 'lightId');
-			changed.execute(this, 'dataDescriptor');
 		}
-		
 	}
 }

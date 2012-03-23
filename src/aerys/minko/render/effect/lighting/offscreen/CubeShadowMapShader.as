@@ -2,15 +2,16 @@ package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.PassConfig;
+	import aerys.minko.render.shader.PassInstance;
+	import aerys.minko.render.shader.PassTemplate;
 	import aerys.minko.render.shader.SFloat;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.type.enum.Blending;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
-	public class CubeShadowMapShader extends ActionScriptShader
+	public class CubeShadowMapShader extends PassTemplate
 	{
 		private static const VIEW_MATRICES : Vector.<Matrix4x4> = Vector.<Matrix4x4>([
 			Matrix4x4.lookAtLH(Vector4.ZERO, Vector4.X_AXIS,		Vector4.Y_AXIS),		// look at positive x
@@ -33,8 +34,6 @@ package aerys.minko.render.effect.lighting.offscreen
 											priority	: Number,
 											target		: RenderTarget)
 		{
-			super(priority, target);
-			
 			var viewMatrix			: Matrix4x4 = VIEW_MATRICES[side];
 			var modifierMatrix		: Matrix4x4 = Matrix4x4.perspectiveFoVLH(Math.PI / 2, 1, 1, 1000);
 			var lightToScreenMatrix	: Matrix4x4 = Matrix4x4.multiply(modifierMatrix, viewMatrix);
@@ -42,16 +41,13 @@ package aerys.minko.render.effect.lighting.offscreen
 			_lightId				= lightId;	
 			_lightToScreen			= new SFloat(lightToScreenMatrix)
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
-			
-			forkTemplate.blending	= Blending.NORMAL;
 		}
 		
-		override protected function initializeFork(fork : Shader) : void
+		override protected function configurePass(passConfig : PassConfig) : void
 		{
-			super.initializeFork(fork);
-			
-			fork.enabled = meshBindings.propertyExists(LightingProperties.CAST_SHADOWS) 
-				&& !meshBindings.getProperty(LightingProperties.CAST_SHADOWS)
+			passConfig.blending = Blending.NORMAL;
+			passConfig.enabled = 
+				meshBindings.getPropertyOrFallback(LightingProperties.CAST_SHADOWS, true);
 		}
 		
 		override protected function getVertexPosition() : SFloat

@@ -201,27 +201,20 @@ package aerys.minko.scene.node.light
 		
 		override protected function setLightId(lightId : uint) : void
 		{
-			var sceneBindings : DataBindings = Scene(root).bindings;
-			
 			_dataDescriptor = new Object();
 			
 			_dataDescriptor['lightGroup' + lightId]				= 'group';
 			_dataDescriptor['lightColor' + lightId]				= 'color';
 			_dataDescriptor['lightType' + lightId]				= 'type'; 
+			_dataDescriptor['lightDiffuseEnabled' + lightId]	= 'diffuseEnabled';
 			_dataDescriptor['lightDiffuse' + lightId]			= 'diffuse';
+			_dataDescriptor['lightSpecularEnabled' + lightId]	= 'specularEnabled';
 			_dataDescriptor['lightSpecular' + lightId]			= 'specular';
 			_dataDescriptor['lightShininess' + lightId]			= 'shininess';
 			_dataDescriptor['lightShadowCastingType' + lightId]	= 'shadowCastingType';
 			
-			_dataDescriptor['lightDiffuseEnabled' + lightId]= 'diffuseEnabled';
-			_dataDescriptor['lightSpecularEnabled' + lightId] = 'specularEnabled';
-			
 			_dataDescriptor['lightDirection' + lightId]			= 'direction';
 			_dataDescriptor['lightWorldDirection' + lightId]	= 'worldDirection';
-			
-			_lightId = lightId;
-			changed.execute(this, 'lightId');
-			changed.execute(this, 'dataDescriptor');
 		}
 	}
 }

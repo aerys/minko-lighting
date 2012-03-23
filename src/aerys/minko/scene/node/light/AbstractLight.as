@@ -5,6 +5,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.Signal;
+	import aerys.minko.type.data.DataBindings;
 	import aerys.minko.type.data.IDataProvider;
 	
 	use namespace minko_lighting;
@@ -109,25 +110,33 @@ package aerys.minko.scene.node.light
 		
 		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene):void
 		{
+			// /!\ This happens AFTER being removed from scene.
+			// Calling scene.getDescendantsByType does not return current light.
+			
 			super.removedFromSceneHandler(child, scene);
 			
-			scene.bindings.remove(this);
+			var sceneBindings	: DataBindings = scene.bindings;
 			
-			var lights		: Vector.<ISceneNode>	= scene.getDescendantsByType(AbstractLight);
-			var numLights	: uint					= lights.length;
-			var numLightsM1	: uint					= numLights - 1;
+			// retrieve all lights
+			var lights			: Vector.<ISceneNode>	= scene.getDescendantsByType(AbstractLight);
+			var numLights		: uint					= lights.length;
 			
-			for (var lightId : uint = 0; lightId < numLights; ++lightId)
-			{
-				var light : AbstractLight = AbstractLight(lights[lightId]);
-				if (light._lightId == numLightsM1)
+			// remove myself from scene bindings
+			sceneBindings.remove(this);
+			
+			// if we are not the light with the greater id, we need to swap ids with another light
+			if (_lightId != numLights)
+				for (var lightId : uint = 0; lightId < numLights; ++lightId)
 				{
-					light.setLightId(_lightId);
-					break;
+					var light : AbstractLight = AbstractLight(lights[lightId]);
+					if (light._lightId == numLights)
+					{
+						sceneBindings.remove(light);
+						light.setLightId(_lightId);
+						sceneBindings.add(light);
+						break;
+					}
 				}
-			}
-			
-			_changed.execute(this, null);
 		}
 	}
 }
