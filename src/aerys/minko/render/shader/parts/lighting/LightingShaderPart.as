@@ -57,12 +57,13 @@ package aerys.minko.render.shader.parts.lighting
 			var worldNormal					: SFloat = normalize(deltaLocalToWorld(normal));
 			var interpolatedWorldPosition	: SFloat = interpolate(worldPosition);
 //			var interpolatedWorldNormal		: SFloat = normalize(interpolate(deltaLocalToWorld(normal)));
-			var interpolatedWorldNormal		: SFloat = normalize(interpolate(float4(deltaLocalToWorld(normal), 1)).xyz);
-			
+			var mNormal						: SFloat = interpolate(float4(deltaLocalToWorld(normal), 1));
+			var interpolatedWorldNormal		: SFloat = normalize(mNormal.xyz);
+
 			// declare accumulator
 			var lightValue					: SFloat = float3(0, 0, 0);
 			var lightContribution			: SFloat;
-			
+
 			// process static light mapping
 			if (meshBindings.propertyExists(LightingProperties.LIGHTMAP))
 			{
@@ -71,19 +72,19 @@ package aerys.minko.render.shader.parts.lighting
 				lightContribution = sampleTexture(lightMap, interpolate(uv));
 				
 				if (meshBindings.propertyExists(LightingProperties.LIGHTMAP_MULTIPLIER))
-					lightContribution.scaleBy(meshBindings.getParameter(LightingProperties.LIGHTMAP_MULTIPLIER, 4));
+					lightContribution.scaleBy(meshBindings.getParameter(LightingProperties.LIGHTMAP_MULTIPLIER, 1));
 				
 				lightValue.incrementBy(lightContribution);
 			}
-			
+
 			// process dynamic lighting
 			var lightId		: uint = 0;
 			var meshGroup	: uint = meshBindings.getPropertyOrFallback(LightingProperties.GROUP, 1);
-			
+
 			while (sceneBindings.propertyExists('lightGroup' + lightId))
 			{
 				var lightGroup : uint = uint(sceneBindings.getProperty('lightGroup' + lightId));
-				
+
 				if ((lightGroup & meshGroup) == 0)
 					continue;
 				
