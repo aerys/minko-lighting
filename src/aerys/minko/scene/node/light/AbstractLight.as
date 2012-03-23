@@ -75,7 +75,7 @@ package aerys.minko.scene.node.light
 		
 		public function AbstractLight(color : uint, group : uint)
 		{
-			_changed	= new Signal();
+			_changed	= new Signal('AbstractLight.changed');
 			
 			_color		= color;
 			_group		= group;

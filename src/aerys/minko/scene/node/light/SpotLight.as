@@ -232,8 +232,8 @@ package aerys.minko.scene.node.light
 		{
 			super.addedToSceneHandler(child, scene);
 			
-			scene.childAdded.add(onChildAddedToScene);
-			scene.childRemoved.add(onChildRemovedFromScene);
+			scene.descendantAdded.add(onDescendantAddedToScene);
+			scene.descendantRemoved.add(onDescendantRemovedFromScene);
 			
 			updateCamera();
 		}
@@ -242,8 +242,8 @@ package aerys.minko.scene.node.light
 		{
 			super.removedFromSceneHandler(child, scene);
 			
-			scene.childAdded.remove(onChildAddedToScene);
-			scene.childRemoved.remove(onChildRemovedFromScene);
+			scene.descendantAdded.remove(onDescendantAddedToScene);
+			scene.descendantRemoved.remove(onDescendantRemovedFromScene);
 			
 			updateCamera();
 		}
@@ -260,13 +260,13 @@ package aerys.minko.scene.node.light
 				_worldToScreen	= Matrix4x4.multiply(projection, worldToLocal, _worldToScreen);
 		}
 		
-		private function onChildAddedToScene(scene : Scene, child : ISceneNode) : void
+		private function onDescendantAddedToScene(scene : Scene, child : ISceneNode) : void
 		{
 			if (child is Camera)
 				updateCamera();
 		}
 		
-		private function onChildRemovedFromScene(scene : Scene, child : ISceneNode) : void
+		private function onDescendantRemovedFromScene(scene : Scene, child : ISceneNode) : void
 		{
 			if (child == _camera)
 				updateCamera();

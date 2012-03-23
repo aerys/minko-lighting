@@ -5,6 +5,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.render.effect.Effect;
 	import aerys.minko.render.effect.lighting.onscreen.LightingPass;
 	import aerys.minko.render.shader.PassTemplate;
+	import aerys.minko.scene.node.Group;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.scene.node.light.AbstractLight;
@@ -32,8 +33,8 @@ package aerys.minko.render.effect.lighting
 			_watchedLights			= new Vector.<AbstractLight>();
 			_watchedLightsCastType	= new Vector.<uint>();
 			
-			scene.childAdded.add(onSceneChildAdded);
-			scene.childRemoved.add(onSceneChildRemoved);
+			scene.descendantAdded.add(onSceneChildAdded);
+			scene.descendantRemoved.add(onSceneChildRemoved);
 			
 			updatePasses();
 		}
@@ -89,14 +90,14 @@ package aerys.minko.render.effect.lighting
 			_passes[passId++] = _renderingPass;
 		}
 		
-		private function onSceneChildAdded(scene	: Scene,
+		private function onSceneChildAdded(group	: Group,
 										   child	: ISceneNode) : void
 		{
 //			if (child is AbstractLight)
 //				updatePasses();
 		}
 		
-		private function onSceneChildRemoved(scene	: Scene,
+		private function onSceneChildRemoved(group	: Group,
 											 child	: ISceneNode) : void
 		{
 //			if (child is AbstractLight)
