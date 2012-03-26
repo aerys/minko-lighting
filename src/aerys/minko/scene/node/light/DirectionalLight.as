@@ -126,7 +126,7 @@ package aerys.minko.scene.node.light
 				if ((oldDiffuse == 0 && _diffuse != 0) ||
 					(oldDiffuse != 0 && _diffuse == 0))
 					changed.execute(this, 'diffuseEnabled');
-			}
+			} 
 		}
 		
 		public function set specular(v : Number) : void
