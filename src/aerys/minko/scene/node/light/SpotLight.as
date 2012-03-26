@@ -5,6 +5,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.render.effect.lighting.offscreen.MatrixShadowMapPass;
 	import aerys.minko.render.resource.texture.TextureResource;
 	import aerys.minko.scene.node.Camera;
+	import aerys.minko.scene.node.Group;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.data.DataBindings;
@@ -260,13 +261,13 @@ package aerys.minko.scene.node.light
 				_worldToScreen	= Matrix4x4.multiply(projection, worldToLocal, _worldToScreen);
 		}
 		
-		private function onDescendantAddedToScene(scene : Scene, child : ISceneNode) : void
+		private function onDescendantAddedToScene(group : Group, child : ISceneNode) : void
 		{
 			if (child is Camera)
 				updateCamera();
 		}
 		
-		private function onDescendantRemovedFromScene(scene : Scene, child : ISceneNode) : void
+		private function onDescendantRemovedFromScene(group : Group, child : ISceneNode) : void
 		{
 			if (child == _camera)
 				updateCamera();
