@@ -129,6 +129,7 @@ package aerys.minko.scene.node.light
 				for (var lightId : uint = 0; lightId < numLights; ++lightId)
 				{
 					var light : AbstractLight = AbstractLight(lights[lightId]);
+					
 					if (light._lightId == numLights)
 					{
 						sceneBindings.remove(light);
@@ -137,6 +138,7 @@ package aerys.minko.scene.node.light
 						break;
 					}
 				}
+			
 		}
 	}
 }

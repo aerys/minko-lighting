@@ -32,13 +32,13 @@ package aerys.minko.render.effect.lighting.onscreen
 		public function LightingPass(priority		: Number		= 0,
 									 renderTarget	: RenderTarget	= null)
 		{
-			_priority				= priority;
-			_renderTarget			= renderTarget;
-			
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
 			_pixelColorPart			= new PixelColorShaderPart(this);
 			_blendingPart			= new BlendingShaderPart(this);
 			_lightingPart			= new LightingShaderPart(this);
+			
+			_priority				= priority;
+			_renderTarget			= renderTarget;
 		}
 		
 		override protected function configurePass(passConfig : PassConfig) : void

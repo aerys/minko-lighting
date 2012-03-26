@@ -201,6 +201,8 @@ package aerys.minko.scene.node.light
 		
 		override protected function setLightId(lightId : uint) : void
 		{
+			_lightId = lightId;
+			
 			_dataDescriptor = new Object();
 			
 			_dataDescriptor['lightGroup' + lightId]				= 'group';
