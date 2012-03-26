@@ -138,7 +138,6 @@ package aerys.minko.scene.node.light
 						break;
 					}
 				}
-			
 		}
 	}
 }

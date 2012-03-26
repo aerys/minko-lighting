@@ -135,20 +135,34 @@ package aerys.minko.scene.node.light
 				changed.execute(this, 'distance');
 		}
 		
-		public function set diffuse(v : Number) : void
+		public function set diffuse(v : Number)	: void
 		{
+			var oldDiffuse : Number = _diffuse;
+			
 			_diffuse = v;
 			
 			if (!_locked)
+			{
 				changed.execute(this, 'diffuse');
+				if ((oldDiffuse == 0 && _diffuse != 0) ||
+					(oldDiffuse != 0 && _diffuse == 0))
+					changed.execute(this, 'specularEnabled');
+			}
 		}
 		
 		public function set specular(v : Number) : void
 		{
+			var oldSpecular : Number = _specular;
+			
 			_specular = v;
 			
 			if (!_locked)
+			{
 				changed.execute(this, 'specular');
+				if ((oldSpecular == 0 && _specular != 0) ||
+					(oldSpecular != 0 && _specular == 0))
+					changed.execute(this, 'specularEnabled');
+			}
 		}
 		
 		public function set shininess(v : Number) : void
