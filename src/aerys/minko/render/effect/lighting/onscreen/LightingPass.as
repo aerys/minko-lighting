@@ -60,13 +60,14 @@ package aerys.minko.render.effect.lighting.onscreen
 		
 		override protected function getVertexPosition() : SFloat
 		{
+			var culling : uint = meshBindings.getPropertyOrFallback("triangleCulling", TriangleCulling.BACK);
+			
 			_vertexPosition = _vertexAnimationPart.getAnimatedVertexPosition();
 			_vertexUV		= getVertexAttribute(VertexComponent.UV);
 			_vertexNormal	= _vertexAnimationPart.getAnimatedVertexNormal();
 			
-//			if (meshBindings.propertyExists("triangleCulling")
-//				&& meshBindings.getProperty('triangleCulling') == TriangleCulling.FRONT)
-//				_vertexNormal = negate(_vertexNormal);
+			if (culling == TriangleCulling.FRONT)
+				_vertexNormal = negate(_vertexNormal);
 			
 			return localToScreen(_vertexPosition);
 		}
