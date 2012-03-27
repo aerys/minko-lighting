@@ -59,7 +59,7 @@ package aerys.minko.render.shader.parts.lighting
 //			var interpolatedWorldNormal		: SFloat = normalize(interpolate(deltaLocalToWorld(normal)));
 			var mNormal						: SFloat = interpolate(float4(deltaLocalToWorld(normal), 1));
 			var interpolatedWorldNormal		: SFloat = normalize(mNormal.xyz);
-
+			
 			// declare accumulator
 			var lightValue					: SFloat = float3(0, 0, 0);
 			var lightContribution			: SFloat;

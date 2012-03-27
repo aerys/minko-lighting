@@ -1,4 +1,4 @@
-package aerys.minko.render.effect.reflection
+package aerys.minko.type.enum
 {
 	public class ReflectionType
 	{
