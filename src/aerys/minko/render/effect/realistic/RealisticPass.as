@@ -88,7 +88,7 @@ package aerys.minko.render.effect.realistic
 			color = _blendingPart.blend(lighting, color, Blending.LIGHT);
 			
 			// compute and apply reflections
-			var reflectionType	: uint = 
+			var reflectionType	: int = 
 				meshBindings.getPropertyOrFallback(ReflectionProperties.TYPE, ReflectionType.NONE);
 			
 			if (reflectionType != ReflectionType.NONE)

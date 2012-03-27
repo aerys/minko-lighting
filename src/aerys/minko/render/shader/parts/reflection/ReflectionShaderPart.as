@@ -29,13 +29,13 @@ package aerys.minko.render.shader.parts.reflection
 		{
 			// compute reflected vector
 			var worldPosition		: SFloat = localToWorld(position);
-			var worldNormal			: SFloat = normalize(deltaLocalToWorld(normal));
+			var worldNormal			: SFloat = normalize(deltaLocalToWorld(normal))
 			
-			var cameraWorldPosition : SFloat = sceneBindings.getParameter("cameraWorldPosition", 3);
+			var cameraWorldPosition : SFloat = sceneBindings.getParameter("cameraWorldPosition", 3)
 			var vertexToCamera		: SFloat = normalize(subtract(cameraWorldPosition, worldPosition));
-			var reflected			: SFloat = normalize(interpolate(reflect(vertexToCamera, worldNormal)));
+			var reflected			: SFloat = normalize(interpolate(reflect(vertexToCamera.xyzz, worldNormal.xyzz)));
 			
-			var reflectionType 		: uint	 = meshBindings.getProperty(ReflectionProperties.TYPE);
+			var reflectionType 		: int	 = meshBindings.getProperty(ReflectionProperties.TYPE);
 			
 			// retrieve reflection color from reflection map
 			var reflectionMap		: SFloat;
@@ -65,6 +65,9 @@ package aerys.minko.render.shader.parts.reflection
 					reflectionMapUV = _blinnNewellProjectionPart.projectVector(reflected, new Rectangle(0, 0, 1, 1));
 					reflectionColor = sampleTexture(reflectionMap, reflectionMapUV);
 					break
+				
+				default:
+					throw new Error('Unsupported reflection type');
 			}
 			
 			// modifify alpha color
