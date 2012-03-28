@@ -78,10 +78,10 @@ package aerys.minko.render.shader.parts.lighting
 			}
 
 			// process dynamic lighting
-			var lightId		: uint = 0;
+			
 			var meshGroup	: uint = meshBindings.getPropertyOrFallback(LightingProperties.GROUP, 1);
 
-			while (sceneBindings.propertyExists('lightGroup' + lightId))
+			for (var lightId : uint = 0; sceneBindings.propertyExists('lightGroup' + lightId); ++lightId)
 			{
 				var lightGroup : uint = uint(sceneBindings.getProperty('lightGroup' + lightId));
 
@@ -95,8 +95,6 @@ package aerys.minko.render.shader.parts.lighting
 				);
 				
 				lightValue.incrementBy(lightContribution);
-				
-				++lightId;
 			}
 			
 			return float4(lightValue, 1);

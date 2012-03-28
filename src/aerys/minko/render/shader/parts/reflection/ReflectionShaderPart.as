@@ -74,7 +74,8 @@ package aerys.minko.render.shader.parts.reflection
 			if (meshBindings.propertyExists(ReflectionProperties.ALPHA_MULTIPLIER))
 			{
 				var alphaModifier : SFloat = meshBindings.getParameter(ReflectionProperties.ALPHA_MULTIPLIER, 1);
-				reflectionColor.w = multiply(reflectionColor.w, alphaModifier);
+				
+				reflectionColor = float4(reflectionColor.xyz, multiply(reflectionColor.w, alphaModifier));
 			}
 			
 			return reflectionColor;
