@@ -220,5 +220,22 @@ package aerys.minko.scene.node.light
 			
 			_lightId = lightId;
 		}
+		
+		override public function clone(cloneControllers:Boolean=false):ISceneNode
+		{
+			var light : PointLight = new PointLight(
+				this.color,
+				this.diffuse,
+				this.specular,
+				this.shininess,
+				this.attenuationDistance,
+				this.group,
+				0);
+			
+			light.name = this.name;
+			light.transform.copyFrom(this.transform);
+			
+			return light;
+		}
 	}
 }

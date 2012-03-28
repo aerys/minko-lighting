@@ -4,11 +4,14 @@ package aerys.minko.scene.node.light
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.lighting.offscreen.MatrixShadowMapPass;
 	import aerys.minko.render.resource.texture.TextureResource;
+	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.data.DataBindings;
 	import aerys.minko.type.enum.ShadowMappingType;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
+	
+	import mx.states.OverrideBase;
 
 	use namespace minko_lighting;
 	
@@ -237,6 +240,22 @@ package aerys.minko.scene.node.light
 			
 			_dataDescriptor['lightDirection' + lightId]			= 'direction';
 			_dataDescriptor['lightWorldDirection' + lightId]	= 'worldDirection';
+		}
+		
+		override public function clone(cloneControllers:Boolean=false):ISceneNode
+		{
+			var light : DirectionalLight = new DirectionalLight(
+				this.color,
+				this.diffuse,
+				this.specular,
+				this.shininess,
+				this.group,
+			0);
+			
+			light.name = this.name;
+			light.transform.copyFrom(this.transform);
+			
+			return light;
 		}
 	}
 }
