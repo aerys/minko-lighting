@@ -98,46 +98,45 @@ package aerys.minko.scene.node.light
 		
 		override protected function addedToSceneHandler(child : ISceneNode, scene : Scene):void
 		{
+			// this happens AFTER being added to scene
 			super.addedToSceneHandler(child, scene);
 			
-			var lights		: Vector.<ISceneNode>	= scene.getDescendantsByType(AbstractLight);
-			var numLights	: uint					= lights.length;
-			
-			setLightId(numLights - 1);
-			
+			sortLights(scene);
 			scene.bindings.add(this);
 		}
 		
 		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene):void
 		{
-			// /!\ This happens AFTER being removed from scene.
-			// Calling scene.getDescendantsByType does not return current light.
-			
+			// This happens AFTER being removed from scene.
 			super.removedFromSceneHandler(child, scene);
 			
-			var sceneBindings	: DataBindings = scene.bindings;
-			
-			// retrieve all lights
+			scene.bindings.remove(this);
+			sortLights(scene);
+		}
+		
+		private static function sortLights(scene : Scene) : void
+		{
+			var sceneBindings	: DataBindings			= scene.bindings;
 			var lights			: Vector.<ISceneNode>	= scene.getDescendantsByType(AbstractLight);
 			var numLights		: uint					= lights.length;
 			
-			// remove myself from scene bindings
-			sceneBindings.remove(this);
+			lights.sort(compare);
 			
-			// if we are not the light with the greater id, we need to swap ids with another light
-			if (_lightId != numLights)
-				for (var lightId : uint = 0; lightId < numLights; ++lightId)
+			for (var lightId : uint = 0; lightId < numLights; ++lightId)
+			{
+				var light : AbstractLight = AbstractLight(lights[lightId])
+				if (light._lightId != lightId)
 				{
-					var light : AbstractLight = AbstractLight(lights[lightId]);
-					
-					if (light._lightId == numLights)
-					{
-						sceneBindings.remove(light);
-						light.setLightId(_lightId);
-						sceneBindings.add(light);
-						break;
-					}
+					sceneBindings.remove(light);
+					light.setLightId(lightId);
+					sceneBindings.add(light);
 				}
+			}
+		}
+		
+		private static function compare(light1 : AbstractLight, light2 : AbstractLight) : uint
+		{
+			return light2.type - light1.type;
 		}
 	}
 }
