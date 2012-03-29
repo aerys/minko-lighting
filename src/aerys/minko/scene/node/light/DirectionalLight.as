@@ -222,24 +222,32 @@ package aerys.minko.scene.node.light
 			_worldDirection.normalize();
 		}
 		
-		override protected function setLightId(lightId : uint) : void
+		override protected function setLightId(lightId			: int,
+											   sceneBindings	: DataBindings) : void
 		{
-			_lightId = lightId;
-			
-			_dataDescriptor = new Object();
-			
-			_dataDescriptor['lightGroup' + lightId]				= 'group';
-			_dataDescriptor['lightColor' + lightId]				= 'color';
-			_dataDescriptor['lightType' + lightId]				= 'type'; 
-			_dataDescriptor['lightDiffuseEnabled' + lightId]	= 'diffuseEnabled';
-			_dataDescriptor['lightDiffuse' + lightId]			= 'diffuse';
-			_dataDescriptor['lightSpecularEnabled' + lightId]	= 'specularEnabled';
-			_dataDescriptor['lightSpecular' + lightId]			= 'specular';
-			_dataDescriptor['lightShininess' + lightId]			= 'shininess';
-			_dataDescriptor['lightShadowCastingType' + lightId]	= 'shadowCastingType';
-			
-			_dataDescriptor['lightDirection' + lightId]			= 'direction';
-			_dataDescriptor['lightWorldDirection' + lightId]	= 'worldDirection';
+			if (lightId != _lightId)
+			{
+				if (_lightId != -1)
+					sceneBindings.remove(this);
+				
+				_lightId = lightId;
+				
+				_dataDescriptor = new Object();
+				_dataDescriptor['lightGroup' + lightId]				= 'group';
+				_dataDescriptor['lightColor' + lightId]				= 'color';
+				_dataDescriptor['lightType' + lightId]				= 'type'; 
+				_dataDescriptor['lightDiffuseEnabled' + lightId]	= 'diffuseEnabled';
+				_dataDescriptor['lightDiffuse' + lightId]			= 'diffuse';
+				_dataDescriptor['lightSpecularEnabled' + lightId]	= 'specularEnabled';
+				_dataDescriptor['lightSpecular' + lightId]			= 'specular';
+				_dataDescriptor['lightShininess' + lightId]			= 'shininess';
+				_dataDescriptor['lightShadowCastingType' + lightId]	= 'shadowCastingType';
+				_dataDescriptor['lightDirection' + lightId]			= 'direction';
+				_dataDescriptor['lightWorldDirection' + lightId]	= 'worldDirection';
+				
+				if (_lightId != -1)
+					sceneBindings.add(this);
+			}
 		}
 		
 		override public function clone(cloneControllers:Boolean=false):ISceneNode

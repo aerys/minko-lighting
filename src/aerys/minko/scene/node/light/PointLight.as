@@ -193,32 +193,37 @@ package aerys.minko.scene.node.light
 			_worldPosition	= localToWorld.transformVector(ZERO, _worldPosition);
 		}
 		
-		override protected function setLightId(lightId : uint) : void
+		override protected function setLightId(lightId			: int,
+											   sceneBindings	: DataBindings) : void
 		{
-			_lightId = lightId;
+			if (lightId != _lightId)
+			{
+				if (_lightId != -1)
+					sceneBindings.remove(this);
+				
+				_lightId = lightId;
+				
+				_dataDescriptor = new Object();
+				_dataDescriptor['lightType' + lightId]					= 'type';
+				_dataDescriptor['lightGroup' + lightId]					= 'group';
+				_dataDescriptor['lightColor' + lightId]					= 'color';
+				_dataDescriptor['lightDiffuse' + lightId]				= 'diffuse';
+				_dataDescriptor['lightSpecular' + lightId]				= 'specular';
+				_dataDescriptor['lightShininess' + lightId]				= 'shininess';
+				_dataDescriptor['lightAttenuationDistance' + lightId]	= 'attenuationDistance';
+				_dataDescriptor['lightDiffuseEnabled' + lightId]		= 'diffuseEnabled';
+				_dataDescriptor['lightSpecularEnabled' + lightId]		= 'specularEnabled';
+				_dataDescriptor['lightAttenuationEnabled' + lightId]	= 'attenuationEnabled';
+				_dataDescriptor['lightShadowCastingType' + lightId]		= 'shadowCastingType';
+				_dataDescriptor['lightPosition' + lightId]				= 'position';
+				_dataDescriptor['lightWorldPosition' + lightId]			= 'worldPosition';
+				_dataDescriptor['lightLightToWorld' + lightId]			= 'localToWorld';
+				_dataDescriptor['lightWorldToLight' + lightId]			= 'worldToLocal';
+				
+				if (_lightId != -1)
+					sceneBindings.add(this);
+			}
 			
-			_dataDescriptor = new Object();
-			
-			_dataDescriptor['lightType' + lightId]					= 'type';
-			_dataDescriptor['lightGroup' + lightId]					= 'group';
-			_dataDescriptor['lightColor' + lightId]					= 'color';
-			_dataDescriptor['lightDiffuse' + lightId]				= 'diffuse';
-			_dataDescriptor['lightSpecular' + lightId]				= 'specular';
-			_dataDescriptor['lightShininess' + lightId]				= 'shininess';
-			_dataDescriptor['lightAttenuationDistance' + lightId]	= 'attenuationDistance';
-			
-			_dataDescriptor['lightDiffuseEnabled' + lightId]		= 'diffuseEnabled';
-			_dataDescriptor['lightSpecularEnabled' + lightId]		= 'specularEnabled';
-			_dataDescriptor['lightAttenuationEnabled' + lightId]	= 'attenuationEnabled';
-			
-			_dataDescriptor['lightShadowCastingType' + lightId]		= 'shadowCastingType';
-			
-			_dataDescriptor['lightPosition' + lightId]				= 'position';
-			_dataDescriptor['lightWorldPosition' + lightId]			= 'worldPosition';
-			_dataDescriptor['lightLightToWorld' + lightId]			= 'localToWorld';
-			_dataDescriptor['lightWorldToLight' + lightId]			= 'worldToLocal';
-			
-			_lightId = lightId;
 		}
 		
 		override public function clone(cloneControllers:Boolean=false):ISceneNode

@@ -357,32 +357,38 @@ package aerys.minko.scene.node.light
 			_worldToScreen = Matrix4x4.multiply(_projection, worldToLocal, _worldToScreen);
 		}
 		
-		override protected function setLightId(lightId : uint) : void
+		override protected function setLightId(lightId			: int, 
+											   sceneBindings	: DataBindings) : void
 		{
-			_lightId = lightId;
+			if (_lightId != lightId)
+			{
+				if (_lightId != -1)
+					sceneBindings.remove(this);
+				
+				_lightId = lightId;
+				
+				_dataDescriptor = new Object();
+				_dataDescriptor['lightType' + lightId]					= 'type';
+				_dataDescriptor['lightGroup' + lightId]					= 'group';
+				_dataDescriptor['lightColor' + lightId]					= 'color';
+				_dataDescriptor['lightDiffuse' + lightId]				= 'diffuse';
+				_dataDescriptor['lightDiffuseEnabled' + lightId]		= 'diffuseEnabled';
+				_dataDescriptor['lightSpecular' + lightId]				= 'specular';
+				_dataDescriptor['lightSpecularEnabled' + lightId]		= 'specularEnabled';
+				_dataDescriptor['lightShininess' + lightId]				= 'shininess';
+				_dataDescriptor['lightAttenuationDistance' + lightId]	= 'attenuationDistance';
+				_dataDescriptor['lightAttenuationEnabled' + lightId]	= 'attenuationEnabled';
+				_dataDescriptor['lightInnerRadius' + lightId]			= 'innerRadius';
+				_dataDescriptor['lightOuterRadius' + lightId]			= 'outerRadius';
+				_dataDescriptor['lightShadowCastingType' + lightId]		= 'shadowCastingType';
+				_dataDescriptor['lightWorldPosition' + lightId]			= 'worldPosition';
+				_dataDescriptor['lightWorldDirection' + lightId]		= 'worldDirection';
+				_dataDescriptor['lightWorldToLight' + lightId]			= 'worldToLocal';
+				_dataDescriptor['lightWorldToLightScreen' + lightId]	= 'worldToLightScreen';
 			
-			_dataDescriptor = new Object();
-			
-			_dataDescriptor['lightType' + lightId]					= 'type';
-			_dataDescriptor['lightGroup' + lightId]					= 'group';
-			_dataDescriptor['lightColor' + lightId]					= 'color';
-			
-			_dataDescriptor['lightDiffuse' + lightId]				= 'diffuse';
-			_dataDescriptor['lightDiffuseEnabled' + lightId]		= 'diffuseEnabled';
-			_dataDescriptor['lightSpecular' + lightId]				= 'specular';
-			_dataDescriptor['lightSpecularEnabled' + lightId]		= 'specularEnabled';
-			_dataDescriptor['lightShininess' + lightId]				= 'shininess';
-			_dataDescriptor['lightAttenuationDistance' + lightId]	= 'attenuationDistance';
-			_dataDescriptor['lightAttenuationEnabled' + lightId]	= 'attenuationEnabled';
-			
-			_dataDescriptor['lightInnerRadius' + lightId]			= 'innerRadius';
-			_dataDescriptor['lightOuterRadius' + lightId]			= 'outerRadius';
-			
-			_dataDescriptor['lightShadowCastingType' + lightId]		= 'shadowCastingType';
-			_dataDescriptor['lightWorldPosition' + lightId]			= 'worldPosition';
-			_dataDescriptor['lightWorldDirection' + lightId]		= 'worldDirection';
-			_dataDescriptor['lightWorldToLight' + lightId]			= 'worldToLocal';
-			_dataDescriptor['lightWorldToLightScreen' + lightId]	= 'worldToLightScreen';
+				if (_lightId != -1)
+					sceneBindings.add(this);
+			}
 		}
 		
 		override public function clone(cloneControllers:Boolean=false):ISceneNode

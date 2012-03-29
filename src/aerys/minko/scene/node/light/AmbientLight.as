@@ -44,22 +44,28 @@ package aerys.minko.scene.node.light
 		{
 			super(color, group);
 			
-			_dataDescriptor	= new Object();
-			_ambient		= ambient;
+			_ambient = ambient;
 		}
 		
-		override protected function setLightId(lightId : uint) : void
+		override protected function setLightId(lightId 			: int,
+											   sceneBindings	: DataBindings) : void
 		{
-			_lightId = lightId;
-			
-			_dataDescriptor = new Object();
-			
-			_dataDescriptor['lightType' + lightId]		= 'type';
-			_dataDescriptor['lightColor' + lightId]		= 'color';
-			_dataDescriptor['lightGroup' + lightId]		= 'group';
-			_dataDescriptor['lightAmbient' + lightId]	= 'ambient';
-			
-			_lightId = lightId;
+			if (lightId != _lightId)
+			{
+				if (_lightId != -1)
+					sceneBindings.remove(this);
+				
+				_lightId = lightId;
+				
+				_dataDescriptor = new Object();
+				_dataDescriptor['lightType' + lightId]		= 'type';
+				_dataDescriptor['lightColor' + lightId]		= 'color';
+				_dataDescriptor['lightGroup' + lightId]		= 'group';
+				_dataDescriptor['lightAmbient' + lightId]	= 'ambient';
+				
+				if (_lightId != -1)
+					sceneBindings.add(this);
+			}
 		}
 		
 		override public function clone(cloneControllers:Boolean=false):ISceneNode

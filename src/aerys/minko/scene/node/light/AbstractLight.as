@@ -14,7 +14,7 @@ package aerys.minko.scene.node.light
 	{
 		private var _changed			: Signal;
 		
-		protected var _lightId			: uint;
+		protected var _lightId			: int;
 		protected var _dataDescriptor	: Object;
 		
 		protected var _color			: uint;
@@ -75,10 +75,11 @@ package aerys.minko.scene.node.light
 		
 		public function AbstractLight(color : uint, group : uint)
 		{
-			_changed	= new Signal('AbstractLight.changed');
-			
-			_color		= color;
-			_group		= group;
+			_changed		= new Signal('AbstractLight.changed');
+			_dataDescriptor	= new Object();
+			_color			= color;
+			_group			= group;
+			_lightId		= -1;
 		}
 
 		public function lock() : void
@@ -90,8 +91,9 @@ package aerys.minko.scene.node.light
 		{
 			_locked = false;
 		}
-		
-		protected function setLightId(lightId : uint) : void
+
+		protected function setLightId(lightId		: int, 
+									  sceneBindings	: DataBindings) : void
 		{
 			throw new Error('Must be overriden');
 		}
@@ -102,7 +104,6 @@ package aerys.minko.scene.node.light
 			super.addedToSceneHandler(child, scene);
 			
 			sortLights(scene);
-			scene.bindings.add(this);
 		}
 		
 		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene):void
@@ -110,7 +111,7 @@ package aerys.minko.scene.node.light
 			// This happens AFTER being removed from scene.
 			super.removedFromSceneHandler(child, scene);
 			
-			scene.bindings.remove(this);
+			setLightId(-1, scene.bindings);
 			sortLights(scene);
 		}
 		
@@ -123,15 +124,7 @@ package aerys.minko.scene.node.light
 			lights.sort(compare);
 			
 			for (var lightId : uint = 0; lightId < numLights; ++lightId)
-			{
-				var light : AbstractLight = AbstractLight(lights[lightId])
-				if (light._lightId != lightId)
-				{
-					sceneBindings.remove(light);
-					light.setLightId(lightId);
-					sceneBindings.add(light);
-				}
-			}
+				AbstractLight(lights[lightId]).setLightId(lightId, sceneBindings);
 		}
 		
 		private static function compare(light1 : AbstractLight, light2 : AbstractLight) : uint
