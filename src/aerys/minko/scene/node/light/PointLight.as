@@ -193,8 +193,8 @@ package aerys.minko.scene.node.light
 			_worldPosition	= localToWorld.transformVector(ZERO, _worldPosition);
 		}
 		
-		override protected function setLightId(lightId			: int,
-											   sceneBindings	: DataBindings) : void
+		override protected function setLightId(lightId		 : int,
+											   sceneBindings : DataBindings) : void
 		{
 			if (lightId != _lightId)
 			{
@@ -223,10 +223,9 @@ package aerys.minko.scene.node.light
 				if (_lightId != -1)
 					sceneBindings.add(this);
 			}
-			
 		}
 		
-		override public function clone(cloneControllers:Boolean=false):ISceneNode
+		override public function clone(cloneControllers : Boolean = false):ISceneNode
 		{
 			var light : PointLight = new PointLight(
 				this.color,

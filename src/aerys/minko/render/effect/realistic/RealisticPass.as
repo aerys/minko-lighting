@@ -83,10 +83,6 @@ package aerys.minko.render.effect.realistic
 			// retrieve color (from diffuseMap or diffuseColor
 			var color		: SFloat	= _pixelColorPart.getPixelColor();
 			
-			// compute and apply lighting
-			var lighting	: SFloat	= _lightingPart.getLightingColor(_vertexPosition, _vertexUV, _vertexNormal);
-			color = _blendingPart.blend(lighting, color, Blending.LIGHT);
-			
 			// compute and apply reflections
 			var reflectionType	: int = 
 				meshBindings.getPropertyOrFallback(ReflectionProperties.TYPE, ReflectionType.NONE);
@@ -98,6 +94,10 @@ package aerys.minko.render.effect.realistic
 				
 				color = _blendingPart.blend(reflectionColor, color, blending);
 			}
+
+			// compute and apply lighting
+			var lighting	: SFloat	= _lightingPart.getLightingColor(_vertexPosition, _vertexUV, _vertexNormal);
+			color = _blendingPart.blend(lighting, color, Blending.LIGHT);
 			
 			return color;
 		}
