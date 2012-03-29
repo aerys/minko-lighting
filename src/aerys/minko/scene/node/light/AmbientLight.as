@@ -1,6 +1,7 @@
 package aerys.minko.scene.node.light
 {
 	import aerys.minko.ns.minko_lighting;
+	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.data.DataBindings;
 	import aerys.minko.type.data.DataProvider;
@@ -59,6 +60,19 @@ package aerys.minko.scene.node.light
 			_dataDescriptor['lightAmbient' + lightId]	= 'ambient';
 			
 			_lightId = lightId;
+		}
+		
+		override public function clone(cloneControllers:Boolean=false):ISceneNode
+		{
+			var light : AmbientLight = new AmbientLight(
+				this.color,
+				this.ambient,
+				this.group);
+			
+			light.name = this.name;
+			light.transform.copyFrom(this.transform);
+			
+			return light;
 		}
 	}
 }

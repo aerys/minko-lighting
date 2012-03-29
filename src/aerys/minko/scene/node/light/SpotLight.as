@@ -384,5 +384,24 @@ package aerys.minko.scene.node.light
 			_dataDescriptor['lightWorldToLight' + lightId]			= 'worldToLocal';
 			_dataDescriptor['lightWorldToLightScreen' + lightId]	= 'worldToLightScreen';
 		}
+		
+		override public function clone(cloneControllers:Boolean=false):ISceneNode
+		{
+			var light : SpotLight = new SpotLight(
+				this.color,
+				this.diffuse,
+				this.specular,
+				this.shininess,
+				this.attenuationDistance,
+				this.outerRadius,
+				this.innerRadius,
+				this.group,
+				0);
+			
+			light.name = this.name;
+			light.transform.copyFrom(this.transform);
+			
+			return light;
+		}
 	}
 }
