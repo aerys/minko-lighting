@@ -102,9 +102,7 @@ package aerys.minko.scene.node.light
 			super.addedToSceneHandler(child, scene);
 			
 			sortLights(scene);
-			scene.bindings.add(this);
-			
-			trace(lights, numLights - 1);
+			scene.bindings.add(this);			
 		}
 		
 		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene):void
