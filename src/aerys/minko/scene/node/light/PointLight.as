@@ -217,8 +217,6 @@ package aerys.minko.scene.node.light
 			_dataDescriptor['lightWorldPosition' + lightId]			= 'worldPosition';
 			_dataDescriptor['lightLightToWorld' + lightId]			= 'localToWorld';
 			_dataDescriptor['lightWorldToLight' + lightId]			= 'worldToLocal';
-			
-			_lightId = lightId;
 		}
 		
 		override public function clone(cloneControllers:Boolean=false):ISceneNode

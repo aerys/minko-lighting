@@ -58,8 +58,6 @@ package aerys.minko.scene.node.light
 			_dataDescriptor['lightColor' + lightId]		= 'color';
 			_dataDescriptor['lightGroup' + lightId]		= 'group';
 			_dataDescriptor['lightAmbient' + lightId]	= 'ambient';
-			
-			_lightId = lightId;
 		}
 		
 		override public function clone(cloneControllers:Boolean=false):ISceneNode

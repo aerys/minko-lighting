@@ -106,6 +106,8 @@ package aerys.minko.scene.node.light
 			setLightId(numLights - 1);
 			
 			scene.bindings.add(this);
+			
+			trace(lights, numLights - 1);
 		}
 		
 		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene):void
