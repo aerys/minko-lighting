@@ -120,16 +120,19 @@ package aerys.minko.scene.node.light
 			var sceneBindings	: DataBindings			= scene.bindings;
 			var lights			: Vector.<ISceneNode>	= scene.getDescendantsByType(AbstractLight);
 			var numLights		: uint					= lights.length;
+			var lightId			: uint;
 			
 			lights.sort(compare);
 			
-			for (var lightId : uint = 0; lightId < numLights; ++lightId)
+			for (lightId = 0; lightId < numLights; ++lightId)
+				AbstractLight(lights[lightId]).setLightId(-1, sceneBindings);
+			for (lightId = 0; lightId < numLights; ++lightId)
 				AbstractLight(lights[lightId]).setLightId(lightId, sceneBindings);
 		}
 		
-		private static function compare(light1 : AbstractLight, light2 : AbstractLight) : uint
+		private static function compare(light1 : AbstractLight, light2 : AbstractLight) : int
 		{
-			return light2.type - light1.type;
+			return light1.type - light2.type;
 		}
 	}
 }
