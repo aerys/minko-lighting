@@ -6,6 +6,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.Signal;
 	import aerys.minko.type.data.DataBindings;
+	import aerys.minko.type.data.DataProvider;
 	import aerys.minko.type.data.IDataProvider;
 	
 	use namespace minko_lighting;

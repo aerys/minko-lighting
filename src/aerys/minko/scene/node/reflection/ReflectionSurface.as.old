@@ -4,9 +4,9 @@ package aerys.minko.scene.node.reflection
 	import aerys.minko.scene.node.mesh.geometry.Geometry;
 	import aerys.minko.scene.node.mesh.geometry.primitive.QuadGeometry;
 	import aerys.minko.type.Signal;
-	import aerys.minko.type.data.IDataProvider;
+	import aerys.minko.type.data.DataProvider;
 	
-	public class ReflectionSurface extends AbstractSceneNode implements IDataProvider
+	public class ReflectionSurface extends AbstractSceneNode implements DataProvider
 	{
 		private var _mapSize		: uint;
 		private var _geometry		: Geometry;

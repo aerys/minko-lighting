@@ -4,7 +4,7 @@ package aerys.minko.render.effect.lighting
 	import aerys.minko.ns.minko_render;
 	import aerys.minko.render.effect.Effect;
 	import aerys.minko.render.effect.lighting.onscreen.LightingPass;
-	import aerys.minko.render.shader.PassTemplate;
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.scene.node.Group;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
@@ -82,7 +82,7 @@ package aerys.minko.render.effect.lighting
 					else if (light is SpotLight)
 						_passes[passId++] = SpotLight(light).depthMapShader;
 					else if (light is PointLight)
-						for each (var pass : PassTemplate in PointLight(light).depthMapShaders)
+						for each (var pass : ActionScriptShader in PointLight(light).depthMapShaders)
 							_passes[passId++] = pass;
 				}
 			}

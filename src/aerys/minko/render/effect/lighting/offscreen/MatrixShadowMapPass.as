@@ -2,14 +2,14 @@ package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.PassConfig;
-	import aerys.minko.render.shader.PassInstance;
-	import aerys.minko.render.shader.PassTemplate;
+	import aerys.minko.render.shader.ShaderSettings;
+	import aerys.minko.render.shader.ShaderInstance;
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.type.enum.Blending;
 	
-	public class MatrixShadowMapPass extends PassTemplate
+	public class MatrixShadowMapPass extends ActionScriptShader
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		
@@ -30,7 +30,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			_renderTarget			= renderTarget;
 		}
 		
-		override protected function configurePass(passConfig : PassConfig) : void
+		override protected function initializeSettings(passConfig : ShaderSettings) : void
 		{
 			passConfig.blending		= Blending.NORMAL;
 			passConfig.priority		= _priority;

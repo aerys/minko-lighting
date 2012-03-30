@@ -2,7 +2,7 @@ package aerys.minko.scene.node.light
 {
 	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.render.resource.texture.ITextureResource;
-	import aerys.minko.render.shader.PassTemplate;
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.data.DataBindings;
@@ -25,7 +25,7 @@ package aerys.minko.scene.node.light
 		
 		private var _shadowMappingType	: uint;
 		private var _depthMaps			: Vector.<ITextureResource>;
-		private var _depthMapShaders	: Vector.<PassTemplate>;
+		private var _depthMapShaders	: Vector.<ActionScriptShader>;
 		
 		private var _position			: Vector4;
 		private var _worldPosition		: Vector4;
@@ -45,7 +45,7 @@ package aerys.minko.scene.node.light
 			return _depthMaps;
 		}
 		
-		minko_lighting function get depthMapShaders() : Vector.<PassTemplate>
+		minko_lighting function get depthMapShaders() : Vector.<ActionScriptShader>
 		{
 			return _depthMapShaders;
 		}

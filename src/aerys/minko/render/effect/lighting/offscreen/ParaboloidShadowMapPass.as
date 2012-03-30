@@ -2,9 +2,9 @@ package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.PassConfig;
-	import aerys.minko.render.shader.PassInstance;
-	import aerys.minko.render.shader.PassTemplate;
+	import aerys.minko.render.shader.ShaderSettings;
+	import aerys.minko.render.shader.ShaderInstance;
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.render.shader.part.projection.IProjectionShaderPart;
@@ -13,7 +13,7 @@ package aerys.minko.render.effect.lighting.offscreen
 	
 	import flash.geom.Rectangle;
 	
-	public class ParaboloidShadowMapPass extends PassTemplate
+	public class ParaboloidShadowMapPass extends ActionScriptShader
 	{
 		private static const PROJECTION_RECTANGLE : Rectangle = new Rectangle(-1, 1, 2, -2);
 		
@@ -36,7 +36,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			_projectorPart			= new ParaboloidProjectionShaderPart(this, front);
 		}
 		
-		override protected function configurePass(passConfig : PassConfig) : void
+		override protected function initializeSettings(passConfig : ShaderSettings) : void
 		{
 			passConfig.blending		= Blending.NORMAL;
 			passConfig.priority		= _priority;

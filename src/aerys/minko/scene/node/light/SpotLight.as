@@ -9,7 +9,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.data.DataBindings;
-	import aerys.minko.type.data.IDataProvider;
+	import aerys.minko.type.data.DataProvider;
 	import aerys.minko.type.enum.ShadowMappingType;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
@@ -314,7 +314,7 @@ package aerys.minko.scene.node.light
 			}
 		}
 		
-		private function onCameraChange(item : IDataProvider, fieldName : String) : void
+		private function onCameraChange(item : DataProvider, fieldName : String) : void
 		{
 			// retrieve camera frustum and transform matrix
 			var cameraLocalToWorld	: Matrix4x4			= _camera.localToWorld;

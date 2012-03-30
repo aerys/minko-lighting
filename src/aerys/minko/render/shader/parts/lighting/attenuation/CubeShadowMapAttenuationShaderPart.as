@@ -1,7 +1,7 @@
 package aerys.minko.render.shader.parts.lighting.attenuation
 {
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.PassTemplate;
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.type.enum.SamplerDimension;
@@ -12,7 +12,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 	
 	public class CubeShadowMapAttenuationShaderPart extends ShaderPart implements IAttenuationShaderPart
 	{
-		public function CubeShadowMapAttenuationShaderPart(main : PassTemplate)
+		public function CubeShadowMapAttenuationShaderPart(main : ActionScriptShader)
 		{
 			super(main);
 		}

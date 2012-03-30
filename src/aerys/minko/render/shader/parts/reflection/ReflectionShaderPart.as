@@ -1,7 +1,7 @@
 package aerys.minko.render.shader.parts.reflection
 {
 	import aerys.minko.render.effect.reflection.ReflectionProperties;
-	import aerys.minko.render.shader.PassTemplate;
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.render.shader.part.projection.BlinnNewellProjectionShaderPart;
@@ -15,7 +15,7 @@ package aerys.minko.render.shader.parts.reflection
 		private var _blinnNewellProjectionPart	: BlinnNewellProjectionShaderPart;
 		private var _probeProjectionPart		: ProbeProjectionShaderPart;
 		
-		public function ReflectionShaderPart(main : PassTemplate)
+		public function ReflectionShaderPart(main : ActionScriptShader)
 		{
 			super(main);
 			

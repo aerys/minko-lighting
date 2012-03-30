@@ -1,13 +1,13 @@
 package aerys.minko.render.shader.parts.lighting.attenuation
 {
-	import aerys.minko.render.shader.PassTemplate;
+	import aerys.minko.render.shader.ActionScriptShader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
 	public class HardConicAttenuationShaderPart extends ShaderPart implements IAttenuationShaderPart
 	{
-		public function HardConicAttenuationShaderPart(main : PassTemplate)
+		public function HardConicAttenuationShaderPart(main : ActionScriptShader)
 		{
 			super(main);
 		}
