@@ -1,13 +1,13 @@
 package aerys.minko.render.shader.parts.lighting.contribution
 {
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.ShaderPart;
 	
 	public class LocalizedShaderPart extends ShaderPart implements IContributionShaderPart
 	{
-		public function LocalizedShaderPart(main : ActionScriptShader)
+		public function LocalizedShaderPart(main : Shader)
 		{
 			super(main);
 		}

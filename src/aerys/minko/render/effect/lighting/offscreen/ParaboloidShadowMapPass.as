@@ -4,7 +4,7 @@ package aerys.minko.render.effect.lighting.offscreen
 	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.ShaderInstance;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.render.shader.part.projection.IProjectionShaderPart;
@@ -13,7 +13,7 @@ package aerys.minko.render.effect.lighting.offscreen
 	
 	import flash.geom.Rectangle;
 	
-	public class ParaboloidShadowMapPass extends ActionScriptShader
+	public class ParaboloidShadowMapPass extends Shader
 	{
 		private static const PROJECTION_RECTANGLE : Rectangle = new Rectangle(-1, 1, 2, -2);
 		

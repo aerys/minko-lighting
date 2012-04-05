@@ -4,7 +4,7 @@ package aerys.minko.render.effect.lighting.onscreen
 	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.ShaderInstance;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
 	import aerys.minko.render.shader.part.PixelColorShaderPart;
@@ -15,7 +15,7 @@ package aerys.minko.render.effect.lighting.onscreen
 	import aerys.minko.type.enum.TriangleCulling;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
-	public class LightingPass extends ActionScriptShader
+	public class LightingPass extends Shader
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		private var _pixelColorPart			: PixelColorShaderPart;

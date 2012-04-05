@@ -1,13 +1,13 @@
 package aerys.minko.render.shader.parts.lighting.contribution
 {
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.ShaderPart;
 
 	public class InfiniteShaderPart extends ShaderPart implements IContributionShaderPart
 	{
-		public function InfiniteShaderPart(main : ActionScriptShader)
+		public function InfiniteShaderPart(main : Shader)
 		{
 			super(main);
 		}

@@ -1,7 +1,7 @@
 package aerys.minko.render.shader.parts.lighting.attenuation
 {
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.ActionScriptShader;
+	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.render.shader.part.projection.ParaboloidProjectionShaderPart;
@@ -19,7 +19,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 		private var _paraboloidFrontPart	: ParaboloidProjectionShaderPart;
 		private var _paraboloidBackPart		: ParaboloidProjectionShaderPart;
 		
-		public function DPShadowMapAttenuationShaderPart(main : ActionScriptShader)
+		public function DPShadowMapAttenuationShaderPart(main : Shader)
 		{
 			super(main);
 			
