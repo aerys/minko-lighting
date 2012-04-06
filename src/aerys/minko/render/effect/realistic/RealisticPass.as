@@ -6,7 +6,7 @@ package aerys.minko.render.effect.realistic
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
-	import aerys.minko.render.shader.part.PixelColorShaderPart;
+	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.LightingShaderPart;
 	import aerys.minko.render.shader.parts.reflection.ReflectionShaderPart;
@@ -19,7 +19,7 @@ package aerys.minko.render.effect.realistic
 	public class RealisticPass extends Shader
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
-		private var _pixelColorPart			: PixelColorShaderPart;
+		private var _pixelColorPart			: DiffuseShaderPart;
 		private var _blendingPart			: BlendingShaderPart;
 		private var _lightingPart			: LightingShaderPart;
 		private var _reflectionPart			: ReflectionShaderPart;
@@ -36,7 +36,7 @@ package aerys.minko.render.effect.realistic
 		{
 			// init needed shader parts
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
-			_pixelColorPart			= new PixelColorShaderPart(this);
+			_pixelColorPart			= new DiffuseShaderPart(this);
 			_blendingPart			= new BlendingShaderPart(this);
 			_lightingPart			= new LightingShaderPart(this);
 			_reflectionPart			= new ReflectionShaderPart(this);
@@ -50,7 +50,7 @@ package aerys.minko.render.effect.realistic
 		{
 			// alpha blended drawcalls have a lower priority than normal blended, so that transparent
 			// geometries are rendered last.
-			var blending : uint = meshBindings.getPropertyOrFallback("blending", Blending.NORMAL);
+			var blending : uint = meshBindings.getConstant("blending", Blending.NORMAL);
 			
 			passConfig.blending			= blending;
 			passConfig.priority			= _priority;
@@ -58,13 +58,13 @@ package aerys.minko.render.effect.realistic
 				passConfig.priority -= 0.5;
 			
 			passConfig.renderTarget		= _renderTarget;
-			passConfig.depthTest		= meshBindings.getPropertyOrFallback("depthTest", DepthTest.LESS);
-			passConfig.triangleCulling	= meshBindings.getPropertyOrFallback("triangleCulling", TriangleCulling.BACK);
+			passConfig.depthTest		= meshBindings.getConstant("depthTest", DepthTest.LESS);
+			passConfig.triangleCulling	= meshBindings.getConstant("triangleCulling", TriangleCulling.BACK);
 		}
 		
 		override protected function getVertexPosition() : SFloat
 		{
-			var culling : uint = meshBindings.getPropertyOrFallback("triangleCulling", TriangleCulling.BACK);
+			var culling : uint = meshBindings.getConstant("triangleCulling", TriangleCulling.BACK);
 			
 			// store position, uv and normal in attributes, so that getPixelColor() can use them
 			_vertexPosition = _vertexAnimationPart.getAnimatedVertexPosition();
@@ -81,15 +81,15 @@ package aerys.minko.render.effect.realistic
 		override protected function getPixelColor() : SFloat
 		{
 			// retrieve color (from diffuseMap or diffuseColor
-			var color		: SFloat	= _pixelColorPart.getPixelColor();
+			var color		: SFloat	= _pixelColorPart.getDiffuse();
 			
 			// compute and apply reflections
 			var reflectionType	: int = 
-				meshBindings.getPropertyOrFallback(ReflectionProperties.TYPE, ReflectionType.NONE);
+				meshBindings.getConstant(ReflectionProperties.TYPE, ReflectionType.NONE);
 			
 			if (reflectionType != ReflectionType.NONE)
 			{
-				var blending		: uint		= meshBindings.getPropertyOrFallback(ReflectionProperties.BLENDING, Blending.ALPHA);
+				var blending		: uint		= meshBindings.getConstant(ReflectionProperties.BLENDING, Blending.ALPHA);
 				var reflectionColor	: SFloat	= _reflectionPart.getReflectionColor(_vertexPosition, _vertexUV, _vertexNormal);
 				
 				color = _blendingPart.blend(reflectionColor, color, blending);

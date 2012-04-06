@@ -6,7 +6,7 @@ package aerys.minko.render.effect.reflection.onscreen
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
-	import aerys.minko.render.shader.part.PixelColorShaderPart;
+	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.render.shader.parts.reflection.ReflectionShaderPart;
 	import aerys.minko.type.enum.Blending;
@@ -18,7 +18,7 @@ package aerys.minko.render.effect.reflection.onscreen
 	public class ReflectionPass extends Shader
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
-		private var _pixelColorPart			: PixelColorShaderPart;
+		private var _pixelColorPart			: DiffuseShaderPart;
 		private var _blendingPart			: BlendingShaderPart;
 		private var _reflectionPart			: ReflectionShaderPart;
 		
@@ -34,7 +34,7 @@ package aerys.minko.render.effect.reflection.onscreen
 		{
 			// init needed shader parts
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
-			_pixelColorPart			= new PixelColorShaderPart(this);
+			_pixelColorPart			= new DiffuseShaderPart(this);
 			_reflectionPart			= new ReflectionShaderPart(this);
 			_blendingPart			= new BlendingShaderPart(this);
 			
@@ -45,7 +45,7 @@ package aerys.minko.render.effect.reflection.onscreen
 		
 		override protected function initializeSettings(passConfig : ShaderSettings) : void
 		{
-			var blending : uint = meshBindings.getPropertyOrFallback("blending", Blending.NORMAL);
+			var blending : uint = meshBindings.getConstant("blending", Blending.NORMAL);
 			
 			if (blending == Blending.ALPHA || blending == Blending.ADDITIVE)
 				passConfig.priority -= 0.5;
@@ -53,9 +53,9 @@ package aerys.minko.render.effect.reflection.onscreen
 			passConfig.priority			= _priority;
 			passConfig.renderTarget		= _renderTarget;
 			
-			passConfig.depthTest		= meshBindings.getPropertyOrFallback("depthTest", DepthTest.LESS);
+			passConfig.depthTest		= meshBindings.getConstant("depthTest", DepthTest.LESS);
 			passConfig.blending			= blending;
-			passConfig.triangleCulling	= meshBindings.getPropertyOrFallback("triangleCulling", TriangleCulling.BACK);
+			passConfig.triangleCulling	= meshBindings.getConstant("triangleCulling", TriangleCulling.BACK);
 		}
 		
 		override protected function getVertexPosition():SFloat
@@ -69,13 +69,13 @@ package aerys.minko.render.effect.reflection.onscreen
 		
 		override protected function getPixelColor() : SFloat
 		{
-			var color			: SFloat = _pixelColorPart.getPixelColor();
+			var color			: SFloat = _pixelColorPart.getDiffuse();
 			var reflectionType	: uint = 
-				meshBindings.getPropertyOrFallback(ReflectionProperties.TYPE, ReflectionType.NONE);
+				meshBindings.getConstant(ReflectionProperties.TYPE, ReflectionType.NONE);
 			
 			if (reflectionType != ReflectionType.NONE)
 			{
-				var blending		: uint		= meshBindings.getPropertyOrFallback(ReflectionProperties.BLENDING, Blending.ALPHA);
+				var blending		: uint		= meshBindings.getConstant(ReflectionProperties.BLENDING, Blending.ALPHA);
 				var reflectionColor	: SFloat	= _reflectionPart.getReflectionColor(_vertexPosition, _vertexUV, _vertexNormal);
 					
 				color = _blendingPart.blend(color, reflectionColor, blending);

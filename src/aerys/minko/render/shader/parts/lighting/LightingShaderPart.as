@@ -79,11 +79,11 @@ package aerys.minko.render.shader.parts.lighting
 
 			// process dynamic lighting
 			
-			var meshGroup	: uint = meshBindings.getPropertyOrFallback(LightingProperties.GROUP, 1);
+			var meshGroup	: uint = meshBindings.getConstant(LightingProperties.GROUP, 1);
 
 			for (var lightId : uint = 0; sceneBindings.propertyExists('lightGroup' + lightId); ++lightId)
 			{
-				var lightGroup : uint = uint(sceneBindings.getProperty('lightGroup' + lightId));
+				var lightGroup : uint = uint(sceneBindings.getConstant('lightGroup' + lightId));
 
 				if ((lightGroup & meshGroup) == 0)
 					continue;
@@ -108,7 +108,7 @@ package aerys.minko.render.shader.parts.lighting
 		{
 			var lightColor			: SFloat = sceneBindings.getParameter('lightColor' + lightId, 3);
 			var lightContribution	: SFloat;
-			var lightType			: uint = sceneBindings.getProperty('lightType' + lightId);
+			var lightType			: uint = sceneBindings.getConstant('lightType' + lightId);
 			
 			switch (lightType)
 			{
@@ -163,9 +163,9 @@ package aerys.minko.render.shader.parts.lighting
 														 interpolatedWorldPosition	: SFloat,
 														 interpolatedWorldNormal	: SFloat) : SFloat
 		{
-			var lightHasDiffuse		: Boolean	= sceneBindings.getProperty('lightDiffuseEnabled' + lightId);
-			var lightHasSpecular	: Boolean	= sceneBindings.getProperty('lightSpecularEnabled' + lightId);
-			var lightShadowCasting	: uint		= sceneBindings.getProperty('lightShadowCastingType' + lightId);
+			var lightHasDiffuse		: Boolean	= sceneBindings.getConstant('lightDiffuseEnabled' + lightId);
+			var lightHasSpecular	: Boolean	= sceneBindings.getConstant('lightSpecularEnabled' + lightId);
+			var lightShadowCasting	: uint		= sceneBindings.getConstant('lightShadowCastingType' + lightId);
 			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
 			var computeShadows		: Boolean	= lightShadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
@@ -203,10 +203,10 @@ package aerys.minko.render.shader.parts.lighting
 												   interpolatedWorldPosition	: SFloat,
 												   interpolatedWorldNormal		: SFloat) : SFloat
 		{
-			var lightHasDiffuse		: Boolean	= sceneBindings.getProperty('lightDiffuseEnabled' + lightId);
-			var lightHasSpecular	: Boolean	= sceneBindings.getProperty('lightSpecularEnabled' + lightId);
-			var lightShadowCasting	: uint		= sceneBindings.getProperty('lightShadowCastingType' + lightId);
-			var lightIsAttenuated	: Boolean	= sceneBindings.getProperty('lightAttenuationEnabled' + lightId);
+			var lightHasDiffuse		: Boolean	= sceneBindings.getConstant('lightDiffuseEnabled' + lightId);
+			var lightHasSpecular	: Boolean	= sceneBindings.getConstant('lightSpecularEnabled' + lightId);
+			var lightShadowCasting	: uint		= sceneBindings.getConstant('lightShadowCastingType' + lightId);
+			var lightIsAttenuated	: Boolean	= sceneBindings.getConstant('lightAttenuationEnabled' + lightId);
 			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
 			var computeShadows		: Boolean	= lightShadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
@@ -261,15 +261,15 @@ package aerys.minko.render.shader.parts.lighting
 												  interpolatedWorldNormal	: SFloat) : SFloat
 		{
 			
-			var lightHasDiffuse		: Boolean	= sceneBindings.getProperty('lightDiffuseEnabled' + lightId);
-			var lightHasSpecular	: Boolean	= sceneBindings.getProperty('lightSpecularEnabled' + lightId);
-			var lightShadowCasting	: uint		= sceneBindings.getProperty('lightShadowCastingType' + lightId);
-			var lightIsAttenuated	: Boolean	= sceneBindings.getProperty('lightAttenuationEnabled' + lightId);
+			var lightHasDiffuse		: Boolean	= sceneBindings.getConstant('lightDiffuseEnabled' + lightId);
+			var lightHasSpecular	: Boolean	= sceneBindings.getConstant('lightSpecularEnabled' + lightId);
+			var lightShadowCasting	: uint		= sceneBindings.getConstant('lightShadowCastingType' + lightId);
+			var lightIsAttenuated	: Boolean	= sceneBindings.getConstant('lightAttenuationEnabled' + lightId);
 			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
 			var computeShadows		: Boolean	= lightShadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
 			var lightHasHardEdge	: Boolean	= 
-				sceneBindings.getProperty('lightInnerRadius' + lightId) == sceneBindings.getProperty('lightOuterRadius' + lightId);
+				sceneBindings.getConstant('lightInnerRadius' + lightId) == sceneBindings.getConstant('lightOuterRadius' + lightId);
 			
 			var contribution		: SFloat	= float(0);
 			

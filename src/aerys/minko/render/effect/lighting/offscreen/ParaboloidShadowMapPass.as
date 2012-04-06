@@ -43,7 +43,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			passConfig.renderTarget	= _renderTarget;
 			
 			passConfig.enabled = 
-				meshBindings.getPropertyOrFallback(LightingProperties.CAST_SHADOWS, true);
+				meshBindings.getConstant(LightingProperties.CAST_SHADOWS, true);
 		}
 		
 		override protected function getVertexPosition() : SFloat
