@@ -69,7 +69,7 @@ package aerys.minko.render.shader.parts.lighting
 			{
 				var lightMap : SFloat = meshBindings.getTextureParameter(LightingProperties.LIGHTMAP);
 				
-				lightContribution = sampleTexture(lightMap, interpolate(uv));
+				lightContribution = sampleTexture(lightMap, interpolate(uv)).xyz;
 				
 				if (meshBindings.propertyExists(LightingProperties.LIGHTMAP_MULTIPLIER))
 					lightContribution.scaleBy(meshBindings.getParameter(LightingProperties.LIGHTMAP_MULTIPLIER, 1));
