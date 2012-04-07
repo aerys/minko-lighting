@@ -5,8 +5,8 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.render.shader.part.projection.ParaboloidProjectionShaderPart;
-	import aerys.minko.type.enum.SamplerFilter;
-	import aerys.minko.type.enum.SamplerMipmap;
+	import aerys.minko.type.enum.SamplerFiltering;
+	import aerys.minko.type.enum.SamplerMipMapping;
 	import aerys.minko.type.enum.SamplerWrapping;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
@@ -47,12 +47,12 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			// retrieve sampler ids.
 			var frontDepthMap	: SFloat = sceneBindings.getTextureParameter(
 				'lightFrontParaboloidDepthMap' + lightId,
-				SamplerFilter.LINEAR, SamplerMipmap.DISABLE, SamplerWrapping.CLAMP
+				SamplerFiltering.LINEAR, SamplerMipMapping.DISABLE, SamplerWrapping.CLAMP
 			);
 			
 			var backDepthMap	: SFloat = sceneBindings.getTextureParameter(
 				'lightBackParaboloidDepthMap' + lightId,
-				SamplerFilter.LINEAR, SamplerMipmap.DISABLE, SamplerWrapping.CLAMP
+				SamplerFiltering.LINEAR, SamplerMipMapping.DISABLE, SamplerWrapping.CLAMP
 			);
 			
 			// retrieve front depth

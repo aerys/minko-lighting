@@ -5,8 +5,8 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.type.enum.SamplerDimension;
-	import aerys.minko.type.enum.SamplerFilter;
-	import aerys.minko.type.enum.SamplerMipmap;
+	import aerys.minko.type.enum.SamplerFiltering;
+	import aerys.minko.type.enum.SamplerMipMapping;
 	import aerys.minko.type.enum.SamplerWrapping;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
@@ -34,8 +34,8 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 		{
 			var depthMap		: SFloat = sceneBindings.getTextureParameter(
 				'lightDepthMap' + lightId,
-				SamplerFilter.NEAREST, 
-				SamplerMipmap.DISABLE, 
+				SamplerFiltering.NEAREST, 
+				SamplerMipMapping.DISABLE, 
 				SamplerWrapping.CLAMP, 
 				SamplerDimension.FLAT
 			);
