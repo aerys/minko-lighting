@@ -54,8 +54,12 @@ package aerys.minko.render.effect.realistic
 			
 			passConfig.blending			= blending;
 			passConfig.priority			= _priority;
+			
 			if (blending == Blending.ALPHA || blending == Blending.ADDITIVE)
 				passConfig.priority -= 0.5;
+			
+			if (meshBindings.propertyExists('deltaPriority'))
+				passConfig.priority += meshBindings.getConstant('deltaPriority');
 			
 			passConfig.renderTarget		= _renderTarget;
 			passConfig.depthTest		= meshBindings.getConstant("depthTest", DepthTest.LESS);
