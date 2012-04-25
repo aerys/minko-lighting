@@ -1,8 +1,8 @@
 package aerys.minko.render.shader.parts.lighting
 {
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.render.shader.parts.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.attenuation.DPShadowMapAttenuationShaderPart;
@@ -151,8 +151,8 @@ package aerys.minko.render.shader.parts.lighting
 		{
 			var lightAmbient : SFloat = sceneBindings.getParameter('lightAmbient' + lightId, 1);
 			
-			if (meshBindings.propertyExists('lightAmbientMultiplier'))
-				lightAmbient.scaleBy(sceneBindings.getParameter('lightAmbientModifier', 1));
+			if (meshBindings.propertyExists(LightingProperties.AMBIENT_MULTIPLIER))
+				lightAmbient.scaleBy(sceneBindings.getParameter(LightingProperties.AMBIENT_MULTIPLIER, 1));
 			
 			return lightAmbient;
 		}
