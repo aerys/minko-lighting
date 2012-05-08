@@ -272,7 +272,12 @@ package aerys.minko.scene.node.light
 			_worldDirection.normalize();
 			
 			if (_projection != null)
-				_worldToScreen	= Matrix4x4.multiply(projection, worldToLocal, _worldToScreen);
+			{
+				_worldToScreen.lock()
+							  .copyFrom(worldToLocal)
+							  .append(projection)
+							  .unlock();
+			}
 		}
 		
 		private function onDescendantAddedToScene(group : Group, child : ISceneNode) : void
@@ -353,8 +358,11 @@ package aerys.minko.scene.node.light
 				zNear = zFar / 10000;
 			
 			// update world to screen and projection
-			_projection = Matrix4x4.perspectiveFoV(_outerRadius, 1, zNear, zFar, _projection);
-			_worldToScreen = Matrix4x4.multiply(_projection, worldToLocal, _worldToScreen);
+			_projection.perspectiveFoV(_outerRadius, 1, zNear, zFar);
+			_worldToScreen.lock()
+						  .copyFrom(worldToLocal)
+						  .append(_projection)
+						  .unlock();
 		}
 		
 		override protected function setLightId(lightId			: int, 

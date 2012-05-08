@@ -13,14 +13,14 @@ package aerys.minko.render.effect.lighting.offscreen
 	
 	public class CubeShadowMapPass extends Shader
 	{
-		private static const VIEW_MATRICES : Vector.<Matrix4x4> = Vector.<Matrix4x4>([
-			Matrix4x4.lookAt(Vector4.ZERO, Vector4.X_AXIS,		Vector4.Y_AXIS),		// look at positive x
-			Matrix4x4.lookAt(Vector4.ZERO, new Vector4(-1, 0, 0),	Vector4.Y_AXIS),	// look at negative x
-			Matrix4x4.lookAt(Vector4.ZERO, Vector4.Y_AXIS,		new Vector4(0, 0, -1)),	// look at positive y
-			Matrix4x4.lookAt(Vector4.ZERO, new Vector4(0, -1, 0),	Vector4.Z_AXIS),	// look at negative y
-			Matrix4x4.lookAt(Vector4.ZERO, Vector4.Z_AXIS,		Vector4.Y_AXIS),		// look at positive z, that's identity!!
-			Matrix4x4.lookAt(Vector4.ZERO, new Vector4(0, 0, -1),	Vector4.Y_AXIS),	// look at negative z
-		]);
+		private static const VIEW_MATRICES : Vector.<Matrix4x4> = new <Matrix4x4>[
+			new Matrix4x4().lookAt(Vector4.ZERO, Vector4.X_AXIS,		Vector4.Y_AXIS),		// look at positive x
+			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(-1, 0, 0),	Vector4.Y_AXIS),	// look at negative x
+			new Matrix4x4().lookAt(Vector4.ZERO, Vector4.Y_AXIS,		new Vector4(0, 0, -1)),	// look at positive y
+			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(0, -1, 0),	Vector4.Z_AXIS),	// look at negative y
+			new Matrix4x4().lookAt(Vector4.ZERO, Vector4.Z_AXIS,		Vector4.Y_AXIS),		// look at positive z, that's identity!!
+			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(0, 0, -1),	Vector4.Y_AXIS),	// look at negative z
+		];
 		
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		
@@ -42,8 +42,8 @@ package aerys.minko.render.effect.lighting.offscreen
 			_renderTarget			= renderTarget;
 			
 			var viewMatrix			: Matrix4x4 = VIEW_MATRICES[side];
-			var modifierMatrix		: Matrix4x4 = Matrix4x4.perspectiveFoV(Math.PI / 2, 1, 1, 1000);
-			var lightToScreenMatrix	: Matrix4x4 = Matrix4x4.multiply(modifierMatrix, viewMatrix);
+			var modifierMatrix		: Matrix4x4 = new Matrix4x4().perspectiveFoV(Math.PI / 2, 1, 1, 1000);
+			var lightToScreenMatrix	: Matrix4x4 = new Matrix4x4().copyFrom(viewMatrix).append(modifierMatrix);
 			
 			_lightId				= lightId;	
 			_lightToScreen			= new SFloat(lightToScreenMatrix)
