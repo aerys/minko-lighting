@@ -1,11 +1,12 @@
 package aerys.minko.render.effect.lighting.onscreen
 {
 	import aerys.minko.render.RenderTarget;
+	import aerys.minko.render.effect.basic.BasicProperties;
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.ShaderSettings;
-	import aerys.minko.render.shader.ShaderInstance;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.ShaderInstance;
+	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
 	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
@@ -78,6 +79,8 @@ package aerys.minko.render.effect.lighting.onscreen
 			var lighting	: SFloat	= _lightingPart.getLightingColor(_vertexPosition, _vertexUV, _vertexNormal);
 			
 			color.scaleBy(lighting);
+			
+			
 			
 			return color;
 		}

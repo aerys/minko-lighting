@@ -1,10 +1,11 @@
 package aerys.minko.render.effect.realistic
 {
 	import aerys.minko.render.RenderTarget;
+	import aerys.minko.render.effect.basic.BasicProperties;
 	import aerys.minko.render.effect.reflection.ReflectionProperties;
-	import aerys.minko.render.shader.ShaderSettings;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
 	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
@@ -102,6 +103,13 @@ package aerys.minko.render.effect.realistic
 			// compute and apply lighting
 			var lighting	: SFloat	= _lightingPart.getLightingColor(_vertexPosition, _vertexUV, _vertexNormal);
 			color = _blendingPart.blend(lighting, color, Blending.LIGHT);
+			
+			if (meshBindings.propertyExists(BasicProperties.ALPHA_THRESHOLD))
+			{
+				var alphaThreshold : SFloat = meshBindings.getParameter('alphaThreshold', 1);
+				
+				kill(subtract(0.5, lessThan(color.w, alphaThreshold)));
+			}
 			
 			return color;
 		}
