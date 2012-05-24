@@ -4,13 +4,13 @@ package aerys.minko.render.shader.parts.lighting.contribution
 
 	public interface IContributionShaderPart
 	{
-		function getDiffuseTerm(lightId						: uint, 
+		function getDiffuse(lightId						: uint, 
 								worldPosition				: SFloat,
 								worldNormal					: SFloat,
 								worldInterpolatedPosition	: SFloat,
 								worldInterpolatedNormal		: SFloat) : SFloat;
 		
-		function getSpecularTerm(lightId					: uint, 
+		function getSpecular(lightId					: uint, 
 								 worldPosition				: SFloat,
 								 worldNormal				: SFloat,
 								 worldInterpolatedPosition	: SFloat,

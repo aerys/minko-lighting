@@ -1,266 +1,198 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.ns.minko_lighting;
-	import aerys.minko.render.RenderTarget;
-	import aerys.minko.render.effect.lighting.offscreen.MatrixShadowMapPass;
 	import aerys.minko.render.resource.texture.TextureResource;
-	import aerys.minko.scene.node.Camera;
-	import aerys.minko.scene.node.Group;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
-	import aerys.minko.type.data.DataBindings;
-	import aerys.minko.type.data.DataProvider;
 	import aerys.minko.type.enum.ShadowMappingType;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 
-	use namespace minko_lighting;
 	
 	public class SpotLight extends AbstractLight
 	{
-		public static const TYPE : uint = 4;
+		public static const TYPE			: uint				= 3;
 		
-		private static const Z_AXIS : Vector4 = new Vector4(0, 0, 1);
+		private static const SCREEN_TO_UV	: Matrix4x4			= new Matrix4x4().appendScale(.5, -.5).appendTranslation(.5, .5);
+		private static const TMP_VECTOR		: Vector4			= new Vector4();
+		private static const Z_AXIS			: Vector4			= new Vector4(0, 0, 1);
+		private static const FRUSTUM_POINTS	: Vector.<Vector4>	= new <Vector4>[
+			new Vector4(-1, -1, 0, 1),
+			new Vector4(-1, -1, 1, 1),
+			new Vector4(-1, +1, 0, 1),
+			new Vector4(-1, +1, 1, 1),
+			new Vector4(+1, -1, 0, 1),
+			new Vector4(+1, -1, 1, 1),
+			new Vector4(+1, +1, 0, 1),
+			new Vector4(+1, +1, 1, 1)
+		];
 		
-		// light definition
-		private var _diffuse				: Number;
-		private var _specular				: Number;
-		private var _shininess				: Number;
-		private var _attenuationDistance				: Number;
-		private var _innerRadius			: Number;
-		private var _outerRadius			: Number;
-		
-		private var _shadowMap				: TextureResource;
-		private var _depthMapShader			: MatrixShadowMapPass;
-		
-		// cached values
-		private var _camera					: Camera;
-		
-		// computed values
-		private var _worldPosition			: Vector4;
-		private var _worldDirection			: Vector4;
-		private var _projection				: Matrix4x4;
-		private var _worldToScreen			: Matrix4x4;
-		
-		override public function get type() : uint
-		{
-			return TYPE;
-		}
-		
-		override public function get shadowCastingType() : uint
-		{
-			return _shadowMap != null ? ShadowMappingType.MATRIX : ShadowMappingType.NONE;
-		}
-		
-		minko_lighting function get depthMapShader() : MatrixShadowMapPass
-		{
-			return _depthMapShader;
-		}
+		private var _worldPosition	: Vector4;
+		private var _worldDirection	: Vector4;
+		private var _projection		: Matrix4x4;
+		private var _worldToScreen	: Matrix4x4;
+		private var _worldToUV		: Matrix4x4;
 		
 		public function get diffuse() : Number
 		{
-			return _diffuse;
-		}
-		
-		public function get diffuseEnabled() : Boolean
-		{
-			return _diffuse != 0;
+			return getProperty('diffuse') as Number;
 		}
 		
 		public function get specular() : Number
 		{
-			return _specular;
-		}
-		
-		public function get specularEnabled() : Boolean
-		{
-			return _specular != 0;
+			return getProperty('specular') as Number;
 		}
 		
 		public function get shininess() : Number
 		{
-			return _shininess;
-		}
-		
-		public function get attenuationDistance() : Number
-		{
-			return _attenuationDistance;
-		}
-		
-		public function get attenuationEnabled() : Boolean
-		{
-			return _attenuationDistance != 0;
+			return getProperty('shininess') as Number;
 		}
 		
 		public function get innerRadius() : Number
 		{
-			return _innerRadius;
+			return getProperty('innerRadius') as Number;
 		}
 		
 		public function get outerRadius() : Number
 		{
-			return _outerRadius;
+			return getProperty('outerRadius') as Number;
 		}
 		
-		public function get shadowMap() : TextureResource
+		public function get attenuationDistance() : Number
 		{
-			return _shadowMap;
-		}
-		
-		public function get worldPosition() : Vector4
-		{
-			return _worldPosition;
-		}
-		
-		public function get worldDirection() : Vector4
-		{
-			return _worldDirection;
-		}
-		
-		public function get worldToLightScreen() : Matrix4x4
-		{
-			return _worldToScreen;
-		}
-		
-		public function get projection() : Matrix4x4
-		{
-			return _projection;
-		}
-		
-		public function set attenuationDistance(v : Number) : void
-		{
-			_attenuationDistance = v;
-			
-			if (!_locked)
-				changed.execute(this, 'distance');
+			return getProperty('attenuationDistance') as Number;
 		}
 		
 		public function set diffuse(v : Number)	: void
 		{
-			var oldDiffuse : Number = _diffuse;
+			setProperty('diffuse', v);
 			
-			_diffuse = v;
-			
-			if (!_locked)
-			{
-				changed.execute(this, 'diffuse');
-				if ((oldDiffuse == 0 && _diffuse != 0) ||
-					(oldDiffuse != 0 && _diffuse == 0))
-					changed.execute(this, 'specularEnabled');
-			}
+			if (getProperty('diffuseEnabled') != (v != 0))
+				setProperty('diffuseEnabled', v != 0);
 		}
 		
 		public function set specular(v : Number) : void
 		{
-			var oldSpecular : Number = _specular;
+			setProperty('specular', v);
 			
-			_specular = v;
-			
-			if (!_locked)
-			{
-				changed.execute(this, 'specular');
-				if ((oldSpecular == 0 && _specular != 0) ||
-					(oldSpecular != 0 && _specular == 0))
-					changed.execute(this, 'specularEnabled');
-			}
+			if (getProperty('specularEnabled') != (v != 0))
+				setProperty('specularEnabled', v != 0);
 		}
 		
 		public function set shininess(v : Number) : void
 		{
-			_shininess = v;
-			
-			if (!_locked)
-				changed.execute(this, 'shininess');
+			setProperty('shininess', v);
 		}
 		
 		public function set innerRadius(v : Number) : void
 		{
-			_innerRadius = v; 
+			setProperty('innerRadius', v);
 			
-			if (!_locked)
-				changed.execute(this, 'innerRadius'); 
+			if (getProperty('smoothRadius') != (innerRadius != outerRadius))
+				setProperty('smoothRadius', innerRadius != outerRadius)
 		}
 		
 		public function set outerRadius(v : Number) : void
 		{
-			_outerRadius = v;
+			setProperty('outerRadius', v);
+			updateProjectionMatrix();
 			
-			if (!_locked)
-				changed.execute(this, 'outerRadius');
+			if (getProperty('smoothRadius') != (innerRadius != outerRadius))
+				setProperty('smoothRadius', innerRadius != outerRadius)
 		}
 		
-		public function set shadowMapSize(v : uint) : void
+		public function set attenuationDistance(v : Number) : void
 		{
-			// disable shadow mapping
-			if (_shadowMap)
+			setProperty('attenuationDistance', v);
+			updateProjectionMatrix();
+			
+			if (getProperty('attenuationEnabled') != (v != 0))
+				setProperty('attenuationEnabled', v != 0);
+		}
+		
+		override public function set shadowCastingType(v : uint) : void
+		{
+			var shadowMapSize	: uint = this.shadowMapSize;
+			var shadowMap		: TextureResource = getProperty('shadowMap') as TextureResource;
+			
+			if (shadowMap)
 			{
-				_shadowMap.dispose();
-				_shadowMap		= null;
-				_depthMapShader	= null;
+				removeProperty('shadowMap');
+				shadowMap.dispose(); 
 			}
 			
-			if (v == 0)
+			switch (v)
 			{
-				// do nothing
-			}
-			else if ((v & (~v + 1)) == v && v <= 2048)
-			{
-				_shadowMap = new TextureResource()
-				_shadowMap.setSize(v, v);
+				case ShadowMappingType.NONE:
+					setProperty('shadowCastingType', ShadowMappingType.NONE);
+					break;
 				
-				_depthMapShader = 
-					new MatrixShadowMapPass(_lightId, 0, new RenderTarget(v, v, _shadowMap));
-			}
-			else
-			{
-				throw new ArgumentError('Invalid shadow map size. Must be either 0 to disable shadows,' +
-					' or power of 2 lesser than 2048');
+				case ShadowMappingType.MATRIX:
+					if (!((shadowMapSize & (~shadowMapSize + 1)) == shadowMapSize
+						&& shadowMapSize <= 2048))
+						throw new Error(shadowMapSize + ' is an invalid size for a shadow map');
+					
+					shadowMap = new TextureResource(shadowMapSize, shadowMapSize);
+					setProperty('shadowMap', shadowMap);
+					setProperty('shadowCastingType', ShadowMappingType.MATRIX);
+					break;
+				
+				default: 
+					throw new ArgumentError('Invalid shadow casting type.');
 			}
 		}
 		
-		public function SpotLight(color			: uint		= 0xFFFFFF,
-								  diffuse		: Number	= .6,
-								  specular		: Number	= .8,
-								  shininess		: Number	= 64,
-								  distance		: Number	= 0,
-								  outerRadius	: Number	= .4,
-								  innerRadius	: Number	= .4,
-								  group			: uint		= 0x1,
-								  shadowMapSize	: uint		= 0)
+		
+		public function SpotLight(color					: uint		= 0xFFFFFF,
+								  diffuse				: Number	= .6,
+								  specular				: Number	= .8,
+								  shininess				: Number	= 64,
+								  attenuationDistance	: Number	= 0,
+								  outerRadius			: Number	= .4,
+								  innerRadius			: Number	= .4,
+								  emissionMask			: uint		= 0x1,
+								  shadowCastingType		: uint		= 0,
+								  shadowMapSize			: uint		= 0)
 		{
-			super(color, group);
+			_worldDirection = new Vector4();
+			_worldPosition	= new Vector4();
+			_projection		= new Matrix4x4();
+			_worldToScreen	= new Matrix4x4();
+			_worldToUV		= new Matrix4x4();
 			
-			_locked = true;
+			super(color, emissionMask, shadowCastingType, shadowMapSize, TYPE)
 			
-			this.attenuationDistance	= distance;
 			this.diffuse				= diffuse;
 			this.specular				= specular;
 			this.shininess				= shininess;
 			this.innerRadius			= innerRadius;
 			this.outerRadius			= outerRadius;
-			this.shadowMapSize			= shadowMapSize;
+			this.attenuationDistance	= attenuationDistance;
 			
-			_locked = false;
+			setProperty('worldDirection', _worldDirection);
+			setProperty('worldPosition', _worldPosition);
+			setProperty('projection', _projection);
+			setProperty('worldToScreen', _worldToScreen);
+			setProperty('worldToUV', _worldToUV);
+			
+			if ([ShadowMappingType.NONE, 
+				ShadowMappingType.MATRIX].indexOf(shadowCastingType) == -1)
+				throw new Error('Invalid ShadowMappingType.');
 		}
 		
 		override protected function addedToSceneHandler(child : ISceneNode, scene : Scene) : void
 		{
 			super.addedToSceneHandler(child, scene);
 			
-			scene.descendantAdded.add(onDescendantAddedToScene);
-			scene.descendantRemoved.add(onDescendantRemovedFromScene);
-			
-			updateCamera();
+			scene.bindings.getPropertyChangedSignal('cameraScreenToWorld')
+						  .add(cameraWorldToScreenChangedHandler);
 		}
 		
 		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene) : void
 		{
 			super.removedFromSceneHandler(child, scene);
 			
-			scene.descendantAdded.remove(onDescendantAddedToScene);
-			scene.descendantRemoved.remove(onDescendantRemovedFromScene);
-			
-			updateCamera();
+			scene.bindings.getPropertyChangedSignal('cameraScreenToWorld')
+						  .remove(cameraWorldToScreenChangedHandler);
 		}
 		
 		override protected function transformChangedHandler(transform : Matrix4x4, propertyName : String) : void
@@ -271,146 +203,76 @@ package aerys.minko.scene.node.light
 			_worldDirection	= localToWorld.deltaTransformVector(Z_AXIS, _worldDirection);
 			_worldDirection.normalize();
 			
-			if (_projection != null)
-			{
-				_worldToScreen.lock()
-							  .copyFrom(worldToLocal)
-							  .append(projection)
-							  .unlock();
-			}
+			_worldToScreen.copyFrom(worldToLocal).prepend(_projection);
+			_worldToUV.copyFrom(_worldToScreen).prepend(SCREEN_TO_UV);
 		}
 		
-		private function onDescendantAddedToScene(group : Group, child : ISceneNode) : void
+		protected function cameraWorldToScreenChangedHandler(screenToWorld	: Matrix4x4,
+															 propertyName	: String) : void
 		{
-			if (child is Camera)
-				updateCamera();
+			updateProjectionMatrix();
 		}
 		
-		private function onDescendantRemovedFromScene(group : Group, child : ISceneNode) : void
+		private function updateProjectionMatrix() : void
 		{
-			if (child == _camera)
-				updateCamera();
-		}
-		
-		private function updateCamera() : void
-		{
-			if (_camera)
-			{
-				_camera.changed.remove(onCameraChange);
-				_camera.transform.changed.remove(onCameraChange);
-				_camera = null;
-			}
+			var screenToWorld : Matrix4x4 = 
+				Scene(root).properties.getProperty('cameraScreenToWorld') as Matrix4x4;
 			
-			if (root is Scene)
+			if (screenToWorld == null)
 			{
-				var scene : Scene = Scene(root);
-				if (scene != null)
+				// No camera on scene, we cannot compute a valid projection matrix.
+				// For now we default to identity
+				_projection.identity();
+			}
+			else
+			{
+				// There is a camera in the scene
+				// We convert the frustum into light space, and compute a projection
+				// matrix that contains the whole frustum.
+				
+				var zNear	: Number = Number.POSITIVE_INFINITY;
+				var zFar	: Number = Number.NEGATIVE_INFINITY;
+				
+				for (var pointId : uint = 0; pointId < 8; ++pointId)
 				{
-					var cameras : Vector.<ISceneNode> = scene.getDescendantsByType(Camera);
-					if (cameras.length != 0)
-					{
-						_camera = Camera(cameras[0]);
-						_camera.changed.add(onCameraChange);
-						_camera.transform.changed.add(onCameraChange);
-						
-						onCameraChange(null, null);
-					}
+					screenToWorld.transformVector(FRUSTUM_POINTS[pointId], TMP_VECTOR);
+					worldToLocal.transformVector(TMP_VECTOR, TMP_VECTOR);
+					
+					if (TMP_VECTOR.z > zFar)
+						zFar = TMP_VECTOR.z;
+					
+					if (TMP_VECTOR.z < zNear)
+						zNear = TMP_VECTOR.z;
 				}
-			}
-		}
-		
-		private function onCameraChange(item : DataProvider, fieldName : String) : void
-		{
-			// retrieve camera frustum and transform matrix
-			var cameraLocalToWorld	: Matrix4x4			= _camera.localToWorld;
-			var cameraFrustumPoints	: Vector.<Vector4>	= _camera.frustum.points;
-			
-			// compute zNear & zFar, depending on camera frustum
-			var tmpVector			: Vector4	= new Vector4();
-			var zNear				: Number	= Number.POSITIVE_INFINITY;
-			var zFar				: Number	= Number.NEGATIVE_INFINITY;
-			
-			for (var pointId : uint = 0; pointId < 8; ++pointId)
-			{
-				// transform frustum point to light space
-				Vector4.copy(cameraFrustumPoints[pointId], tmpVector);
-				cameraLocalToWorld.transformVector(tmpVector, tmpVector);
-				worldToLocal.transformVector(tmpVector, tmpVector);
 				
-				// compare to current zFar and zNear
-				var frustumDepth : Number = tmpVector.z;
+				// if attenuation is enabled, at d = distance * 10, 
+				// we can only see 1% of the light emitted, so we can lower the zFar
+				var attenuationDistanceEnabled	: Boolean	= getProperty('attenuationEnabled');
+				var attenuationDistance			: Number	= this.attenuationDistance;
 				
-				if (frustumDepth > zFar)
-					zFar = tmpVector.z;
+				if (attenuationDistanceEnabled && zFar > attenuationDistance * 10)
+					zFar = attenuationDistance * 10;
 				
-				if (frustumDepth < zNear)
-					zNear = tmpVector.z;
+				// enforce a maximal factor of 10000 between the 2 values, 
+				// to avoid having too little precision (as the cost of losing shadows near the light)
+				if (zNear * 10000 < zFar)
+					zNear = zFar / 10000;
+				
+				_projection.perspectiveFoV(outerRadius, 1, zNear, zFar);
 			}
 			
-			// if attenuation is enabled, at d = distance * 10, 
-			// we can only see 1% of the light emitted, so we can lower the zFar
-			if (_attenuationDistance != 0 && zFar > _attenuationDistance * 10)
-				zFar = _attenuationDistance * 10;
-			
-			// we enforce a maximal factor of 10000 between the 2 values, 
-			// to avoid having too little precision (as the cost of losing shadows near the light)
-			if (zNear * 10000 < zFar)
-				zNear = zFar / 10000;
-			
-			// update world to screen and projection
-			_projection.perspectiveFoV(_outerRadius, 1, zNear, zFar);
-			_worldToScreen.lock()
-						  .copyFrom(worldToLocal)
-						  .append(_projection)
-						  .unlock();
-		}
-		
-		override protected function setLightId(lightId			: int, 
-											   sceneBindings	: DataBindings) : void
-		{
-			if (_lightId != lightId)
-			{
-				if (_lightId != -1)
-					sceneBindings.remove(this);
-				
-				_lightId = lightId;
-				
-				_dataDescriptor = new Object();
-				_dataDescriptor['lightType' + lightId]					= 'type';
-				_dataDescriptor['lightGroup' + lightId]					= 'group';
-				_dataDescriptor['lightColor' + lightId]					= 'color';
-				_dataDescriptor['lightDiffuse' + lightId]				= 'diffuse';
-				_dataDescriptor['lightDiffuseEnabled' + lightId]		= 'diffuseEnabled';
-				_dataDescriptor['lightSpecular' + lightId]				= 'specular';
-				_dataDescriptor['lightSpecularEnabled' + lightId]		= 'specularEnabled';
-				_dataDescriptor['lightShininess' + lightId]				= 'shininess';
-				_dataDescriptor['lightAttenuationDistance' + lightId]	= 'attenuationDistance';
-				_dataDescriptor['lightAttenuationEnabled' + lightId]	= 'attenuationEnabled';
-				_dataDescriptor['lightInnerRadius' + lightId]			= 'innerRadius';
-				_dataDescriptor['lightOuterRadius' + lightId]			= 'outerRadius';
-				_dataDescriptor['lightShadowCastingType' + lightId]		= 'shadowCastingType';
-				_dataDescriptor['lightWorldPosition' + lightId]			= 'worldPosition';
-				_dataDescriptor['lightWorldDirection' + lightId]		= 'worldDirection';
-				_dataDescriptor['lightWorldToLight' + lightId]			= 'worldToLocal';
-				_dataDescriptor['lightWorldToLightScreen' + lightId]	= 'worldToLightScreen';
-			
-				if (_lightId != -1)
-					sceneBindings.add(this);
-			}
+			_worldToScreen.copyFrom(worldToLocal).prepend(_projection);
+			_worldToUV.copyFrom(_worldToScreen).prepend(SCREEN_TO_UV);
 		}
 		
 		override public function clone(cloneControllers:Boolean=false):ISceneNode
 		{
 			var light : SpotLight = new SpotLight(
-				this.color,
-				this.diffuse,
-				this.specular,
-				this.shininess,
-				this.attenuationDistance,
-				this.outerRadius,
-				this.innerRadius,
-				this.group,
-				0);
+				color, diffuse, specular, shininess, 
+				attenuationDistance, 
+				outerRadius, innerRadius, emissionMask, 
+				shadowCastingType, shadowMapSize
+			); 
 			
 			light.name = this.name;
 			light.transform.copyFrom(this.transform);

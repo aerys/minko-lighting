@@ -2,9 +2,9 @@ package aerys.minko.render.effect.realistic
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.reflection.ReflectionProperties;
-	import aerys.minko.render.shader.ShaderSettings;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
 	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
@@ -85,7 +85,7 @@ package aerys.minko.render.effect.realistic
 		override protected function getPixelColor() : SFloat
 		{
 			// retrieve color (from diffuseMap or diffuseColor
-			var color		: SFloat	= _pixelColorPart.getDiffuse();
+			var color			: SFloat	= _pixelColorPart.getDiffuse();
 			
 			// compute and apply reflections
 			var reflectionType	: int = 

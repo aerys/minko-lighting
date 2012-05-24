@@ -1,44 +1,46 @@
 package aerys.minko.render.shader.parts.lighting.contribution
 {
+	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.ShaderPart;
 	
 	public class LocalizedShaderPart extends ShaderPart implements IContributionShaderPart
 	{
+		use namespace minko_lighting;
+		
 		public function LocalizedShaderPart(main : Shader)
 		{
 			super(main);
 		}
 		
-		public function getDiffuseTerm(lightId						: uint, 
-									   worldPosition				: SFloat,
-									   worldNormal					: SFloat,
-									   worldInterpolatedPosition	: SFloat,
-									   worldInterpolatedNormal		: SFloat) : SFloat
+		public function getDiffuse(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
 		{
-			var lightWorldPosition	: SFloat = sceneBindings.getParameter('lightWorldPosition' + lightId, 3);
-			var lightDiffuse		: SFloat = sceneBindings.getParameter('lightDiffuse' + lightId, 1);
+			var lightWorldPositionName	: String = LightingProperties.getNameFor(lightId, 'worldPosition');
+			var lightDiffuseName		: String = LightingProperties.getNameFor(lightId, 'diffuse');
+			
+			var lightWorldPosition		: SFloat = sceneBindings.getParameter(lightWorldPositionName, 3);
+			var lightDiffuse			: SFloat = sceneBindings.getParameter(lightDiffuseName, 1);
 			
 			if (meshBindings.propertyExists(LightingProperties.DIFFUSE_MULTIPLIER))
 				lightDiffuse.scaleBy(meshBindings.getParameter(LightingProperties.DIFFUSE_MULTIPLIER, 1));
 			
-			var lightDirection		: SFloat = normalize(subtract(lightWorldPosition, worldInterpolatedPosition));
-			var lambertProduct		: SFloat = saturate(dotProduct3(lightDirection, worldInterpolatedNormal));
+			var lightDirection			: SFloat = normalize(subtract(lightWorldPosition, iwPos));
+			var lambertProduct			: SFloat = saturate(dotProduct3(lightDirection, iwNrm));
 			
 			return multiply(lightDiffuse, lambertProduct);
 		}
 		
-		public function getSpecularTerm(lightId						: uint, 
-										worldPosition				: SFloat,
-										worldNormal					: SFloat,
-										worldInterpolatedPosition	: SFloat,
-										worldInterpolatedNormal		: SFloat) : SFloat
+		public function getSpecular(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
 		{
-			var lightWorldPosition	: SFloat = sceneBindings.getParameter('lightWorldPosition' + lightId, 3);
-			var lightSpecular		: SFloat = sceneBindings.getParameter('lightSpecular' + lightId, 1);
-			var lightShininess		: SFloat = sceneBindings.getParameter('lightShininess' + lightId, 1);
+			var lightWorldPositionName	: String = LightingProperties.getNameFor(lightId, 'worldPosition');
+			var lightSpecularName		: String = LightingProperties.getNameFor(lightId, 'specular');
+			var lightShininessName		: String = LightingProperties.getNameFor(lightId, 'shininess');
+			
+			var lightWorldPosition		: SFloat = sceneBindings.getParameter(lightWorldPositionName, 3);
+			var lightSpecular			: SFloat = sceneBindings.getParameter(lightSpecularName, 1);
+			var lightShininess			: SFloat = sceneBindings.getParameter(lightShininessName, 1);
 			
 			if (meshBindings.propertyExists(LightingProperties.SPECULAR_MULTIPLIER))
 				lightSpecular.scaleBy(meshBindings.getParameter(LightingProperties.SPECULAR_MULTIPLIER, 1));
@@ -46,11 +48,10 @@ package aerys.minko.render.shader.parts.lighting.contribution
 			if (meshBindings.propertyExists(LightingProperties.SHININESS_MULTIPLIER))
 				lightShininess.scaleBy(meshBindings.getParameter(LightingProperties.SHININESS_MULTIPLIER, 1));
 			
-			var lightDirection		: SFloat = normalize(subtract(worldInterpolatedPosition, lightWorldPosition));
-			var viewDirection		: SFloat = normalize(subtract(cameraWorldPosition, worldInterpolatedPosition));
-			var lightReflection		: SFloat = reflect(lightDirection, worldInterpolatedNormal);
-			
-			var lambertProduct		: SFloat = saturate(dotProduct3(lightReflection, viewDirection));
+			var lightDirection			: SFloat = normalize(subtract(iwPos, lightWorldPosition));
+			var viewDirection			: SFloat = normalize(subtract(cameraWorldPosition, iwPos));
+			var lightReflection			: SFloat = reflect(lightDirection, iwNrm);
+			var lambertProduct			: SFloat = saturate(dotProduct3(lightReflection, viewDirection));
 			
 			return multiply(lightSpecular, power(lambertProduct, lightShininess));
 		}

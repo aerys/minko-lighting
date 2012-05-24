@@ -11,15 +11,15 @@ package aerys.minko.render.effect.lighting.offscreen
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 	
-	public class CubeShadowMapPass extends Shader
+	public class CubeShadowMapShader extends Shader
 	{
 		private static const VIEW_MATRICES : Vector.<Matrix4x4> = new <Matrix4x4>[
 			new Matrix4x4().lookAt(Vector4.ZERO, Vector4.X_AXIS,		Vector4.Y_AXIS),		// look at positive x
-			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(-1, 0, 0),	Vector4.Y_AXIS),	// look at negative x
+			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(-1, 0, 0),	Vector4.Y_AXIS),		// look at negative x
 			new Matrix4x4().lookAt(Vector4.ZERO, Vector4.Y_AXIS,		new Vector4(0, 0, -1)),	// look at positive y
-			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(0, -1, 0),	Vector4.Z_AXIS),	// look at negative y
+			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(0, -1, 0),	Vector4.Z_AXIS),		// look at negative y
 			new Matrix4x4().lookAt(Vector4.ZERO, Vector4.Z_AXIS,		Vector4.Y_AXIS),		// look at positive z, that's identity!!
-			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(0, 0, -1),	Vector4.Y_AXIS),	// look at negative z
+			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(0, 0, -1),	Vector4.Y_AXIS),		// look at negative z
 		];
 		
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
@@ -31,7 +31,7 @@ package aerys.minko.render.effect.lighting.offscreen
 		private var _lightToScreen			: SFloat;
 		private var _positionFromLight		: SFloat;
 		
-		public function CubeShadowMapPass(lightId		: uint, 
+		public function CubeShadowMapShader(lightId		: uint, 
 										  side			: uint, 
 										  priority		: Number,
 										  renderTarget	: RenderTarget)
@@ -54,9 +54,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			passConfig.blending		= Blending.NORMAL;
 			passConfig.priority		= _priority;
 			passConfig.renderTarget	= _renderTarget;
-			
-			passConfig.enabled = 
-				meshBindings.getConstant(LightingProperties.CAST_SHADOWS, true);
+			passConfig.enabled		= meshBindings.getConstant(LightingProperties.CAST_SHADOWS, true);
 		}
 		
 		override protected function getVertexPosition() : SFloat
