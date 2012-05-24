@@ -1,10 +1,11 @@
 package aerys.minko.render.effect.reflection.onscreen
 {
 	import aerys.minko.render.RenderTarget;
+	import aerys.minko.render.effect.basic.BasicProperties;
 	import aerys.minko.render.effect.reflection.ReflectionProperties;
-	import aerys.minko.render.shader.ShaderSettings;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
 	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
