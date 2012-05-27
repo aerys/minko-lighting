@@ -21,13 +21,14 @@ package aerys.minko.scene.node.light
 		{
 			if (v != ShadowMappingType.NONE)
 				throw new Error('An ambient light cannot emit shadows.');
+			setProperty('shadowCastingType', ShadowMappingType.NONE);
 		}
 		
 		public function AmbientLight(color			: uint		= 0xFFFFFF, 
 									 ambient		: Number	= .4,
 									 emissionMask	: uint		= 0x1)
 		{
-			super(color, emissionMask, ShadowMappingType.NONE, 0, TYPE);
+			super(color, emissionMask, ShadowMappingType.NONE, 512, TYPE);
 			
 			this.ambient = ambient;
 		}

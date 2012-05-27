@@ -1,12 +1,17 @@
 package aerys.minko.render.shader.parts.reflection
 {
 	import aerys.minko.render.effect.reflection.ReflectionProperties;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.compiler.graph.nodes.leaf.Sampler;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.render.shader.part.projection.BlinnNewellProjectionShaderPart;
 	import aerys.minko.render.shader.part.projection.ProbeProjectionShaderPart;
 	import aerys.minko.type.enum.ReflectionType;
+	import aerys.minko.type.enum.SamplerDimension;
+	import aerys.minko.type.enum.SamplerFiltering;
+	import aerys.minko.type.enum.SamplerMipMapping;
+	import aerys.minko.type.enum.SamplerWrapping;
 	
 	import flash.geom.Rectangle;
 	
@@ -61,7 +66,7 @@ package aerys.minko.render.shader.parts.reflection
 					break;
 				
 				case ReflectionType.CUBE:
-					reflectionMap	= meshBindings.getTextureParameter(ReflectionProperties.MAP);
+					reflectionMap	= meshBindings.getTextureParameter(ReflectionProperties.MAP, SamplerFiltering.NEAREST, SamplerMipMapping.DISABLE, SamplerWrapping.CLAMP, SamplerDimension.CUBE);
 					reflectionMapUV = _blinnNewellProjectionPart.projectVector(reflected, new Rectangle(0, 0, 1, 1));
 					reflectionColor = sampleTexture(reflectionMap, reflectionMapUV);
 					break

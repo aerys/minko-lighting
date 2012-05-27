@@ -1,5 +1,6 @@
 package aerys.minko.render.effect.lighting.offscreen
 {
+	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.SFloat;
@@ -7,9 +8,12 @@ package aerys.minko.render.effect.lighting.offscreen
 	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.type.enum.Blending;
+	import aerys.minko.type.enum.TriangleCulling;
 	
 	public class MatrixShadowMapShader extends Shader
 	{
+		use namespace minko_lighting;
+		
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		
 		private var _lightId		: uint;
@@ -41,18 +45,22 @@ package aerys.minko.render.effect.lighting.offscreen
 		{
 			_vertexPosition = _vertexAnimationPart.getAnimatedVertexPosition();
 			
+			var worldToScreenName	: String = LightingProperties.getNameFor(_lightId, 'worldToScreen');
+			var worldToScreen		: SFloat = sceneBindings.getParameter(worldToScreenName, 16);
+			
 			var worldPosition		: SFloat = localToWorld(_vertexPosition);
-			var worldToLightScreen	: SFloat = sceneBindings.getParameter('lightWorldToLightScreen' + _lightId, 16);
-			var clipSpacePosition	: SFloat = multiply4x4(worldPosition, worldToLightScreen);
+			var clipSpacePosition	: SFloat = multiply4x4(worldPosition, worldToScreen);
 			
 			return clipSpacePosition;
 		}
 		
 		override protected function getPixelColor() : SFloat
 		{
+			var worldToScreenName	: String = LightingProperties.getNameFor(_lightId, 'worldToScreen');
+			var worldToScreen		: SFloat = sceneBindings.getParameter(worldToScreenName, 16);
+			
 			var worldPosition		: SFloat = localToWorld(interpolate(_vertexPosition));
-			var worldToLightScreen	: SFloat = sceneBindings.getParameter('lightWorldToLightScreen' + _lightId, 16);
-			var clipSpacePosition	: SFloat = multiply4x4(worldPosition, worldToLightScreen);
+			var clipSpacePosition	: SFloat = multiply4x4(worldPosition, worldToScreen);
 			var depth				: SFloat = divide(clipSpacePosition.zzz, clipSpacePosition.www);
 			
 			return float4(depth.xxx, 1);

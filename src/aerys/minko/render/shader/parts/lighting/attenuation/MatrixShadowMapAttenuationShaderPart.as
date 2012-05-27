@@ -33,7 +33,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 		{
 			// retrieve depthmap and projection matrix
 			var lightWorldToUVName	: String = LightingProperties.getNameFor(lightId, 'worldToUV');
-			var lightDepthMapName	: String = LightingProperties.getNameFor(lightId, 'depthMap');
+			var lightDepthMapName	: String = LightingProperties.getNameFor(lightId, 'shadowMap');
 			
 			var worldToLightUV		: SFloat = sceneBindings.getParameter(lightWorldToUVName, 16);
 			var depthMap			: SFloat = 

@@ -3,6 +3,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.render.resource.texture.TextureResource;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
+	import aerys.minko.type.data.DataBindings;
 	import aerys.minko.type.enum.ShadowMappingType;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
@@ -151,7 +152,7 @@ package aerys.minko.scene.node.light
 								  innerRadius			: Number	= .4,
 								  emissionMask			: uint		= 0x1,
 								  shadowCastingType		: uint		= 0,
-								  shadowMapSize			: uint		= 0)
+								  shadowMapSize			: uint		= 512)
 		{
 			_worldDirection = new Vector4();
 			_worldPosition	= new Vector4();
@@ -183,16 +184,16 @@ package aerys.minko.scene.node.light
 		{
 			super.addedToSceneHandler(child, scene);
 			
-			scene.bindings.getPropertyChangedSignal('cameraScreenToWorld')
-						  .add(cameraWorldToScreenChangedHandler);
+			scene.bindings.getPropertyChangedSignal('screenToWorld')
+						  .add(cameraScreenToWorldChangedHandler);
 		}
 		
 		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene) : void
 		{
 			super.removedFromSceneHandler(child, scene);
 			
-			scene.bindings.getPropertyChangedSignal('cameraScreenToWorld')
-						  .remove(cameraWorldToScreenChangedHandler);
+			scene.bindings.getPropertyChangedSignal('screenToWorld')
+						  .remove(cameraScreenToWorldChangedHandler);
 		}
 		
 		override protected function transformChangedHandler(transform : Matrix4x4, propertyName : String) : void
@@ -207,16 +208,20 @@ package aerys.minko.scene.node.light
 			_worldToUV.copyFrom(_worldToScreen).prepend(SCREEN_TO_UV);
 		}
 		
-		protected function cameraWorldToScreenChangedHandler(screenToWorld	: Matrix4x4,
-															 propertyName	: String) : void
+		protected function cameraScreenToWorldChangedHandler(sceneBindings	: DataBindings,
+															 propertyName	: String,
+															 screenToWorld	: Matrix4x4) : void
 		{
 			updateProjectionMatrix();
 		}
 		
 		private function updateProjectionMatrix() : void
 		{
+			if (!(root is Scene))
+				return;
+			
 			var screenToWorld : Matrix4x4 = 
-				Scene(root).properties.getProperty('cameraScreenToWorld') as Matrix4x4;
+				Scene(root).bindings.getProperty('screenToWorld') as Matrix4x4;
 			
 			if (screenToWorld == null)
 			{

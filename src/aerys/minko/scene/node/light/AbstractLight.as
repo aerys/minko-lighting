@@ -60,6 +60,9 @@ package aerys.minko.scene.node.light
 		
 		public function set shadowMapSize(v : uint) : void
 		{
+			if (v == 0)
+				throw new Error();
+			
 			_shadowMapSize		= v;
 			shadowCastingType	= shadowCastingType; // reset shadows.
 		}
@@ -78,6 +81,7 @@ package aerys.minko.scene.node.light
 			}
 			
 			_dataProvider.removeAllProperties();
+			_lightId = v;
 			
 			for (var propertyId : uint = 0; propertyId < numProperties; ++propertyId)
 				_dataProvider.setProperty(
@@ -170,7 +174,7 @@ package aerys.minko.scene.node.light
 		
 		private static function compare(light1 : AbstractLight, light2 : AbstractLight) : int
 		{
-			return Object(light1).constructor.TYPE - Object(light2).construction.TYPE;
+			return Object(light1).constructor.TYPE - Object(light2).constructor.TYPE;
 		}
 	}
 }
