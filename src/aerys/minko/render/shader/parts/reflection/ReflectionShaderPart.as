@@ -66,9 +66,11 @@ package aerys.minko.render.shader.parts.reflection
 					break;
 				
 				case ReflectionType.CUBE:
-					reflectionMap	= meshBindings.getTextureParameter(ReflectionProperties.MAP, SamplerFiltering.NEAREST, SamplerMipMapping.DISABLE, SamplerWrapping.CLAMP, SamplerDimension.CUBE);
-					reflectionMapUV = _blinnNewellProjectionPart.projectVector(reflected, new Rectangle(0, 0, 1, 1));
-					reflectionColor = sampleTexture(reflectionMap, reflectionMapUV);
+					reflectionMap	= meshBindings.getTextureParameter(
+						ReflectionProperties.MAP, 
+						SamplerFiltering.NEAREST, SamplerMipMapping.DISABLE, SamplerWrapping.CLAMP, SamplerDimension.CUBE
+					);
+					reflectionColor = sampleTexture(reflectionMap, reflected);
 					break
 				
 				default:
