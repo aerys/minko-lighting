@@ -1,5 +1,6 @@
 package aerys.minko.render.shader.parts.lighting
 {
+	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
@@ -8,14 +9,11 @@ package aerys.minko.render.shader.parts.lighting
 	import aerys.minko.render.shader.parts.lighting.attenuation.DPShadowMapAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.attenuation.DistanceAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.attenuation.HardConicAttenuationShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.IAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.attenuation.MatrixShadowMapAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.attenuation.SmoothConicAttenuationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.contribution.InfiniteShaderPart;
 	import aerys.minko.render.shader.parts.lighting.contribution.LocalizedShaderPart;
-	import aerys.minko.scene.node.light.AmbientLight;
-	import aerys.minko.scene.node.light.DirectionalLight;
-	import aerys.minko.scene.node.light.PointLight;
-	import aerys.minko.scene.node.light.SpotLight;
 	import aerys.minko.type.enum.ShadowMappingType;
 	
 	/**
@@ -25,27 +23,39 @@ package aerys.minko.render.shader.parts.lighting
 	 */	
 	public class LightingShaderPart extends ShaderPart
 	{
+		use namespace minko_lighting;
+		
+		private const LIGHT_TYPE_TO_FACTORY : Vector.<Function> = new <Function>[
+			getAmbientLightContribution,
+			getDirectionalLightContribution,
+			getPointLightContribution,
+			getSpotLightContribution
+		];
+		
+		private var _shadowAttenuators				: Vector.<IAttenuationShaderPart>;
+		
 		private var _infinitePart					: InfiniteShaderPart;
 		private var _localizedPart					: LocalizedShaderPart;
-		private var _matrixShadowMapPart			: MatrixShadowMapAttenuationShaderPart;
 		private var _distanceAttenuationPart		: DistanceAttenuationShaderPart;
-		private var _dpShadowMapAttenuationPart		: DPShadowMapAttenuationShaderPart;
-		private var _cubeShadowMapAttenuationPart	: CubeShadowMapAttenuationShaderPart;
 		private var _smoothConicAttenuationPart		: SmoothConicAttenuationShaderPart;
 		private var _hardConicAttenuationPart		: HardConicAttenuationShaderPart;
-				
+		
 		public function LightingShaderPart(main : Shader)
 		{
 			super(main);
 			
 			_infinitePart					= new InfiniteShaderPart(main);
 			_localizedPart					= new LocalizedShaderPart(main);
-			_matrixShadowMapPart			= new MatrixShadowMapAttenuationShaderPart(main);
 			_distanceAttenuationPart		= new DistanceAttenuationShaderPart(main);
-			_dpShadowMapAttenuationPart		= new DPShadowMapAttenuationShaderPart(main);
-			_cubeShadowMapAttenuationPart	= new CubeShadowMapAttenuationShaderPart(main);
 			_smoothConicAttenuationPart		= new SmoothConicAttenuationShaderPart(main);
 			_hardConicAttenuationPart		= new HardConicAttenuationShaderPart(main);
+			
+			_shadowAttenuators = new <IAttenuationShaderPart>[
+				null,
+				new MatrixShadowMapAttenuationShaderPart(main),
+				new DPShadowMapAttenuationShaderPart(main),
+				new CubeShadowMapAttenuationShaderPart(main)
+			];
 		}
 		
 		public function getLightingColor(position	: SFloat,
@@ -53,268 +63,195 @@ package aerys.minko.render.shader.parts.lighting
 										 normal		: SFloat) : SFloat
 		{
 			// compute positions and normals once, to make compiler work easier
-			var worldPosition				: SFloat = localToWorld(position);
-			var worldNormal					: SFloat = normalize(deltaLocalToWorld(normal));
-			var interpolatedWorldPosition	: SFloat = interpolate(worldPosition);
-//			var interpolatedWorldNormal		: SFloat = normalize(interpolate(deltaLocalToWorld(normal)));
-			var mNormal						: SFloat = interpolate(float4(deltaLocalToWorld(normal), 1));
-			var interpolatedWorldNormal		: SFloat = normalize(mNormal.xyz);
+			var wPos	: SFloat = localToWorld(position);
+			var wNrm	: SFloat = normalize(deltaLocalToWorld(normal));
+			var iwPos	: SFloat = interpolate(wPos);
+			var iwNrm	: SFloat = normalize(interpolate(wNrm));
+			iwNrm = iwNrm.xyz;
 			
 			// declare accumulator
-			var lightValue					: SFloat = float3(0, 0, 0);
-			var lightContribution			: SFloat;
-
-			// process static light mapping
-			if (meshBindings.propertyExists(LightingProperties.LIGHTMAP))
-			{
-				var lightMap : SFloat = meshBindings.getTextureParameter(LightingProperties.LIGHTMAP);
-				
-				lightContribution = sampleTexture(lightMap, interpolate(uv)).xyz;
-				
-				if (meshBindings.propertyExists(LightingProperties.LIGHTMAP_MULTIPLIER))
-					lightContribution.scaleBy(meshBindings.getParameter(LightingProperties.LIGHTMAP_MULTIPLIER, 1));
-				
-				lightValue.incrementBy(lightContribution);
-			}
-
-			// process dynamic lighting
+			var lightValue : SFloat = float3(0, 0, 0);
 			
-			var meshGroup	: uint = meshBindings.getConstant(LightingProperties.GROUP, 1);
-
-			for (var lightId : uint = 0; sceneBindings.propertyExists('lightGroup' + lightId); ++lightId)
-			{
-				var lightGroup : uint = uint(sceneBindings.getConstant('lightGroup' + lightId));
-
-				if ((lightGroup & meshGroup) == 0)
-					continue;
-				
-				lightContribution = getLightContribution(
-					lightId, 
-					worldPosition, worldNormal, 
-					interpolatedWorldPosition, interpolatedWorldNormal
-				);
-				
-				lightValue.incrementBy(lightContribution);
-			}
+			// process static lighting
+			lightValue.incrementBy(getStaticLighting(uv));
+			
+			// process dynamic lighting
+			lightValue.incrementBy(getDynamicLighting(wPos, wNrm, iwPos, iwNrm));
 			
 			return float4(lightValue, 1);
 		}
 		
-		private function getLightContribution(lightId					: uint,
-											  worldPosition				: SFloat,
-											  worldNormal				: SFloat,
-											  interpolatedWorldPosition	: SFloat,
-											  interpolatedWorldNormal	: SFloat) : SFloat
+		private function getStaticLighting(uv : SFloat) : SFloat
 		{
-			var lightColor			: SFloat = sceneBindings.getParameter('lightColor' + lightId, 3);
-			var lightContribution	: SFloat;
-			var lightType			: uint = sceneBindings.getConstant('lightType' + lightId);
+			var contribution : SFloat;
 			
-			switch (lightType)
+			if (meshBindings.propertyExists(LightingProperties.LIGHTMAP))
 			{
-				case AmbientLight.TYPE:
-					lightContribution = getAmbientLightContribution(lightId);
-					break;
+				var lightMap : SFloat = meshBindings.getTextureParameter(LightingProperties.LIGHTMAP);
 				
-				case DirectionalLight.TYPE:
-					lightContribution = getDirectionalLightContribution(
-						lightId, 
-						worldPosition, worldNormal, 
-						interpolatedWorldPosition, interpolatedWorldNormal
-					);
-					break;
+				contribution = sampleTexture(lightMap, interpolate(uv));
+				contribution = contribution.xyz;
 				
-				case PointLight.TYPE:
-					lightContribution = getPointLightContribution(
-						lightId, 
-						worldPosition, worldNormal, 
-						interpolatedWorldPosition, interpolatedWorldNormal
-					);
-					break;
-				
-				case SpotLight.TYPE:
-					lightContribution = getSpotLightContribution(
-						lightId, 
-						worldPosition, worldNormal, 
-						interpolatedWorldPosition, interpolatedWorldNormal
-					);
-					break;
-					
-				default:
-					throw new Error('Unsupported light type: ' + lightType);
+				if (meshBindings.propertyExists(LightingProperties.LIGHTMAP_MULTIPLIER))
+					contribution.scaleBy(meshBindings.getParameter(LightingProperties.LIGHTMAP_MULTIPLIER, 1));
 			}
+			else
+				contribution = float3(0, 0, 0);
 			
-			return multiply(lightColor, lightContribution);
+			return contribution;
 		}
 		
-		private function getAmbientLightContribution(lightId : uint) : SFloat
+		private function getDynamicLighting(wPos	: SFloat,
+											wNrm	: SFloat,
+											iwPos	: SFloat,
+											iwNrm	: SFloat) : SFloat
 		{
-			var lightAmbient : SFloat = sceneBindings.getParameter('lightAmbient' + lightId, 1);
+			var receptionMask	: uint		= meshBindings.getConstant(LightingProperties.RECEPTION_MASK, 1);
+			var dynamicLighting : SFloat	= float3(0, 0, 0);
+			
+			for (var lightId : uint = 0;; ++lightId)
+			{
+				var emissionMaskName : String = LightingProperties.getNameFor(lightId, 'emissionMask');
+				if (!sceneBindings.propertyExists(emissionMaskName))
+					break;
+				
+				var emissionMask : uint = sceneBindings.getConstant(emissionMaskName);
+				
+				if ((emissionMask & receptionMask) != 0)
+				{
+					var colorName		: String	= LightingProperties.getNameFor(lightId, 'color');
+					var typeName		: String	= LightingProperties.getNameFor(lightId, 'type');
+					var color			: SFloat	= sceneBindings.getParameter(colorName, 3);
+					var type			: uint		= sceneBindings.getConstant(typeName);
+					var contribution	: SFloat	= 
+						LIGHT_TYPE_TO_FACTORY[type](lightId, wPos, wNrm, iwPos, iwNrm);
+					
+					dynamicLighting.incrementBy(multiply(color, contribution));
+				}
+			}
+			
+			return dynamicLighting;
+		}
+		
+		private function getAmbientLightContribution(lightId	: uint,
+													 wPos		: SFloat,
+													 wNrm		: SFloat,
+													 iwPos		: SFloat,
+													 iwNrm		: SFloat) : SFloat
+		{
+			var ambientName	: String = LightingProperties.getNameFor(lightId, 'ambient')
+			var ambient		: SFloat = sceneBindings.getParameter(ambientName, 1);
 			
 			if (meshBindings.propertyExists(LightingProperties.AMBIENT_MULTIPLIER))
-				lightAmbient.scaleBy(sceneBindings.getParameter(LightingProperties.AMBIENT_MULTIPLIER, 1));
+				ambient.scaleBy(sceneBindings.getParameter(LightingProperties.AMBIENT_MULTIPLIER, 1));
 			
-			return lightAmbient;
+			return ambient;
 		}
 		
-		private function getDirectionalLightContribution(lightId					: uint,
-														 worldPosition				: SFloat,
-														 worldNormal				: SFloat,
-														 interpolatedWorldPosition	: SFloat,
-														 interpolatedWorldNormal	: SFloat) : SFloat
+		private function getDirectionalLightContribution(lightId	: uint,
+														 wPos		: SFloat,
+														 wNrm		: SFloat,
+														 iwPos		: SFloat,
+														 iwNrm		: SFloat) : SFloat
 		{
-			var lightHasDiffuse		: Boolean	= sceneBindings.getConstant('lightDiffuseEnabled' + lightId);
-			var lightHasSpecular	: Boolean	= sceneBindings.getConstant('lightSpecularEnabled' + lightId);
-			var lightShadowCasting	: uint		= sceneBindings.getConstant('lightShadowCastingType' + lightId);
-			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
-			var computeShadows		: Boolean	= lightShadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
+			var hasDiffuseName			: String	= LightingProperties.getNameFor(lightId, 'diffuseEnabled');
+			var hasSpecularName			: String	= LightingProperties.getNameFor(lightId, 'specularEnabled');
+			var shadowCastingTypeName	: String	= LightingProperties.getNameFor(lightId, 'shadowCastingType');
 			
-			var contribution	: SFloat = float(0);
+			var hasDiffuse				: Boolean	= sceneBindings.getConstant(hasDiffuseName);
+			var hasSpecular				: Boolean	= sceneBindings.getConstant(hasSpecularName);
+			var shadowCasting			: uint		= sceneBindings.getConstant(shadowCastingTypeName);
+			var meshReceiveShadows		: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
+			var computeShadows			: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
-			if (lightHasDiffuse)
-				contribution.incrementBy(_infinitePart.getDiffuseTerm(
-					lightId, 
-					worldPosition, worldNormal, 
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+			var contribution			: SFloat	= float(0);
 			
-			if (lightHasSpecular)
-				contribution.incrementBy(_infinitePart.getSpecularTerm(
-					lightId, 
-					worldPosition, worldNormal, 
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+			if (hasDiffuse)
+				contribution.incrementBy(_infinitePart.getDiffuse(lightId, wPos, wNrm, iwPos, iwNrm));
+			
+			if (hasSpecular)
+				contribution.incrementBy(_infinitePart.getSpecular(lightId, wPos, wNrm, iwPos, iwNrm));
 			
 			if (computeShadows)
-				contribution.scaleBy(
-					_matrixShadowMapPart.getAttenuationFactor(
-						lightId, 
-						worldPosition, worldNormal, 
-						interpolatedWorldPosition, interpolatedWorldNormal
-					)
-				);
+				contribution.scaleBy(_shadowAttenuators[shadowCasting].getAttenuation(lightId, wPos, wNrm, iwPos, iwNrm));
 			
 			return contribution;
 		}
 		
-		private function getPointLightContribution(lightId						: uint,
-												   worldPosition				: SFloat,
-												   worldNormal					: SFloat,
-												   interpolatedWorldPosition	: SFloat,
-												   interpolatedWorldNormal		: SFloat) : SFloat
+		private function getPointLightContribution(lightId	: uint,
+												   wPos		: SFloat,
+												   wNrm		: SFloat,
+												   iwPos	: SFloat,
+												   iwNrm	: SFloat) : SFloat
 		{
-			var lightHasDiffuse		: Boolean	= sceneBindings.getConstant('lightDiffuseEnabled' + lightId);
-			var lightHasSpecular	: Boolean	= sceneBindings.getConstant('lightSpecularEnabled' + lightId);
-			var lightShadowCasting	: uint		= sceneBindings.getConstant('lightShadowCastingType' + lightId);
-			var lightIsAttenuated	: Boolean	= sceneBindings.getConstant('lightAttenuationEnabled' + lightId);
+			var hasDiffuseName		: String	= LightingProperties.getNameFor(lightId, 'diffuseEnabled');
+			var hasSpecularName		: String	= LightingProperties.getNameFor(lightId, 'specularEnabled');
+			var shadowCastingName	: String	= LightingProperties.getNameFor(lightId, 'shadowCastingType');
+			var isAttenuatedName	: String	= LightingProperties.getNameFor(lightId, 'attenuationEnabled');
+			
+			var hasDiffuse			: Boolean	= sceneBindings.getConstant(hasDiffuseName);
+			var hasSpecular			: Boolean	= sceneBindings.getConstant(hasSpecularName);
+			var shadowCasting		: uint		= sceneBindings.getConstant(shadowCastingName);
+			var isAttenuated		: Boolean	= sceneBindings.getConstant(isAttenuatedName);
 			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
-			var computeShadows		: Boolean	= lightShadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
+			var computeShadows		: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
 			var contribution		: SFloat	= float(0);
 			
-			if (lightHasDiffuse)
-				contribution.incrementBy(_localizedPart.getDiffuseTerm(
-					lightId, 
-					worldPosition, worldNormal, 
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+			if (hasDiffuse)
+				contribution.incrementBy(_localizedPart.getDiffuse(lightId, wPos, wNrm, iwPos, iwNrm));
 			
-			if (lightHasSpecular)
-				contribution.incrementBy(_localizedPart.getSpecularTerm(
-					lightId, 
-					worldPosition, worldNormal, 
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+			if (hasSpecular)
+				contribution.incrementBy(_localizedPart.getSpecular(lightId, wPos, wNrm, iwPos, iwNrm));
 			
-			if (lightIsAttenuated)
-				contribution.scaleBy(_distanceAttenuationPart.getAttenuationFactor(
-					lightId, 
-					worldPosition, worldNormal, 
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+			if (isAttenuated)
+				contribution.scaleBy(_distanceAttenuationPart.getAttenuation(lightId, wPos, wNrm, iwPos, iwNrm));
 			
 			if (computeShadows)
-			{
-				var useCubeMap : Boolean = sceneBindings.propertyExists('lightCubeDepthMap');
-				
-				if (useCubeMap)
-					contribution.scaleBy(_cubeShadowMapAttenuationPart.getAttenuationFactor(
-						lightId, 
-						worldPosition, worldNormal, 
-						interpolatedWorldPosition, interpolatedWorldNormal
-					));
-				else
-					contribution.scaleBy(_dpShadowMapAttenuationPart.getAttenuationFactor(
-						lightId, 
-						worldPosition, worldNormal, 
-						interpolatedWorldPosition, interpolatedWorldNormal
-					));
-			}
+				contribution.scaleBy(_shadowAttenuators[shadowCasting].getAttenuation(lightId, wPos, wNrm, iwPos, iwNrm));
 			
 			return contribution;
 		}
 		
-		private function getSpotLightContribution(lightId					: uint,
-												  worldPosition				: SFloat,
-												  worldNormal				: SFloat,
-												  interpolatedWorldPosition	: SFloat,
-												  interpolatedWorldNormal	: SFloat) : SFloat
+		private function getSpotLightContribution(lightId	: uint,
+												  wPos		: SFloat,
+												  wNrm		: SFloat,
+												  iwPos		: SFloat,
+												  iwNrm		: SFloat) : SFloat
 		{
+			var hasDiffuseName		: String	= LightingProperties.getNameFor(lightId, 'diffuseEnabled');
+			var hasSpecularName		: String	= LightingProperties.getNameFor(lightId, 'specularEnabled');
+			var isAttenuatedName	: String	= LightingProperties.getNameFor(lightId, 'attenuationEnabled');
+			var hasSmoothEdgeName	: String	= LightingProperties.getNameFor(lightId, 'smoothRadius');
+			var shadowCastingName	: String	= LightingProperties.getNameFor(lightId, 'shadowCastingType');
 			
-			var lightHasDiffuse		: Boolean	= sceneBindings.getConstant('lightDiffuseEnabled' + lightId);
-			var lightHasSpecular	: Boolean	= sceneBindings.getConstant('lightSpecularEnabled' + lightId);
-			var lightShadowCasting	: uint		= sceneBindings.getConstant('lightShadowCastingType' + lightId);
-			var lightIsAttenuated	: Boolean	= sceneBindings.getConstant('lightAttenuationEnabled' + lightId);
+			var hasDiffuse			: Boolean	= sceneBindings.getConstant(hasDiffuseName);
+			var hasSpecular			: Boolean	= sceneBindings.getConstant(hasSpecularName);
+			var isAttenuated		: Boolean	= sceneBindings.getConstant(isAttenuatedName);
+			var lightHasSmoothEdge	: Boolean	= sceneBindings.getConstant(hasSmoothEdgeName)
+			var shadowCasting		: uint		= sceneBindings.getConstant(shadowCastingName);
+			
 			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
-			var computeShadows		: Boolean	= lightShadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
-			
-			var lightHasHardEdge	: Boolean	= 
-				sceneBindings.getConstant('lightInnerRadius' + lightId) == sceneBindings.getConstant('lightOuterRadius' + lightId);
+			var computeShadows		: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
 			var contribution		: SFloat	= float(0);
 			
-			if (lightHasDiffuse)
-				contribution.incrementBy(_localizedPart.getDiffuseTerm(
-					lightId,
-					worldPosition, worldNormal,
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+			if (hasDiffuse)
+				contribution.incrementBy(_localizedPart.getDiffuse(lightId, wPos, wNrm, iwPos, iwNrm));
 			
-			if (lightHasSpecular)
-				contribution.incrementBy(_localizedPart.getSpecularTerm(
-					lightId,
-					worldPosition, worldNormal,
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+			if (hasSpecular)
+				contribution.incrementBy(_localizedPart.getSpecular(lightId, wPos, wNrm, iwPos, iwNrm));
 			
-			if (lightIsAttenuated)
-				contribution.scaleBy(_distanceAttenuationPart.getAttenuationFactor(
-					lightId,
-					worldPosition, worldNormal,
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+			if (isAttenuated)
+				contribution.scaleBy(_distanceAttenuationPart.getAttenuation(lightId, wPos, wNrm, iwPos, iwNrm));
 			
-			if (lightHasHardEdge)
-				contribution.scaleBy(_hardConicAttenuationPart.getAttenuationFactor(
-					lightId,
-					worldPosition, worldNormal,
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+			if (lightHasSmoothEdge)
+				contribution.scaleBy(_smoothConicAttenuationPart.getAttenuation(lightId, wPos, wNrm, iwPos, iwNrm));
 			else
-				contribution.scaleBy(_smoothConicAttenuationPart.getAttenuationFactor(
-					lightId,
-					worldPosition, worldNormal,
-					interpolatedWorldPosition, interpolatedWorldNormal
-				));
+				contribution.scaleBy(_hardConicAttenuationPart.getAttenuation(lightId, wPos, wNrm, iwPos, iwNrm));
 			
 			if (computeShadows)
-				contribution.scaleBy(
-					_matrixShadowMapPart.getAttenuationFactor(
-						lightId, 
-						worldPosition, worldNormal, 
-						interpolatedWorldPosition, interpolatedWorldNormal
-					)
-				);
+				contribution.scaleBy(_shadowAttenuators[shadowCasting].getAttenuation(lightId, wPos, wNrm, iwPos, iwNrm));
 			
 			return contribution;
 		}

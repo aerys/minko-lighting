@@ -4,10 +4,6 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 
 	public interface IAttenuationShaderPart
 	{
-		function getAttenuationFactor(lightId					: uint, 
-									  worldPosition				: SFloat,
-									  worldNormal				: SFloat,
-									  worldInterpolatedPosition	: SFloat,
-									  worldInterpolatedNormal	: SFloat) : SFloat;
+		function getAttenuation(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
 	}
 }

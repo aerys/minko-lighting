@@ -86,7 +86,7 @@ package aerys.minko.render.effect.realistic
 		override protected function getPixelColor() : SFloat
 		{
 			// retrieve color (from diffuseMap or diffuseColor
-			var color		: SFloat	= _pixelColorPart.getDiffuse();
+			var color			: SFloat	= _pixelColorPart.getDiffuse();
 			
 			// compute and apply reflections
 			var reflectionType	: int = 

@@ -1,79 +1,42 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.scene.node.ISceneNode;
-	import aerys.minko.scene.node.Scene;
-	import aerys.minko.type.data.DataBindings;
-	import aerys.minko.type.data.DataProvider;
 	import aerys.minko.type.enum.ShadowMappingType;
 
-	use namespace minko_lighting;
-	
 	public class AmbientLight extends AbstractLight
 	{
-		public static const TYPE : uint = 1;
-		
-		private var _ambient : Number;
-		
-		override public function get type() : uint
-		{
-			return TYPE;
-		}
-		
-		override public function get shadowCastingType() : uint
-		{
-			return ShadowMappingType.NONE;
-		}
+		public static const TYPE : uint = 0;
 		
 		public function get ambient() : Number
 		{
-			return _ambient;
+			return getProperty('ambient') as Number;
 		}
 		
 		public function set ambient(v : Number)	: void
 		{
-			_ambient = v;
+			setProperty('ambient', v);
+		}
+		
+		override public function set shadowCastingType(v : uint) : void
+		{
+			if (v != ShadowMappingType.NONE)
+				throw new Error('An ambient light cannot emit shadows.');
+			setProperty('shadowCastingType', ShadowMappingType.NONE);
+		}
+		
+		public function AmbientLight(color			: uint		= 0xFFFFFF, 
+									 ambient		: Number	= .4,
+									 emissionMask	: uint		= 0x1)
+		{
+			super(color, emissionMask, ShadowMappingType.NONE, 512, TYPE);
 			
-			if (!_locked)
-				changed.execute(this, 'ambient');
+			this.ambient = ambient;
 		}
 		
-		public function AmbientLight(color		: uint		= 0xFFFFFF, 
-									 ambient	: Number	= .4,
-									 group		: uint		= 0x1)
+		override public function clone(cloneControllers : Boolean = false) : ISceneNode
 		{
-			super(color, group);
 			
-			_ambient = ambient;
-		}
-		
-		override protected function setLightId(lightId 			: int,
-											   sceneBindings	: DataBindings) : void
-		{
-			if (lightId != _lightId)
-			{
-				if (_lightId != -1)
-					sceneBindings.remove(this);
-				
-				_lightId = lightId;
-				
-				_dataDescriptor = new Object();
-				_dataDescriptor['lightType' + lightId]		= 'type';
-				_dataDescriptor['lightColor' + lightId]		= 'color';
-				_dataDescriptor['lightGroup' + lightId]		= 'group';
-				_dataDescriptor['lightAmbient' + lightId]	= 'ambient';
-				
-				if (_lightId != -1)
-					sceneBindings.add(this);
-			}
-		}
-		
-		override public function clone(cloneControllers:Boolean=false):ISceneNode
-		{
-			var light : AmbientLight = new AmbientLight(
-				this.color,
-				this.ambient,
-				this.group);
+			var light : AmbientLight = new AmbientLight(color, ambient, emissionMask);
 			
 			light.name = this.name;
 			light.transform.copyFrom(this.transform);

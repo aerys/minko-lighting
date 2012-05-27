@@ -2,10 +2,9 @@ package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.effect.lighting.LightingProperties;
-	import aerys.minko.render.shader.ShaderSettings;
-	import aerys.minko.render.shader.ShaderInstance;
-	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.SFloat;
+	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.render.shader.part.projection.IProjectionShaderPart;
 	import aerys.minko.render.shader.part.projection.ParaboloidProjectionShaderPart;
@@ -13,7 +12,7 @@ package aerys.minko.render.effect.lighting.offscreen
 	
 	import flash.geom.Rectangle;
 	
-	public class ParaboloidShadowMapPass extends Shader
+	public class ParaboloidShadowMapShader extends Shader
 	{
 		private static const PROJECTION_RECTANGLE : Rectangle = new Rectangle(-1, 1, 2, -2);
 		
@@ -26,7 +25,7 @@ package aerys.minko.render.effect.lighting.offscreen
 		
 		private var _lightSpacePosition		: SFloat;
 		
-		public function ParaboloidShadowMapPass(lightId	: uint,
+		public function ParaboloidShadowMapShader(lightId	: uint,
 												  front		: Boolean,
 												  priority	: Number,
 												  target	: RenderTarget)
@@ -41,9 +40,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			passConfig.blending		= Blending.NORMAL;
 			passConfig.priority		= _priority;
 			passConfig.renderTarget	= _renderTarget;
-			
-			passConfig.enabled = 
-				meshBindings.getConstant(LightingProperties.CAST_SHADOWS, true);
+			passConfig.enabled		= meshBindings.getConstant(LightingProperties.CAST_SHADOWS, true);
 		}
 		
 		override protected function getVertexPosition() : SFloat
