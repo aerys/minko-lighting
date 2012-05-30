@@ -25,7 +25,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			var lightWorldDirection		: SFloat = sceneBindings.getParameter(lightWorldDirectionName, 3);
 			var lightRadius				: SFloat = sceneBindings.getParameter(lightRadiusName, 1);
 			
-			var lightRadiusCosine		: SFloat = cos(lightRadius);
+			var lightRadiusCosine		: SFloat = cos(divide(lightRadius, 2));
 			var lightToPoint			: SFloat = subtract(iwPos, lightWorldPosition);
 			var lightAngleCosine		: SFloat = dotProduct3(lightWorldDirection, normalize(lightToPoint));
 			

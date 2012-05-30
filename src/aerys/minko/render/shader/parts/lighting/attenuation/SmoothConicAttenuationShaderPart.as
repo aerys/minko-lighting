@@ -26,11 +26,10 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			// compute cone (constant) factors. This will be resolved by the compiler.
 			var lightInnerRadiusName	: String = LightingProperties.getNameFor(lightId, 'innerRadius');
 			var lightOuterRadiusName	: String = LightingProperties.getNameFor(lightId, 'outerRadius');
-			var lightInnerRadius		: SFloat = sceneBindings.getParameter(lightInnerRadiusName, 1);
-			var lightOuterRadius		: SFloat = sceneBindings.getParameter(lightOuterRadiusName, 1);
-			
-			var factor1					: SFloat = divide(-1, subtract(cos(lightOuterRadius), cos(lightInnerRadius)));
-			var factor2					: SFloat = subtract(1, multiply(cos(lightInnerRadius), factor1));
+			var halfInnerRadius			: SFloat = sceneBindings.getParameter(lightInnerRadiusName, 1).scaleBy(1 / 2);
+			var halfOuterRadius			: SFloat = sceneBindings.getParameter(lightOuterRadiusName, 1).scaleBy(1 / 2);
+			var factor1					: SFloat = divide(-1, subtract(cos(halfOuterRadius), cos(halfInnerRadius)));
+			var factor2					: SFloat = subtract(1, multiply(cos(halfInnerRadius), factor1));
 			
 			// compute attenuation factor
 			var lightToPoint			: SFloat = subtract(iwPos, lightWorldPosition);
