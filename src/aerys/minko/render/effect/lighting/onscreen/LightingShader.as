@@ -78,28 +78,10 @@ package aerys.minko.render.effect.lighting.onscreen
 		
 		override protected function getPixelColor() : SFloat
 		{
-//			return new MatrixShadowMapAttenuationShaderPart(this).getAttenuation(
-//				1, 
-//				localToWorld(vertexXYZ),
-//				normalize(deltaLocalToWorld(vertexNormal)),
-//				interpolate(localToWorld(vertexXYZ)),
-//				normalize(interpolate(deltaLocalToWorld(vertexNormal)))
-//			);
-			
-//			return new CubeShadowMapAttenuationShaderPart(this).getAttenuation(
-//				1, 
-//				localToWorld(vertexXYZ),
-//				normalize(deltaLocalToWorld(vertexNormal)),
-//				interpolate(localToWorld(vertexXYZ)),
-//				normalize(interpolate(deltaLocalToWorld(vertexNormal)))
-//			);
-			
 			var color		: SFloat	= _pixelColorPart.getDiffuse();
 			var lighting	: SFloat	= _lightingPart.getLightingColor(_vertexPosition, _vertexUV, _vertexNormal);
 			
 			color.scaleBy(lighting);
-			
-			
 			
 			return color;
 		}
