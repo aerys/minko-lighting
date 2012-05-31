@@ -9,6 +9,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.type.data.DataBindings;
 	import aerys.minko.type.data.DataProvider;
 	import aerys.minko.type.data.IDataProvider;
+	import aerys.minko.type.data.LightDataProvider;
 	import aerys.minko.type.math.Matrix4x4;
 	
 	use namespace minko_lighting;
@@ -96,7 +97,7 @@ package aerys.minko.scene.node.light
 									  shadowMapSize		: uint,
 									  type				: uint)
 		{
-			_dataProvider			= new DataProvider();
+			_dataProvider			= new LightDataProvider();
 			_lightId				= -1;
 			
 			this.color				= color;
@@ -133,9 +134,6 @@ package aerys.minko.scene.node.light
 		{
 			// this happens AFTER being added to scene
 			super.addedToSceneHandler(child, scene);
-			
-			scene.bindings.addProvider(_dataProvider);
-			
 			sortLights(scene);
 		}
 		
@@ -143,8 +141,6 @@ package aerys.minko.scene.node.light
 		{
 			// This happens AFTER being removed from scene.
 			super.removedFromSceneHandler(child, scene);
-			
-			scene.bindings.removeProvider(_dataProvider);
 			sortLights(scene);
 		}
 		
@@ -156,8 +152,13 @@ package aerys.minko.scene.node.light
 			var lightId			: uint;
 			
 			// remove all lights from scene bindings.
-			for (lightId = 0; lightId < numLights; ++lightId)
-				sceneBindings.removeProvider(AbstractLight(lights[lightId])._dataProvider);
+			var numProviders	: uint					= sceneBindings.numProviders;
+			for (var providerId : int = numProviders - 1; providerId >= 0; --providerId)
+			{
+				var provider : DataProvider = sceneBindings.getProviderAt(providerId) as DataProvider;
+				if (provider is LightDataProvider)
+					sceneBindings.removeProvider(provider);
+			}
 			
 			// sorting allow to limit the number of shaders that will be generated
 			// if (add|remov)ing many lights all the time (add order won't matter anymore).

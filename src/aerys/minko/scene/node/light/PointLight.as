@@ -168,7 +168,6 @@ package aerys.minko.scene.node.light
 		
 		override protected function addedToSceneHandler(child:ISceneNode, scene:Scene):void
 		{
-			
 			super.addedToSceneHandler(child, scene);
 			
 			scene.bindings.addCallback('screenToWorld', cameraScreenToWorldChangedHandler);
