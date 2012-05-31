@@ -121,12 +121,12 @@ package aerys.minko.render.shader.parts.lighting
 				{
 					var colorName		: String	= LightingProperties.getNameFor(lightId, 'color');
 					var typeName		: String	= LightingProperties.getNameFor(lightId, 'type');
-					var color			: SFloat	= sceneBindings.getParameter(colorName, 3);
+					var color			: SFloat	= sceneBindings.getParameter(colorName, 4);
 					var type			: uint		= sceneBindings.getConstant(typeName);
 					var contribution	: SFloat	= 
 						LIGHT_TYPE_TO_FACTORY[type](lightId, wPos, wNrm, iwPos, iwNrm);
 					
-					dynamicLighting.incrementBy(multiply(color, contribution));
+					dynamicLighting.incrementBy(multiply(color.rgb, contribution));
 				}
 			}
 			
