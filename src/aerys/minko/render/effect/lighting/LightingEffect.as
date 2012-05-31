@@ -65,8 +65,7 @@ package aerys.minko.render.effect.lighting
 		private function updatePasses() : void
 		{
 			while (_watchedProperties.length != 0)
-				sceneBindings.getPropertyChangedSignal(_watchedProperties.pop())
-					.remove(onWatchedPropertyChange);
+				sceneBindings.removeCallback(_watchedProperties.pop(), onWatchedPropertyChange);
 			
 			var passes			: Vector.<Shader>	= new Vector.<Shader>;
 			var sceneBindings	: DataBindings		= _scene.bindings;
@@ -78,8 +77,7 @@ package aerys.minko.render.effect.lighting
 				var shadowCastingPropertyName : String = LightingProperties.getNameFor(lightId, 'shadowCastingType');
 				
 				_watchedProperties.push(shadowCastingPropertyName);
-				sceneBindings.getPropertyChangedSignal(shadowCastingPropertyName)
-							 .add(onWatchedPropertyChange);
+				sceneBindings.addCallback(shadowCastingPropertyName, onWatchedPropertyChange);
 				
 				if (!sceneBindings.propertyExists(shadowCastingPropertyName))
 					break;
@@ -100,7 +98,7 @@ package aerys.minko.render.effect.lighting
 		private function manageMatrixShadowing(lightId : uint, passes : Vector.<Shader>) : void
 		{
 			var textureResource : TextureResource	= getLightProperty(lightId, 'shadowMap');
-			var renderTarget	: RenderTarget		= 
+			var renderTarget	: RenderTarget		= //null;
 				new RenderTarget(textureResource.width, textureResource.height, textureResource, 0, 0xffffffff);
 			
 			passes.push(new MatrixShadowMapShader(lightId, lightId + 1, renderTarget));

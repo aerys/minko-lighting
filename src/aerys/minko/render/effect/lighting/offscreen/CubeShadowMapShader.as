@@ -23,65 +23,73 @@ package aerys.minko.render.effect.lighting.offscreen
 			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(-1, 0, 0),	Vector4.Y_AXIS),		// look at negative x
 			new Matrix4x4().lookAt(Vector4.ZERO, Vector4.Y_AXIS,		new Vector4(0, 0, -1)),	// look at positive y
 			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(0, -1, 0),	Vector4.Z_AXIS),		// look at negative y
-			new Matrix4x4().lookAt(Vector4.ZERO, Vector4.Z_AXIS,		Vector4.Y_AXIS),		// look at positive z, that's identity!!
+			new Matrix4x4().lookAt(Vector4.ZERO, Vector4.Z_AXIS,		Vector4.Y_AXIS),		// look at positive z (identity)
 			new Matrix4x4().lookAt(Vector4.ZERO, new Vector4(0, 0, -1),	Vector4.Y_AXIS),		// look at negative z
 		];
 		
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
-		
 		private var _lightId				: uint;
-		private var _priority				: Number;
-		private var _renderTarget			: RenderTarget;
-		
-		private var _lightToScreen			: Matrix4x4;
+		private var _side					: uint;
 		private var _positionFromLight		: SFloat;
 		
-		public function CubeShadowMapShader(lightId		: uint, 
-										  side			: uint, 
-										  priority		: Number,
-										  renderTarget	: RenderTarget)
+		public function CubeShadowMapShader(lightId			: uint, 
+											side			: uint, 
+											priority		: Number,
+											renderTarget	: RenderTarget)
 		{
-			var viewMatrix			: Matrix4x4 = VIEW_MATRICES[side];
-			var modifierMatrix		: Matrix4x4 = new Matrix4x4().perspectiveFoV(Math.PI / 2, 1, 1, 1000);
+			super(renderTarget, priority);
 			
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
-			_priority				= priority;
-			_renderTarget			= renderTarget;
-			_lightToScreen			= new Matrix4x4().copyFrom(viewMatrix).append(modifierMatrix);
-			_lightId				= lightId;	
+			_lightId				= lightId;
+			_side					= side;
 		}
 		
 		override protected function initializeSettings(passConfig : ShaderSettings) : void
 		{
 			passConfig.triangleCulling	= meshBindings.getConstant(BasicProperties.TRIANGLE_CULLING, TriangleCulling.BACK);
-			passConfig.triangleCulling = TriangleCulling.NONE;
 			passConfig.blending			= Blending.NORMAL;
-			passConfig.priority			= _priority;
-			passConfig.renderTarget		= _renderTarget;
 			passConfig.enabled			= meshBindings.getConstant(LightingProperties.CAST_SHADOWS, true);
 		}
 		
 		override protected function getVertexPosition() : SFloat
 		{
-			var worldToLightName	: String = LightingProperties.getNameFor(_lightId, 'worldToLocal');
+			// retrieve matrices
+			var worldToLocalName	: String	= LightingProperties.getNameFor(_lightId, 'worldToLocal');
+			var projectionName		: String	= LightingProperties.getNameFor(_lightId, 'projection');
+			var worldToLocal		: SFloat	= sceneBindings.getParameter(worldToLocalName, 16);
+			var viewMatrix			: Matrix4x4	= VIEW_MATRICES[_side];
+			var projection			: SFloat	= sceneBindings.getParameter(projectionName, 16);
 			
-			var worldToLight		: SFloat = sceneBindings.getParameter(worldToLightName, 16);
-			var position			: SFloat = _vertexAnimationPart.getAnimatedVertexPosition();
-			var worldPosition		: SFloat = localToWorld(position);
+			// compute position
+			var position			: SFloat	= localToWorld(_vertexAnimationPart.getAnimatedVertexPosition());
+			var positionFromLight	: SFloat	= multiply4x4(position, worldToLocal);
+			var positionOnScreen	: SFloat	= multiply4x4(multiply4x4(positionFromLight, viewMatrix), projection);
 			
-			_positionFromLight = multiply4x4(worldPosition, worldToLight);
+			// apply transformation for linear z buffering
+			positionOnScreen = float4(
+				positionOnScreen.xy, 
+				multiply(positionOnScreen.z, positionOnScreen.w),
+				positionOnScreen.w
+			); 
 			
-			return multiply4x4(_positionFromLight, _lightToScreen);
+			// interpolate position from light
+			_positionFromLight = interpolate(positionFromLight);
+			
+			return positionOnScreen;
 		}
 		
 		override protected function getPixelColor() : SFloat
 		{
-			var positionFromLight	: SFloat = interpolate(_positionFromLight);
-			var distance			: SFloat = length(positionFromLight.xyz);
-//			return float4(1, 0, 0, 1);
-			distance = divide(distance, 255);
+			// retrieve zNear and zFar
+			var zNearName	: String	= LightingProperties.getNameFor(_lightId, 'zNear');
+			var zFarName	: String	= LightingProperties.getNameFor(_lightId, 'zFar');
+			var zNear		: SFloat	= sceneBindings.getParameter(zNearName, 1);
+			var zFar		: SFloat	= sceneBindings.getParameter(zFarName, 1);
 			
-			return float4(distance.xxx, 1);
+			// compute distance
+			var distance	: SFloat	= length(_positionFromLight);
+			
+			return divide(subtract(distance, zNear), subtract(zFar, zNear));
 		}
 	}
 }

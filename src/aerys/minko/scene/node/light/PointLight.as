@@ -4,6 +4,8 @@ package aerys.minko.scene.node.light
 	import aerys.minko.render.resource.texture.ITextureResource;
 	import aerys.minko.render.resource.texture.TextureResource;
 	import aerys.minko.scene.node.ISceneNode;
+	import aerys.minko.scene.node.Scene;
+	import aerys.minko.type.data.DataBindings;
 	import aerys.minko.type.enum.ShadowMappingType;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
@@ -18,8 +20,22 @@ package aerys.minko.scene.node.light
 			'shadowMapDualParaboloid1'
 		];
 		
+		private static const TMP_VECTOR		: Vector4 = new Vector4();
+		
+		private static const FRUSTUM_POINTS	: Vector.<Vector4>	= new <Vector4>[
+			new Vector4(-1, -1, 0, 1),
+			new Vector4(-1, -1, 1, 1),
+			new Vector4(-1, +1, 0, 1),
+			new Vector4(-1, +1, 1, 1),
+			new Vector4(+1, -1, 0, 1),
+			new Vector4(+1, -1, 1, 1),
+			new Vector4(+1, +1, 0, 1),
+			new Vector4(+1, +1, 1, 1)
+		];
+		
 		private var _position		: Vector4;
 		private var _worldPosition	: Vector4;
+		private var _projection		: Matrix4x4;
 		
 		public function get diffuse() : Number
 		{
@@ -131,6 +147,7 @@ package aerys.minko.scene.node.light
 		{
 			_position					= new Vector4();
 			_worldPosition				= new Vector4();
+			_projection					= new Matrix4x4();				
 			
 			super(color, emissionMask, shadowCastingType, shadowMapSize, TYPE); 
 			
@@ -141,11 +158,27 @@ package aerys.minko.scene.node.light
 			
 			setProperty('position',	_position);
 			setProperty('worldPosition', _worldPosition);
+			setProperty('projection', _projection);
 			
 			if ([ShadowMappingType.NONE, 
 				 ShadowMappingType.DUAL_PARABOLOID, 
 				 ShadowMappingType.CUBE].indexOf(shadowCastingType) == -1)
 				throw new Error('Invalid ShadowMappingType.');
+		}
+		
+		override protected function addedToSceneHandler(child:ISceneNode, scene:Scene):void
+		{
+			
+			super.addedToSceneHandler(child, scene);
+			
+			scene.bindings.addCallback('screenToWorld', cameraScreenToWorldChangedHandler);
+		}
+		
+		override protected function removedFromSceneHandler(child:ISceneNode, scene:Scene):void
+		{
+			super.removedFromSceneHandler(child, scene);
+			
+			scene.bindings.removeCallback('screenToWorld', cameraScreenToWorldChangedHandler);
 		}
 		
 		override protected function transformChangedHandler(transform	 : Matrix4x4, 
@@ -155,6 +188,60 @@ package aerys.minko.scene.node.light
 			
 			transform.getTranslation(_position);
 			localToWorld.getTranslation(_worldPosition);
+		}
+		
+		private function cameraScreenToWorldChangedHandler(dataBindings : DataBindings,
+														   propertyName	: String,
+														   newValue		: Matrix4x4) : void
+		{
+			if (!(root is Scene))
+				return;
+			
+			var screenToWorld	: Matrix4x4 = 
+				Scene(root).bindings.getProperty('screenToWorld') as Matrix4x4;
+			
+			if (screenToWorld == null)
+			{
+				// No camera on scene, we cannot compute a valid projection matrix.
+				// For now we default to identity
+				_projection.identity();
+			}
+			else
+			{
+				var lightWorldPosition	: Vector4	= localToWorld.getTranslation();
+				var zNear				: Number	= Number.MAX_VALUE;
+				var zFar				: Number	= Number.MIN_VALUE;
+				
+				// create bounding box in light space of view frustum, but do not consider light rotation
+				for (var pointId : uint = 0; pointId < 8; ++pointId)
+				{
+					screenToWorld.transformVector(FRUSTUM_POINTS[pointId], TMP_VECTOR);
+					TMP_VECTOR.scaleBy(1 / TMP_VECTOR.w);
+					worldToLocal.transformVector(TMP_VECTOR, TMP_VECTOR);
+					
+					var squaredDistance : Number = TMP_VECTOR.lengthSquared;
+					zFar < squaredDistance  && (zFar  = squaredDistance);
+				}
+				
+				zNear	= 0.1;
+				zFar	= Math.sqrt(zFar);
+				
+				// if attenuation is enabled, at d = distance * 10, 
+				// we can only see 1% of the light emitted, so we can lower the zFar
+				var attenuationEnabled	: Boolean	= getProperty('attenuationEnabled');
+				var attenuationDistance	: Number	= this.attenuationDistance;
+				
+				if (attenuationEnabled && zFar > 10 * attenuationDistance)
+					zFar = 10 * attenuationDistance;
+				
+				var fd	: Number = 1. / Math.tan(Math.PI / 4);
+				var m33	: Number = 1. / (zFar - zNear);
+				var m43	: Number = -zNear / (zFar - zNear);
+				
+				setProperty('zNear', zNear);
+				setProperty('zFar', zFar);
+				_projection.initialize(fd, 0, 0, 0, 0, fd, 0, 0, 0, 0, m33, 1, 0, 0, m43, 0);
+			}
 		}
 		
 		override public function clone(cloneControllers : Boolean = false) : ISceneNode

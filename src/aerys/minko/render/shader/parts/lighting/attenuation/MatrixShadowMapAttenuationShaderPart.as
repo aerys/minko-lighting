@@ -22,7 +22,7 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 	{
 		use namespace minko_lighting;
 		
-		private static const DEFAULT_BIAS : Number = 0.2;
+		private static const DEFAULT_BIAS : Number = 1 / 256;
 		
 		public function MatrixShadowMapAttenuationShaderPart(main : Shader)
 		{
@@ -31,14 +31,6 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 		
 		public function getAttenuation(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
 		{
-			// retrieve depthmap and projection matrix
-			var lightWorldToUVName	: String = LightingProperties.getNameFor(lightId, 'worldToUV');
-			var lightDepthMapName	: String = LightingProperties.getNameFor(lightId, 'shadowMap');
-			
-			var worldToLightUV		: SFloat = sceneBindings.getParameter(lightWorldToUVName, 16);
-			var depthMap			: SFloat = 
-				sceneBindings.getTextureParameter(lightDepthMapName, SamplerFiltering.NEAREST, SamplerMipMapping.DISABLE, SamplerWrapping.CLAMP);
-			
 			// retrieve shadow bias
 			var shadowBias : SFloat;
 			if (meshBindings.propertyExists(LightingProperties.SHADOWS_BIAS))
@@ -48,18 +40,22 @@ package aerys.minko.render.shader.parts.lighting.attenuation
 			else
 				shadowBias = float(DEFAULT_BIAS);
 			
+			// retrieve depthmap and projection matrix
+			var worldToUvName	: String = LightingProperties.getNameFor(lightId, 'worldToUV');
+			var depthMapName	: String = LightingProperties.getNameFor(lightId, 'shadowMap');
+			
+			var worldToUV		: SFloat = sceneBindings.getParameter(worldToUvName, 16);
+			var depthMap		: SFloat = 
+				sceneBindings.getTextureParameter(depthMapName, SamplerFiltering.NEAREST, SamplerMipMapping.DISABLE, SamplerWrapping.CLAMP);
+			
 			// read expected depth from shadow map, and compute current depth
 			var uv : SFloat;
-			uv = multiply4x4(wPos, worldToLightUV);
-			uv = divide(uv, uv.w);
+			uv = multiply4x4(wPos, worldToUV);
 			uv = interpolate(uv);
+			var currentDepth		: SFloat = uv.z;
+			uv = divide(uv, uv.w);
 			
-			var currentDepth : SFloat = uv.z;
-			
-			var precomputedDepth : SFloat;
-			precomputedDepth = sampleTexture(depthMap, uv);
-			precomputedDepth = precomputedDepth.x;
-//			precomputedDepth = unpack(precomputedDepth);
+			var precomputedDepth	: SFloat = sampleTexture(depthMap, uv.xyyy).x;
 			
 			// shadow then current depth is less than shadowBias + precomputed depth
 			return lessThan(currentDepth, add(shadowBias, precomputedDepth));

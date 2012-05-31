@@ -144,16 +144,15 @@ package aerys.minko.scene.node.light
 		{
 			super.addedToSceneHandler(child, scene);
 			
-			scene.bindings.getPropertyChangedSignal('screenToWorld')
-						  .add(cameraScreenToWorldChangedHandler);
+			scene.bindings.addCallback('screenToWorld', cameraScreenToWorldChangedHandler);
+			cameraScreenToWorldChangedHandler(null, null, null);
 		}
 		
 		override protected function removedFromSceneHandler(child:ISceneNode, scene:Scene):void
 		{
 			super.removedFromSceneHandler(child, scene);
 			
-			scene.bindings.getPropertyChangedSignal('screenToWorld')
-						  .remove(cameraScreenToWorldChangedHandler);
+			scene.bindings.removeCallback('screenToWorld', cameraScreenToWorldChangedHandler);
 		}
 		
 		override protected function transformChangedHandler(transform		: Matrix4x4, 
@@ -172,14 +171,16 @@ package aerys.minko.scene.node.light
 			_worldDirection.normalize();
 			
 			// update world to screen/uv
-			_worldToScreen.copyFrom(worldToLocal).prepend(_projection);
-			_worldToUV.copyFrom(_worldToScreen).prepend(SCREEN_TO_UV);
+			_worldToScreen.lock().copyFrom(worldToLocal).append(_projection).unlock();
+			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
 		protected function cameraScreenToWorldChangedHandler(sceneBindings	: DataBindings,
 															 propertyName	: String,
 															 screenToWorld	: Matrix4x4) : void
 		{
+			screenToWorld = Scene(root).bindings.getProperty('screenToWorld') as Matrix4x4;
+			
 			if (screenToWorld == null)
 			{
 				// No camera on scene, we cannot compute a valid projection matrix.
@@ -191,7 +192,6 @@ package aerys.minko.scene.node.light
 				// There is a camera in the scene
 				// We convert the frustum into light space, and compute a projection
 				// matrix that contains the whole frustum.
-				
 				var zNear	: Number = Number.POSITIVE_INFINITY;
 				var zFar	: Number = Number.NEGATIVE_INFINITY;
 				var left	: Number = Number.POSITIVE_INFINITY;
@@ -202,6 +202,7 @@ package aerys.minko.scene.node.light
 				for (var pointId : uint = 0; pointId < 8; ++pointId)
 				{
 					screenToWorld.transformVector(FRUSTUM_POINTS[pointId], TMP_VECTOR);
+					TMP_VECTOR.scaleBy(1 / TMP_VECTOR.w);
 					worldToLocal.transformVector(TMP_VECTOR, TMP_VECTOR);
 					
 					if (TMP_VECTOR.x > right)	right	= TMP_VECTOR.x;
@@ -215,8 +216,8 @@ package aerys.minko.scene.node.light
 				_projection.orthoOffCenter(left, right, bottom, top, zNear, zFar);
 			}
 			
-			_worldToScreen.copyFrom(worldToLocal).prepend(_projection);
-			_worldToUV.copyFrom(_worldToScreen).prepend(SCREEN_TO_UV);
+			_worldToScreen.lock().copyFrom(worldToLocal).append(_projection).unlock();
+			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
 		override public function clone(cloneControllers : Boolean = false) : ISceneNode

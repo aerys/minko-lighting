@@ -134,7 +134,7 @@ package aerys.minko.scene.node.light
 			// this happens AFTER being added to scene
 			super.addedToSceneHandler(child, scene);
 			
-			scene.bindings.add(_dataProvider);
+			scene.bindings.addProvider(_dataProvider);
 			
 			sortLights(scene);
 		}
@@ -144,7 +144,7 @@ package aerys.minko.scene.node.light
 			// This happens AFTER being removed from scene.
 			super.removedFromSceneHandler(child, scene);
 			
-			scene.bindings.remove(_dataProvider);
+			scene.bindings.removeProvider(_dataProvider);
 			sortLights(scene);
 		}
 		
@@ -157,7 +157,7 @@ package aerys.minko.scene.node.light
 			
 			// remove all lights from scene bindings.
 			for (lightId = 0; lightId < numLights; ++lightId)
-				sceneBindings.remove(AbstractLight(lights[lightId])._dataProvider);
+				sceneBindings.removeProvider(AbstractLight(lights[lightId])._dataProvider);
 			
 			// sorting allow to limit the number of shaders that will be generated
 			// if (add|remov)ing many lights all the time (add order won't matter anymore).
@@ -169,7 +169,7 @@ package aerys.minko.scene.node.light
 			
 			// put back all lights into scene bindings.
 			for (lightId = 0; lightId < numLights; ++lightId)
-				sceneBindings.add(AbstractLight(lights[lightId])._dataProvider);
+				sceneBindings.addProvider(AbstractLight(lights[lightId])._dataProvider);
 		}
 		
 		private static function compare(light1 : AbstractLight, light2 : AbstractLight) : int

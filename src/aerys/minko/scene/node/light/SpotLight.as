@@ -1,5 +1,6 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko_math;
 	import aerys.minko.render.resource.texture.TextureResource;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
@@ -7,15 +8,22 @@ package aerys.minko.scene.node.light
 	import aerys.minko.type.enum.ShadowMappingType;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
-
 	
 	public class SpotLight extends AbstractLight
 	{
+		use namespace minko_math;
+		
 		public static const TYPE			: uint				= 3;
 		
-		private static const SCREEN_TO_UV	: Matrix4x4			= new Matrix4x4().appendScale(.5, -.5).appendTranslation(.5, .5);
 		private static const TMP_VECTOR		: Vector4			= new Vector4();
 		private static const Z_AXIS			: Vector4			= new Vector4(0, 0, 1);
+		private static const SCREEN_TO_UV	: Matrix4x4			= new Matrix4x4(
+			0.5,		0.0,		0.0,	0.0,
+			0.0, 		-0.5,		0.0,	0.0,
+			0.0,		0.0,		1.0,	0.0,
+			0.5, 		0.5,		0.0, 	1.0
+		);
+		
 		private static const FRUSTUM_POINTS	: Vector.<Vector4>	= new <Vector4>[
 			new Vector4(-1, -1, 0, 1),
 			new Vector4(-1, -1, 1, 1),
@@ -148,8 +156,8 @@ package aerys.minko.scene.node.light
 								  specular				: Number	= .8,
 								  shininess				: Number	= 64,
 								  attenuationDistance	: Number	= 0,
-								  outerRadius			: Number	= .4,
-								  innerRadius			: Number	= .4,
+								  outerRadius			: Number	= 1.57079632679,
+								  innerRadius			: Number	= 0,
 								  emissionMask			: uint		= 0x1,
 								  shadowCastingType		: uint		= 0,
 								  shadowMapSize			: uint		= 512)
@@ -184,16 +192,15 @@ package aerys.minko.scene.node.light
 		{
 			super.addedToSceneHandler(child, scene);
 			
-			scene.bindings.getPropertyChangedSignal('screenToWorld')
-						  .add(cameraScreenToWorldChangedHandler);
+			scene.bindings.addCallback('screenToWorld', cameraScreenToWorldChangedHandler);
+			updateProjectionMatrix();
 		}
 		
 		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene) : void
 		{
 			super.removedFromSceneHandler(child, scene);
 			
-			scene.bindings.getPropertyChangedSignal('screenToWorld')
-						  .remove(cameraScreenToWorldChangedHandler);
+			scene.bindings.removeCallback('screenToWorld', cameraScreenToWorldChangedHandler);
 		}
 		
 		override protected function transformChangedHandler(transform : Matrix4x4, propertyName : String) : void
@@ -201,11 +208,11 @@ package aerys.minko.scene.node.light
 			super.transformChangedHandler(transform, propertyName);
 			
 			_worldPosition	= localToWorld.getTranslation(_worldPosition);
-			_worldDirection	= localToWorld.deltaTransformVector(Z_AXIS, _worldDirection);
+			_worldDirection	= localToWorld.deltaTransformVector(Vector4.Z_AXIS, _worldDirection);
 			_worldDirection.normalize();
 			
-			_worldToScreen.copyFrom(worldToLocal).prepend(_projection);
-			_worldToUV.copyFrom(_worldToScreen).prepend(SCREEN_TO_UV);
+			_worldToScreen.lock().copyFrom(worldToLocal).append(_projection).unlock();
+			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
 		protected function cameraScreenToWorldChangedHandler(sceneBindings	: DataBindings,
@@ -234,40 +241,39 @@ package aerys.minko.scene.node.light
 				// There is a camera in the scene
 				// We convert the frustum into light space, and compute a projection
 				// matrix that contains the whole frustum.
-				
 				var zNear	: Number = Number.POSITIVE_INFINITY;
 				var zFar	: Number = Number.NEGATIVE_INFINITY;
 				
 				for (var pointId : uint = 0; pointId < 8; ++pointId)
 				{
 					screenToWorld.transformVector(FRUSTUM_POINTS[pointId], TMP_VECTOR);
+					TMP_VECTOR.scaleBy(1 / TMP_VECTOR.w);
 					worldToLocal.transformVector(TMP_VECTOR, TMP_VECTOR);
 					
-					if (TMP_VECTOR.z > zFar)
-						zFar = TMP_VECTOR.z;
-					
-					if (TMP_VECTOR.z < zNear)
-						zNear = TMP_VECTOR.z;
+					// that's unoptimized, we should compute frustum intersection here
+					TMP_VECTOR.z > zFar  && (zFar  = TMP_VECTOR.z);
+					TMP_VECTOR.z < zNear && (zNear = TMP_VECTOR.z);
 				}
 				
 				// if attenuation is enabled, at d = distance * 10, 
 				// we can only see 1% of the light emitted, so we can lower the zFar
-				var attenuationDistanceEnabled	: Boolean	= getProperty('attenuationEnabled');
-				var attenuationDistance			: Number	= this.attenuationDistance;
+				var attenuationEnabled	: Boolean	= getProperty('attenuationEnabled');
+				var attenuationDistance	: Number	= this.attenuationDistance;
 				
-				if (attenuationDistanceEnabled && zFar > attenuationDistance * 10)
-					zFar = attenuationDistance * 10;
+				if (zNear < 0.1)
+					zNear = 0.1;
 				
-				// enforce a maximal factor of 10000 between the 2 values, 
-				// to avoid having too little precision (as the cost of losing shadows near the light)
-				if (zNear * 10000 < zFar)
-					zNear = zFar / 10000;
+				if (attenuationEnabled && zFar > 10 * attenuationDistance)
+					zFar = 10 * attenuationDistance;
 				
-				_projection.perspectiveFoV(outerRadius, 1, zNear, zFar);
+				var fd	: Number = 1. / Math.tan(outerRadius * 0.5);
+				var m33	: Number = 1. / (zFar - zNear);
+				var m43	: Number = -zNear / (zFar - zNear);
+				_projection.initialize(fd, 0, 0, 0, 0, fd, 0, 0, 0, 0, m33, 1, 0, 0, m43, 0);
 			}
 			
-			_worldToScreen.copyFrom(worldToLocal).prepend(_projection);
-			_worldToUV.copyFrom(_worldToScreen).prepend(SCREEN_TO_UV);
+			_worldToScreen.lock().copyFrom(worldToLocal).append(_projection).unlock();
+			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
 		override public function clone(cloneControllers:Boolean=false):ISceneNode

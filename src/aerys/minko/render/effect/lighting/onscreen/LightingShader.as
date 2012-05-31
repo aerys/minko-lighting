@@ -8,8 +8,14 @@ package aerys.minko.render.effect.lighting.onscreen
 	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.render.shader.parts.lighting.LightingShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
+	import aerys.minko.render.shader.parts.lighting.attenuation.MatrixShadowMapAttenuationShaderPart;
 	import aerys.minko.type.enum.Blending;
 	import aerys.minko.type.enum.DepthTest;
+	import aerys.minko.type.enum.SamplerDimension;
+	import aerys.minko.type.enum.SamplerFiltering;
+	import aerys.minko.type.enum.SamplerMipMapping;
+	import aerys.minko.type.enum.SamplerWrapping;
 	import aerys.minko.type.enum.TriangleCulling;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
@@ -72,6 +78,22 @@ package aerys.minko.render.effect.lighting.onscreen
 		
 		override protected function getPixelColor() : SFloat
 		{
+//			return new MatrixShadowMapAttenuationShaderPart(this).getAttenuation(
+//				1, 
+//				localToWorld(vertexXYZ),
+//				normalize(deltaLocalToWorld(vertexNormal)),
+//				interpolate(localToWorld(vertexXYZ)),
+//				normalize(interpolate(deltaLocalToWorld(vertexNormal)))
+//			);
+			
+//			return new CubeShadowMapAttenuationShaderPart(this).getAttenuation(
+//				1, 
+//				localToWorld(vertexXYZ),
+//				normalize(deltaLocalToWorld(vertexNormal)),
+//				interpolate(localToWorld(vertexXYZ)),
+//				normalize(interpolate(deltaLocalToWorld(vertexNormal)))
+//			);
+			
 			var color		: SFloat	= _pixelColorPart.getDiffuse();
 			var lighting	: SFloat	= _lightingPart.getLightingColor(_vertexPosition, _vertexUV, _vertexNormal);
 			
@@ -81,6 +103,8 @@ package aerys.minko.render.effect.lighting.onscreen
 			
 			return color;
 		}
+		
+		
 		
 	}
 }
