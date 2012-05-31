@@ -24,7 +24,7 @@ package aerys.minko.scene.node.light
 			setProperty('shadowCastingType', ShadowMappingType.NONE);
 		}
 		
-		public function AmbientLight(color			: uint		= 0xFFFFFF, 
+		public function AmbientLight(color			: uint		= 0xFFFFFFFF, 
 									 ambient		: Number	= .4,
 									 emissionMask	: uint		= 0x1)
 		{
