@@ -161,7 +161,7 @@ package aerys.minko.render.shader.parts.lighting
 			var hasDiffuse				: Boolean	= sceneBindings.getConstant(hasDiffuseName);
 			var hasSpecular				: Boolean	= sceneBindings.getConstant(hasSpecularName);
 			var shadowCasting			: uint		= sceneBindings.getConstant(shadowCastingTypeName);
-			var meshReceiveShadows		: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
+			var meshReceiveShadows		: Boolean	= meshBindings.getConstant(LightingProperties.RECEIVE_SHADOWS, false);
 			var computeShadows			: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
 			var contribution			: SFloat	= float(0);
@@ -193,7 +193,7 @@ package aerys.minko.render.shader.parts.lighting
 			var hasSpecular			: Boolean	= sceneBindings.getConstant(hasSpecularName);
 			var shadowCasting		: uint		= sceneBindings.getConstant(shadowCastingName);
 			var isAttenuated		: Boolean	= sceneBindings.getConstant(isAttenuatedName);
-			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
+			var meshReceiveShadows	: Boolean	= meshBindings.getConstant(LightingProperties.RECEIVE_SHADOWS, false);
 			var computeShadows		: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
 			var contribution		: SFloat	= float(0);
@@ -231,7 +231,7 @@ package aerys.minko.render.shader.parts.lighting
 			var lightHasSmoothEdge	: Boolean	= sceneBindings.getConstant(hasSmoothEdgeName)
 			var shadowCasting		: uint		= sceneBindings.getConstant(shadowCastingName);
 			
-			var meshReceiveShadows	: Boolean	= meshBindings.propertyExists(LightingProperties.RECEIVE_SHADOWS);
+			var meshReceiveShadows	: Boolean	= meshBindings.getConstant(LightingProperties.RECEIVE_SHADOWS, false);
 			var computeShadows		: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
 			var contribution		: SFloat	= float(0);
