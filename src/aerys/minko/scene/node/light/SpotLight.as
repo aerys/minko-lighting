@@ -151,7 +151,7 @@ package aerys.minko.scene.node.light
 		}
 		
 		
-		public function SpotLight(color					: uint		= 0xFFFFFF,
+		public function SpotLight(color					: uint		= 0xFFFFFFFF,
 								  diffuse				: Number	= .6,
 								  specular				: Number	= .8,
 								  shininess				: Number	= 64,
