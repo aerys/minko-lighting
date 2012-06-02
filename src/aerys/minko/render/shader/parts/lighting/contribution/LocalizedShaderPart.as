@@ -49,7 +49,7 @@ package aerys.minko.render.shader.parts.lighting.contribution
 				lightShininess.scaleBy(meshBindings.getParameter(LightingProperties.SHININESS_MULTIPLIER, 1));
 			
 			var lightDirection			: SFloat = normalize(subtract(iwPos, lightWorldPosition));
-			var viewDirection			: SFloat = normalize(subtract(cameraWorldPosition, iwPos));
+			var viewDirection			: SFloat = normalize(subtract(cameraPosition, iwPos));
 			var lightReflection			: SFloat = reflect(lightDirection, iwNrm);
 			var lambertProduct			: SFloat = saturate(dotProduct3(lightReflection, viewDirection));
 			
