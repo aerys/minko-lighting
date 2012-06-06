@@ -1,4 +1,4 @@
-package aerys.minko.render.shader.parts.lighting.attenuation
+package aerys.minko.render.shader.part.lighting.attenuation
 {
 	import aerys.minko.render.shader.SFloat;
 

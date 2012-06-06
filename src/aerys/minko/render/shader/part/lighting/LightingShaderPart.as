@@ -1,19 +1,17 @@
-package aerys.minko.render.shader.parts.lighting
+package aerys.minko.render.shader.part.lighting
 {
-	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
-	import aerys.minko.render.shader.part.ShaderPart;
-	import aerys.minko.render.shader.parts.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
-	import aerys.minko.render.shader.parts.lighting.attenuation.DPShadowMapAttenuationShaderPart;
-	import aerys.minko.render.shader.parts.lighting.attenuation.DistanceAttenuationShaderPart;
-	import aerys.minko.render.shader.parts.lighting.attenuation.HardConicAttenuationShaderPart;
-	import aerys.minko.render.shader.parts.lighting.attenuation.IAttenuationShaderPart;
-	import aerys.minko.render.shader.parts.lighting.attenuation.MatrixShadowMapAttenuationShaderPart;
-	import aerys.minko.render.shader.parts.lighting.attenuation.SmoothConicAttenuationShaderPart;
-	import aerys.minko.render.shader.parts.lighting.contribution.InfiniteShaderPart;
-	import aerys.minko.render.shader.parts.lighting.contribution.LocalizedShaderPart;
+	import aerys.minko.render.shader.part.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
+	import aerys.minko.render.shader.part.lighting.attenuation.DPShadowMapAttenuationShaderPart;
+	import aerys.minko.render.shader.part.lighting.attenuation.DistanceAttenuationShaderPart;
+	import aerys.minko.render.shader.part.lighting.attenuation.HardConicAttenuationShaderPart;
+	import aerys.minko.render.shader.part.lighting.attenuation.IAttenuationShaderPart;
+	import aerys.minko.render.shader.part.lighting.attenuation.MatrixShadowMapAttenuationShaderPart;
+	import aerys.minko.render.shader.part.lighting.attenuation.SmoothConicAttenuationShaderPart;
+	import aerys.minko.render.shader.part.lighting.contribution.InfiniteShaderPart;
+	import aerys.minko.render.shader.part.lighting.contribution.LocalizedShaderPart;
 	import aerys.minko.type.enum.ShadowMappingType;
 	
 	/**
@@ -21,10 +19,8 @@ package aerys.minko.render.shader.parts.lighting
 	 * 
 	 * @author Romain Gilliotte
 	 */	
-	public class LightingShaderPart extends ShaderPart
+	public class LightingShaderPart extends LightAwareShaderPart
 	{
-		use namespace minko_lighting;
-		
 		private const LIGHT_TYPE_TO_FACTORY : Vector.<Function> = new <Function>[
 			getAmbientLightContribution,
 			getDirectionalLightContribution,
@@ -33,7 +29,6 @@ package aerys.minko.render.shader.parts.lighting
 		];
 		
 		private var _shadowAttenuators				: Vector.<IAttenuationShaderPart>;
-		
 		private var _infinitePart					: InfiniteShaderPart;
 		private var _localizedPart					: LocalizedShaderPart;
 		private var _distanceAttenuationPart		: DistanceAttenuationShaderPart;
@@ -69,13 +64,9 @@ package aerys.minko.render.shader.parts.lighting
 			var iwNrm	: SFloat = normalize(interpolate(wNrm));
 			iwNrm = iwNrm.xyz;
 			
-			// declare accumulator
+			// process static & dynamic lighting
 			var lightValue : SFloat = float3(0, 0, 0);
-			
-			// process static lighting
 			lightValue.incrementBy(getStaticLighting(uv));
-			
-			// process dynamic lighting
 			lightValue.incrementBy(getDynamicLighting(wPos, wNrm, iwPos, iwNrm));
 			
 			return float4(lightValue, 1);
@@ -111,20 +102,16 @@ package aerys.minko.render.shader.parts.lighting
 			
 			for (var lightId : uint = 0;; ++lightId)
 			{
-				var emissionMaskName : String = LightingProperties.getNameFor(lightId, 'emissionMask');
-				if (!sceneBindings.propertyExists(emissionMaskName))
+				if (!lightPropertyExists(lightId, 'emissionMask'))
 					break;
 				
-				var emissionMask : uint = sceneBindings.getConstant(emissionMaskName);
+				var emissionMask : uint = getLightConstant(lightId, 'emissionMask');
 				
 				if ((emissionMask & receptionMask) != 0)
 				{
-					var colorName		: String	= LightingProperties.getNameFor(lightId, 'color');
-					var typeName		: String	= LightingProperties.getNameFor(lightId, 'type');
-					var color			: SFloat	= sceneBindings.getParameter(colorName, 4);
-					var type			: uint		= sceneBindings.getConstant(typeName);
-					var contribution	: SFloat	= 
-						LIGHT_TYPE_TO_FACTORY[type](lightId, wPos, wNrm, iwPos, iwNrm);
+					var color			: SFloat	= getLightParameter(lightId, 'color', 4);
+					var type			: uint		= getLightConstant(lightId, 'type')
+					var contribution	: SFloat	= LIGHT_TYPE_TO_FACTORY[type](lightId, wPos, wNrm, iwPos, iwNrm);
 					
 					dynamicLighting.incrementBy(multiply(color.rgb, contribution));
 				}
@@ -139,8 +126,7 @@ package aerys.minko.render.shader.parts.lighting
 													 iwPos		: SFloat,
 													 iwNrm		: SFloat) : SFloat
 		{
-			var ambientName	: String = LightingProperties.getNameFor(lightId, 'ambient')
-			var ambient		: SFloat = sceneBindings.getParameter(ambientName, 1);
+			var ambient : SFloat = getLightParameter(lightId, 'ambient', 1);
 			
 			if (meshBindings.propertyExists(LightingProperties.AMBIENT_MULTIPLIER))
 				ambient.scaleBy(sceneBindings.getParameter(LightingProperties.AMBIENT_MULTIPLIER, 1));
@@ -154,13 +140,9 @@ package aerys.minko.render.shader.parts.lighting
 														 iwPos		: SFloat,
 														 iwNrm		: SFloat) : SFloat
 		{
-			var hasDiffuseName			: String	= LightingProperties.getNameFor(lightId, 'diffuseEnabled');
-			var hasSpecularName			: String	= LightingProperties.getNameFor(lightId, 'specularEnabled');
-			var shadowCastingTypeName	: String	= LightingProperties.getNameFor(lightId, 'shadowCastingType');
-			
-			var hasDiffuse				: Boolean	= sceneBindings.getConstant(hasDiffuseName);
-			var hasSpecular				: Boolean	= sceneBindings.getConstant(hasSpecularName);
-			var shadowCasting			: uint		= sceneBindings.getConstant(shadowCastingTypeName);
+			var hasDiffuse				: Boolean	= getLightConstant(lightId, 'diffuseEnabled');
+			var hasSpecular				: Boolean	= getLightConstant(lightId, 'specularEnabled');
+			var shadowCasting			: uint		= getLightConstant(lightId, 'shadowCastingType');
 			var meshReceiveShadows		: Boolean	= meshBindings.getConstant(LightingProperties.RECEIVE_SHADOWS, false);
 			var computeShadows			: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
@@ -184,15 +166,10 @@ package aerys.minko.render.shader.parts.lighting
 												   iwPos	: SFloat,
 												   iwNrm	: SFloat) : SFloat
 		{
-			var hasDiffuseName		: String	= LightingProperties.getNameFor(lightId, 'diffuseEnabled');
-			var hasSpecularName		: String	= LightingProperties.getNameFor(lightId, 'specularEnabled');
-			var shadowCastingName	: String	= LightingProperties.getNameFor(lightId, 'shadowCastingType');
-			var isAttenuatedName	: String	= LightingProperties.getNameFor(lightId, 'attenuationEnabled');
-			
-			var hasDiffuse			: Boolean	= sceneBindings.getConstant(hasDiffuseName);
-			var hasSpecular			: Boolean	= sceneBindings.getConstant(hasSpecularName);
-			var shadowCasting		: uint		= sceneBindings.getConstant(shadowCastingName);
-			var isAttenuated		: Boolean	= sceneBindings.getConstant(isAttenuatedName);
+			var hasDiffuse			: Boolean	= getLightConstant(lightId, 'diffuseEnabled');
+			var hasSpecular			: Boolean	= getLightConstant(lightId, 'specularEnabled');
+			var shadowCasting		: uint		= getLightConstant(lightId, 'shadowCastingType');
+			var isAttenuated		: Boolean	= getLightConstant(lightId, 'attenuationEnabled');
 			var meshReceiveShadows	: Boolean	= meshBindings.getConstant(LightingProperties.RECEIVE_SHADOWS, false);
 			var computeShadows		: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			
@@ -219,18 +196,11 @@ package aerys.minko.render.shader.parts.lighting
 												  iwPos		: SFloat,
 												  iwNrm		: SFloat) : SFloat
 		{
-			var hasDiffuseName		: String	= LightingProperties.getNameFor(lightId, 'diffuseEnabled');
-			var hasSpecularName		: String	= LightingProperties.getNameFor(lightId, 'specularEnabled');
-			var isAttenuatedName	: String	= LightingProperties.getNameFor(lightId, 'attenuationEnabled');
-			var hasSmoothEdgeName	: String	= LightingProperties.getNameFor(lightId, 'smoothRadius');
-			var shadowCastingName	: String	= LightingProperties.getNameFor(lightId, 'shadowCastingType');
-			
-			var hasDiffuse			: Boolean	= sceneBindings.getConstant(hasDiffuseName);
-			var hasSpecular			: Boolean	= sceneBindings.getConstant(hasSpecularName);
-			var isAttenuated		: Boolean	= sceneBindings.getConstant(isAttenuatedName);
-			var lightHasSmoothEdge	: Boolean	= sceneBindings.getConstant(hasSmoothEdgeName)
-			var shadowCasting		: uint		= sceneBindings.getConstant(shadowCastingName);
-			
+			var hasDiffuse			: Boolean	= getLightConstant(lightId, 'diffuseEnabled');
+			var hasSpecular			: Boolean	= getLightConstant(lightId, 'specularEnabled');
+			var shadowCasting		: uint		= getLightConstant(lightId, 'shadowCastingType');
+			var isAttenuated		: Boolean	= getLightConstant(lightId, 'attenuationEnabled');
+			var lightHasSmoothEdge	: Boolean	= getLightConstant(lightId, 'smoothRadius');
 			var meshReceiveShadows	: Boolean	= meshBindings.getConstant(LightingProperties.RECEIVE_SHADOWS, false);
 			var computeShadows		: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
 			

@@ -1,4 +1,4 @@
-package aerys.minko.render.shader.parts.lighting.contribution
+package aerys.minko.render.shader.part.lighting.contribution
 {
 	import aerys.minko.render.shader.SFloat;
 

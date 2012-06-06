@@ -9,8 +9,8 @@ package aerys.minko.render.effect.realistic
 	import aerys.minko.render.shader.part.BlendingShaderPart;
 	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
-	import aerys.minko.render.shader.parts.lighting.LightingShaderPart;
-	import aerys.minko.render.shader.parts.reflection.ReflectionShaderPart;
+	import aerys.minko.render.shader.part.lighting.LightingShaderPart;
+	import aerys.minko.render.shader.part.reflection.ReflectionShaderPart;
 	import aerys.minko.type.enum.Blending;
 	import aerys.minko.type.enum.DepthTest;
 	import aerys.minko.type.enum.ReflectionType;

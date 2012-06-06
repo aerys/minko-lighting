@@ -1,15 +1,13 @@
-package aerys.minko.render.shader.parts.lighting.contribution
+package aerys.minko.render.shader.part.lighting.contribution
 {
-	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.ShaderPart;
+	import aerys.minko.render.shader.part.lighting.LightAwareShaderPart;
 	
-	public class LocalizedShaderPart extends ShaderPart implements IContributionShaderPart
+	public class LocalizedShaderPart extends LightAwareShaderPart implements IContributionShaderPart
 	{
-		use namespace minko_lighting;
-		
 		public function LocalizedShaderPart(main : Shader)
 		{
 			super(main);
@@ -17,11 +15,8 @@ package aerys.minko.render.shader.parts.lighting.contribution
 		
 		public function getDiffuse(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
 		{
-			var lightWorldPositionName	: String = LightingProperties.getNameFor(lightId, 'worldPosition');
-			var lightDiffuseName		: String = LightingProperties.getNameFor(lightId, 'diffuse');
-			
-			var lightWorldPosition		: SFloat = sceneBindings.getParameter(lightWorldPositionName, 3);
-			var lightDiffuse			: SFloat = sceneBindings.getParameter(lightDiffuseName, 1);
+			var lightWorldPosition		: SFloat = getLightParameter(lightId, 'worldPosition', 3);
+			var lightDiffuse			: SFloat = getLightParameter(lightId, 'diffuse', 1);
 			
 			if (meshBindings.propertyExists(LightingProperties.DIFFUSE_MULTIPLIER))
 				lightDiffuse.scaleBy(meshBindings.getParameter(LightingProperties.DIFFUSE_MULTIPLIER, 1));
@@ -34,13 +29,9 @@ package aerys.minko.render.shader.parts.lighting.contribution
 		
 		public function getSpecular(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
 		{
-			var lightWorldPositionName	: String = LightingProperties.getNameFor(lightId, 'worldPosition');
-			var lightSpecularName		: String = LightingProperties.getNameFor(lightId, 'specular');
-			var lightShininessName		: String = LightingProperties.getNameFor(lightId, 'shininess');
-			
-			var lightWorldPosition		: SFloat = sceneBindings.getParameter(lightWorldPositionName, 3);
-			var lightSpecular			: SFloat = sceneBindings.getParameter(lightSpecularName, 1);
-			var lightShininess			: SFloat = sceneBindings.getParameter(lightShininessName, 1);
+			var lightWorldPosition		: SFloat = getLightParameter(lightId, 'worldPosition', 3);
+			var lightSpecular			: SFloat = getLightParameter(lightId, 'specular', 1);
+			var lightShininess			: SFloat = getLightParameter(lightId, 'shininess', 1);
 			
 			if (meshBindings.propertyExists(LightingProperties.SPECULAR_MULTIPLIER))
 				lightSpecular.scaleBy(meshBindings.getParameter(LightingProperties.SPECULAR_MULTIPLIER, 1));

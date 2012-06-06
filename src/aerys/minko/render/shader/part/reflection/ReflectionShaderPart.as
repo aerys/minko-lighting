@@ -1,4 +1,4 @@
-package aerys.minko.render.shader.parts.reflection
+package aerys.minko.render.shader.part.reflection
 {
 	import aerys.minko.render.effect.reflection.ReflectionProperties;
 	import aerys.minko.render.shader.SFloat;
