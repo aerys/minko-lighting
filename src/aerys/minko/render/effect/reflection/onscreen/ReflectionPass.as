@@ -9,7 +9,7 @@ package aerys.minko.render.effect.reflection.onscreen
 	import aerys.minko.render.shader.part.BlendingShaderPart;
 	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
-	import aerys.minko.render.shader.parts.reflection.ReflectionShaderPart;
+	import aerys.minko.render.shader.part.reflection.ReflectionShaderPart;
 	import aerys.minko.type.enum.Blending;
 	import aerys.minko.type.enum.DepthTest;
 	import aerys.minko.type.enum.ReflectionType;
@@ -25,10 +25,6 @@ package aerys.minko.render.effect.reflection.onscreen
 		
 		private var _priority				: Number;
 		private var _renderTarget			: RenderTarget;
-		
-		private var _vertexPosition 		: SFloat;
-		private var _vertexUV				: SFloat;
-		private var _vertexNormal			: SFloat;
 		
 		public function ReflectionPass(priority		: Number = 0,
 									   renderTarget	: RenderTarget = null)
@@ -61,11 +57,7 @@ package aerys.minko.render.effect.reflection.onscreen
 		
 		override protected function getVertexPosition():SFloat
 		{
-			_vertexPosition = _vertexAnimationPart.getAnimatedVertexPosition();
-			_vertexUV		= getVertexAttribute(VertexComponent.UV);
-			_vertexNormal	= _vertexAnimationPart.getAnimatedVertexNormal();
-			
-			return localToScreen(_vertexPosition);
+			return localToScreen(_vertexAnimationPart.getAnimatedVertexPosition());
 		}
 		
 		override protected function getPixelColor() : SFloat
@@ -77,7 +69,7 @@ package aerys.minko.render.effect.reflection.onscreen
 			if (reflectionType != ReflectionType.NONE)
 			{
 				var blending		: uint		= meshBindings.getConstant(ReflectionProperties.BLENDING, Blending.ALPHA);
-				var reflectionColor	: SFloat	= _reflectionPart.getReflectionColor(_vertexPosition, _vertexUV, _vertexNormal);
+				var reflectionColor	: SFloat	= _reflectionPart.getReflectionColor();
 					
 				color = _blendingPart.blend(color, reflectionColor, blending);
 			}

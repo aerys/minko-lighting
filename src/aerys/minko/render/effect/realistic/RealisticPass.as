@@ -28,10 +28,6 @@ package aerys.minko.render.effect.realistic
 		private var _priority				: Number;
 		private var _renderTarget			: RenderTarget;
 		
-		private var _vertexPosition			: SFloat;
-		private var _vertexUV				: SFloat;
-		private var _vertexNormal			: SFloat;
-		
 		public function RealisticPass(priority		: Number		= 0,
 									  renderTarget	: RenderTarget	= null)
 		{
@@ -69,18 +65,7 @@ package aerys.minko.render.effect.realistic
 		
 		override protected function getVertexPosition() : SFloat
 		{
-			var culling : uint = meshBindings.getConstant("triangleCulling", TriangleCulling.BACK);
-			
-			// store position, uv and normal in attributes, so that getPixelColor() can use them
-			_vertexPosition = _vertexAnimationPart.getAnimatedVertexPosition();
-			_vertexUV		= getVertexAttribute(VertexComponent.UV);
-			_vertexNormal	= _vertexAnimationPart.getAnimatedVertexNormal();
-			
-			// invert normal is culling is backwars to allow proper lighting
-			if (culling == TriangleCulling.FRONT)
-				_vertexNormal = negate(_vertexNormal);
-			
-			return localToScreen(_vertexPosition);
+			return localToScreen(_vertexAnimationPart.getAnimatedVertexPosition());
 		}
 		
 		override protected function getPixelColor() : SFloat
@@ -95,13 +80,13 @@ package aerys.minko.render.effect.realistic
 			if (reflectionType != ReflectionType.NONE)
 			{
 				var blending		: uint		= meshBindings.getConstant(ReflectionProperties.BLENDING, Blending.ALPHA);
-				var reflectionColor	: SFloat	= _reflectionPart.getReflectionColor(_vertexPosition, _vertexUV, _vertexNormal);
+				var reflectionColor	: SFloat	= _reflectionPart.getReflectionColor();
 				
 				color = _blendingPart.blend(reflectionColor, color, blending);
 			}
 
 			// compute and apply lighting
-			var lighting	: SFloat	= _lightingPart.getLightingColor(_vertexPosition, _vertexUV, _vertexNormal);
+			var lighting	: SFloat	= _lightingPart.getLightingColor();
 			color = _blendingPart.blend(lighting, color, Blending.LIGHT);
 			
 			if (meshBindings.propertyExists(BasicProperties.ALPHA_THRESHOLD))

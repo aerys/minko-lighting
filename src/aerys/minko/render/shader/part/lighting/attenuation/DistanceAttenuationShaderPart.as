@@ -12,13 +12,13 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			super(main);
 		}
 		
-		public function getAttenuation(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
+		public function getAttenuation(lightId : uint) : SFloat
 		{
 			var lightWorldPosition	: SFloat = getLightParameter(lightId, 'worldPosition', 3);
 			var lightDistance 		: SFloat = getLightParameter(lightId, 'attenuationDistance', 1);
 			
 			var lightSquareDistance	: SFloat = multiply(lightDistance, lightDistance);
-			var lightToPoint		: SFloat = subtract(iwPos, lightWorldPosition);
+			var lightToPoint		: SFloat = subtract(fsWorldPosition, lightWorldPosition);
 			var squareDistance		: SFloat = dotProduct3(lightToPoint, lightToPoint);
 			
 			return saturate(divide(lightSquareDistance, squareDistance));

@@ -5,43 +5,88 @@ package aerys.minko.render.shader.part.lighting.contribution
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.lighting.LightAwareShaderPart;
 
-	public class InfiniteShaderPart extends LightAwareShaderPart implements IContributionShaderPart
+	public class InfiniteShaderPart extends AbstractContributionShaderPart
 	{
 		public function InfiniteShaderPart(main : Shader)
 		{
 			super(main);
 		}
 		
-		public function getDiffuse(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
+		/**
+		 * @inherit
+		 */
+		override public function computeDiffuseInTangentSpace(lightId : uint) : SFloat
 		{
-			var worldDirection 	: SFloat = getLightParameter(lightId, 'worldDirection', 3);
-			var diffuse			: SFloat = getLightParameter(lightId, 'diffuse', 1);
+			var cLightLocalDirection	: SFloat = deltaWorldToLocal(getLightParameter(lightId, 'worldDirection', 3));
+			var fsTangentLightDirection	: SFloat = normalize(interpolate(deltaLocalToTangent(cLightLocalDirection)));
 			
-			if (meshBindings.propertyExists(LightingProperties.DIFFUSE_MULTIPLIER))
-				diffuse.scaleBy(meshBindings.getParameter(LightingProperties.DIFFUSE_MULTIPLIER, 1));
-			
-			var lambertProduct	: SFloat = saturate(negate(dotProduct3(worldDirection, iwNrm)));
-			
-			return multiply(diffuse, lambertProduct);
+			return diffuseFromVectors(lightId, fsTangentLightDirection, fsTangentNormal);
 		}
 		
-		public function getSpecular(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
+		/**
+		 * @inherit
+		 */
+		override public function computeDiffuseInLocalSpace(lightId : uint) : SFloat
 		{
-			var lightDirection	: SFloat = getLightParameter(lightId, 'worldDirection', 3);
-			var lightSpecular	: SFloat = getLightParameter(lightId, 'specular', 1);
-			var lightShininess	: SFloat = getLightParameter(lightId, 'shininess', 1);
+			var cLocalLightDirection : SFloat = deltaWorldToLocal(getLightParameter(lightId, 'worldDirection', 3));
 			
-			if (meshBindings.propertyExists(LightingProperties.SPECULAR_MULTIPLIER))
-				lightSpecular.scaleBy(meshBindings.getParameter(LightingProperties.SPECULAR_MULTIPLIER, 1));
-			
-			if (meshBindings.propertyExists(LightingProperties.SHININESS_MULTIPLIER))
-				lightShininess.scaleBy(meshBindings.getParameter(LightingProperties.SHININESS_MULTIPLIER, 1));
-			
-			var viewDirection	: SFloat = normalize(subtract(iwPos, cameraPosition));
-			var lightReflection	: SFloat = reflect(lightDirection, iwNrm);
-			var lambertProduct	: SFloat = saturate(negate(dotProduct3(lightReflection, viewDirection)));
-			
-			return multiply(lightSpecular, power(lambertProduct, lightShininess));
+			return diffuseFromVectors(lightId, cLocalLightDirection, fsLocalNormal);
 		}
+		
+		/**
+		 * @inherit
+		 */
+		override public function computeDiffuseInWorldSpace(lightId : uint) : SFloat
+		{
+			var cWorldLightDirection : SFloat = getLightParameter(lightId, 'worldDirection', 3);
+			
+			return diffuseFromVectors(lightId, cWorldLightDirection, fsWorldNormal);
+		}
+		
+		/**
+		 * @inherit
+		 */
+		override public function computeSpecularInTangentSpace(lightId:uint):SFloat
+		{
+			var cLocalLightDirection		: SFloat = deltaWorldToLocal(getLightParameter(lightId, 'worldDirection', 3));
+			var vsTangentLightDirection		: SFloat = deltaLocalToTangent(cLocalLightDirection);
+			var fsTangentLightDirection		: SFloat = normalize(interpolate(vsTangentLightDirection));
+			
+			var cLocalCameraPosition		: SFloat = worldToLocal(this.cameraPosition);
+			var vsLocalCameraDirection		: SFloat = subtract(vsLocalPosition, cLocalCameraPosition);
+			var vsTangentCameraDirection	: SFloat = deltaLocalToTangent(vsLocalCameraDirection);
+			var fsTangentCameraDirection	: SFloat = normalize(interpolate(vsTangentCameraDirection));
+			
+			return specularFromVectors(lightId, fsTangentLightDirection, fsTangentNormal, fsTangentCameraDirection);
+		}
+		
+		/**
+		 * @inherit
+		 */		
+		override public function computeSpecularInLocalSpace(lightId:uint):SFloat
+		{
+			var cLocalLightDirection	: SFloat = deltaWorldToLocal(getLightParameter(lightId, 'worldDirection', 3));
+			
+			var cLocalCameraPosition	: SFloat = worldToLocal(this.cameraPosition);
+			var vsLocalCameraDirection	: SFloat = subtract(vsLocalPosition, cLocalCameraPosition);
+			var fsLocalCameraDirection	: SFloat = interpolate(vsLocalCameraDirection);
+			
+			return specularFromVectors(lightId, cLocalLightDirection, fsLocalNormal, fsLocalCameraDirection);
+		}
+		
+		/**
+		 * @inherit
+		 */
+		override public function computeSpecularInWorldSpace(lightId : uint) : SFloat
+		{
+			var cWorldCameraPosition			: SFloat = this.cameraPosition;
+			var fsWorldCameraDirection			: SFloat = normalize(subtract(fsWorldPosition, cWorldCameraPosition));
+			
+			var cLightWorldDirection			: SFloat = getLightParameter(lightId, 'worldDirection', 3);
+			var fsWorldLightReflectedDirection	: SFloat = reflect(cLightWorldDirection, fsWorldNormal);
+			
+			return specularFromVectors(lightId, fsWorldLightReflectedDirection, fsWorldNormal, fsWorldCameraDirection);
+		}
+		
 	}
 }

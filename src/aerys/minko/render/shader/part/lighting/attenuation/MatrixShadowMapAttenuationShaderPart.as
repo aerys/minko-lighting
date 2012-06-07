@@ -13,8 +13,6 @@ package aerys.minko.render.shader.part.lighting.attenuation
 	 * Where m = max( | ∂z/∂x | , | ∂z/∂y | )
 	 * ftp://download.nvidia.com/developer/presentations/2004/GPU_Jackpot/Shadow_Mapping.pdf
 	 * 
-	 * or maybe implement middle point shadow mapping to stop asking the user to manage shadow bias...
-	 * 
 	 * @author Romain Gilliotte
 	 */
 	public class MatrixShadowMapAttenuationShaderPart extends LightAwareShaderPart implements IAttenuationShaderPart
@@ -26,7 +24,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			super(main);
 		}
 		
-		public function getAttenuation(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
+		public function getAttenuation(lightId : uint) : SFloat
 		{
 			// retrieve shadow bias
 			var shadowBias : SFloat;
@@ -46,7 +44,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			
 			// read expected depth from shadow map, and compute current depth
 			var uv : SFloat;
-			uv = multiply4x4(wPos, worldToUV);
+			uv = multiply4x4(vsWorldPosition, worldToUV);
 			uv = interpolate(uv);
 			
 			var currentDepth		: SFloat = uv.z;

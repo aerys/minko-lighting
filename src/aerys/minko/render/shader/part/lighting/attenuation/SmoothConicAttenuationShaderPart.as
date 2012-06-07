@@ -11,7 +11,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			super(main);
 		}
 		
-		public function getAttenuation(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
+		public function getAttenuation(lightId : uint) : SFloat
 		{
 			// retrieve light data.
 			var lightWorldPosition		: SFloat = getLightParameter(lightId, 'worldPosition', 3);
@@ -24,7 +24,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			var factor2					: SFloat = subtract(1, multiply(cos(halfInnerRadius), factor1));
 			
 			// compute attenuation factor
-			var lightToPoint			: SFloat = subtract(iwPos, lightWorldPosition);
+			var lightToPoint			: SFloat = subtract(fsWorldPosition, lightWorldPosition);
 			var lightAngleCosine		: SFloat = dotProduct3(lightWorldDirection, normalize(lightToPoint));
 			
 			return saturate(add(multiply(factor1, lightAngleCosine), factor2));

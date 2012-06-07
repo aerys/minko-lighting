@@ -19,7 +19,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			super(main);
 		}
 		
-		public function getAttenuation(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
+		public function getAttenuation(lightId : uint) : SFloat
 		{
 			// retrieve shadow bias
 			var shadowBias : SFloat;
@@ -41,7 +41,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 																		SamplerDimension.CUBE);
 			
 			// retrieve precompute depth
-			var positionFromLight	: SFloat = interpolate(multiply4x4(wPos, worldToLight));
+			var positionFromLight	: SFloat = interpolate(multiply4x4(vsWorldPosition, worldToLight));
 			var precomputedDepth	: SFloat = extract(sampleTexture(cubeDepthMap, positionFromLight), Components.stringToComponent('X'));
 			
 			// retrieve real depth

@@ -27,7 +27,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			_paraboloidBackPart		= new ParaboloidProjectionShaderPart(main, false);
 		}
 		
-		public function getAttenuation(lightId : uint, wPos : SFloat, wNrm : SFloat, iwPos : SFloat, iwNrm : SFloat) : SFloat
+		public function getAttenuation(lightId : uint) : SFloat
 		{
 			// retrieve shadow bias
 			var shadowBias : SFloat;
@@ -53,7 +53,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			
 			
 			// transform position to light space
-			var positionFromLight		: SFloat = interpolate(multiply4x4(wPos, worldToLight));
+			var positionFromLight		: SFloat = interpolate(multiply4x4(vsWorldPosition, worldToLight));
 			var isFront					: SFloat = greaterEqual(positionFromLight.z, 0);
 			
 			// retrieve front depth
