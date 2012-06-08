@@ -83,7 +83,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 			var fsWorldCameraDirection			: SFloat = normalize(subtract(fsWorldPosition, cWorldCameraPosition));
 			
 			var cLightWorldDirection			: SFloat = getLightParameter(lightId, 'worldDirection', 3);
-			var fsWorldLightReflectedDirection	: SFloat = reflect(cLightWorldDirection, fsWorldNormal);
+			var fsWorldLightReflectedDirection	: SFloat = negate(reflect(cLightWorldDirection, fsWorldNormal));
 			
 			return specularFromVectors(lightId, fsWorldLightReflectedDirection, fsWorldNormal, fsWorldCameraDirection);
 		}

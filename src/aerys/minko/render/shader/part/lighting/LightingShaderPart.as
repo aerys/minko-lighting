@@ -127,14 +127,25 @@ package aerys.minko.render.shader.part.lighting
 			var shadowCasting			: uint		= getLightConstant(lightId, 'shadowCastingType');
 			var meshReceiveShadows		: Boolean	= meshBindings.getConstant(LightingProperties.RECEIVE_SHADOWS, false);
 			var computeShadows			: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
+			var normalMappingType	: uint		= meshBindings.getConstant(LightingProperties.NORMAL_MAPPING_TYPE, NormalMappingType.NONE);
 			
 			var contribution			: SFloat	= float(0);
 			
 			if (hasDiffuse)
-				contribution.incrementBy(_infinitePart.computeDiffuseInWorldSpace(lightId));
+			{
+				if (normalMappingType != NormalMappingType.NONE)
+					contribution.incrementBy(_infinitePart.computeDiffuseInTangentSpace(lightId));
+				else
+					contribution.incrementBy(_infinitePart.computeDiffuseInWorldSpace(lightId));
+			}
 			
 			if (hasSpecular)
-				contribution.incrementBy(_infinitePart.computeSpecularInWorldSpace(lightId));
+			{
+				if (normalMappingType != NormalMappingType.NONE)
+					contribution.incrementBy(_infinitePart.computeSpecularInTangentSpace(lightId));
+				else
+					contribution.incrementBy(_infinitePart.computeSpecularInWorldSpace(lightId));
+			}
 			
 			if (computeShadows)
 				contribution.scaleBy(_shadowAttenuators[shadowCasting].getAttenuation(lightId));

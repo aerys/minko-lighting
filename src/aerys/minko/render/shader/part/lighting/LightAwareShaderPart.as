@@ -85,7 +85,7 @@ package aerys.minko.render.shader.part.lighting
 				
 				case NormalMappingType.BUMP:
 					var vsUV		: SFloat = getVertexAttribute(VertexComponent.UV);
-					var fsNormalMap	: SFloat = meshBindings.getTextureParameter(LightingProperties.LIGHTMAP);
+					var fsNormalMap	: SFloat = meshBindings.getTextureParameter(LightingProperties.NORMAL_MAP);
 					var fsPixel		: SFloat = sampleTexture(fsNormalMap, interpolate(vsUV)).scaleBy(2).decrementBy(1);
 					
 					return fsPixel.rgb;
