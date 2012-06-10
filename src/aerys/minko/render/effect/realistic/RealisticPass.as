@@ -78,7 +78,7 @@ package aerys.minko.render.effect.realistic
 			
 			// invert normal is culling is backwars to allow proper lighting
 			if (culling == TriangleCulling.FRONT)
-				_vertexNormal = negate(_vertexNormal);
+				_vertexNormal = float4(negate(_vertexNormal.xyz), 1);
 			
 			return localToScreen(_vertexPosition);
 		}
