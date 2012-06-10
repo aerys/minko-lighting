@@ -36,7 +36,7 @@ package aerys.minko.render.shader.parts.reflection
 			var worldPosition		: SFloat = localToWorld(position);
 			var worldNormal			: SFloat = normalize(deltaLocalToWorld(normal))
 			
-			var cameraWorldPosition : SFloat = sceneBindings.getParameter("cameraWorldPosition", 3)
+			var cameraWorldPosition : SFloat = cameraPosition;
 			var vertexToCamera		: SFloat = normalize(subtract(cameraWorldPosition, worldPosition));
 			var reflected			: SFloat = normalize(interpolate(reflect(vertexToCamera.xyzz, worldNormal.xyzz)));
 			
