@@ -8,6 +8,7 @@ package aerys.minko.render.effect.lighting.offscreen
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.ShaderInstance;
 	import aerys.minko.render.shader.ShaderSettings;
+	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.type.enum.Blending;
 	import aerys.minko.type.enum.TriangleCulling;
@@ -28,6 +29,7 @@ package aerys.minko.render.effect.lighting.offscreen
 		];
 		
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
+		private var _diffusePart			: DiffuseShaderPart;
 		private var _lightId				: uint;
 		private var _side					: uint;
 		private var _positionFromLight		: SFloat;
@@ -40,6 +42,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			super(renderTarget, priority);
 			
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
+			_diffusePart			= new DiffuseShaderPart(this);
 			_lightId				= lightId;
 			_side					= side;
 		}
@@ -88,6 +91,14 @@ package aerys.minko.render.effect.lighting.offscreen
 			
 			// compute distance
 			var distance	: SFloat	= length(_positionFromLight);
+			
+			if (meshBindings.propertyExists(BasicProperties.ALPHA_THRESHOLD))
+			{
+				var diffuse			: SFloat	= _diffusePart.getDiffuse();
+				var alphaThreshold 	: SFloat 	= meshBindings.getParameter('alphaThreshold', 1);
+				
+				kill(subtract(0.5, lessThan(diffuse.w, alphaThreshold)));
+			}
 			
 			return divide(subtract(distance, zNear), subtract(zFar, zNear));
 		}
