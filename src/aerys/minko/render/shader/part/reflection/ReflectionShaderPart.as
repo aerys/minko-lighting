@@ -30,16 +30,15 @@ package aerys.minko.render.shader.part.reflection
 		public function getReflectionColor() : SFloat
 		{
 			// compute reflected vector
-			var cWorldCameraPosition	: SFloat = sceneBindings.getParameter("cameraWorldPosition", 3)
+			var cWorldCameraPosition	: SFloat = this.cameraPosition;
 			var vsWorldVertexToCamera	: SFloat = normalize(subtract(cWorldCameraPosition, vsWorldPosition));
 			var reflected				: SFloat = normalize(interpolate(reflect(vsWorldVertexToCamera.xyzz, vsWorldNormal.xyzz)));
-			
-			var reflectionType 		: int	 = meshBindings.getConstant(ReflectionProperties.TYPE);
+			var reflectionType 			: int	 = meshBindings.getConstant(ReflectionProperties.TYPE);
 			
 			// retrieve reflection color from reflection map
-			var reflectionMap		: SFloat;
-			var reflectionMapUV		: SFloat;
-			var reflectionColor		: SFloat;
+			var reflectionMap			: SFloat;
+			var reflectionMapUV			: SFloat;
+			var reflectionColor			: SFloat;
 			
 			switch (reflectionType)
 			{

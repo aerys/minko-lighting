@@ -23,15 +23,10 @@ package aerys.minko.render.effect.lighting.onscreen
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		private var _pixelColorPart			: DiffuseShaderPart;
-		private var _blendingPart			: BlendingShaderPart;
 		private var _lightingPart			: LightingShaderPart;
 		
 		private var _priority				: Number;
 		private var _renderTarget			: RenderTarget;
-		
-		private var _vertexPosition			: SFloat;
-		private var _vertexUV				: SFloat;
-		private var _vertexNormal			: SFloat;
 		
 		public function LightingShader(priority		: Number		= 0,
 									 renderTarget	: RenderTarget	= null)
@@ -39,7 +34,6 @@ package aerys.minko.render.effect.lighting.onscreen
 			// init needed shader parts
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
 			_pixelColorPart			= new DiffuseShaderPart(this);
-			_blendingPart			= new BlendingShaderPart(this);
 			_lightingPart			= new LightingShaderPart(this);
 			
 			// save priority and render target to configure pass later
@@ -64,29 +58,17 @@ package aerys.minko.render.effect.lighting.onscreen
 		
 		override protected function getVertexPosition() : SFloat
 		{
-			var culling : uint = meshBindings.getConstant("triangleCulling", TriangleCulling.BACK);
-			
-			_vertexPosition = _vertexAnimationPart.getAnimatedVertexPosition();
-			_vertexUV		= getVertexAttribute(VertexComponent.UV);
-			_vertexNormal	= _vertexAnimationPart.getAnimatedVertexNormal();
-			
-			if (culling == TriangleCulling.FRONT)
-				_vertexNormal = negate(_vertexNormal);
-			
-			return localToScreen(_vertexPosition);
+			return localToScreen(_vertexAnimationPart.getAnimatedVertexPosition());
 		}
 		
 		override protected function getPixelColor() : SFloat
 		{
-			var color		: SFloat	= _pixelColorPart.getDiffuse();
-			var lighting	: SFloat	= _lightingPart.getLightingColor();
+			var color	 : SFloat = _pixelColorPart.getDiffuse();
+			var lighting : SFloat = _lightingPart.getLightingColor();
 			
 			color = float4(multiply(lighting, color.rgb), color.a);
 			
 			return color;
 		}
-		
-		
-		
 	}
 }

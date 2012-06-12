@@ -1,10 +1,12 @@
 package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.render.RenderTarget;
+	import aerys.minko.render.effect.basic.BasicProperties;
 	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.ShaderSettings;
+	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.render.shader.part.projection.IProjectionShaderPart;
 	import aerys.minko.render.shader.part.projection.ParaboloidProjectionShaderPart;
@@ -17,6 +19,7 @@ package aerys.minko.render.effect.lighting.offscreen
 		private static const PROJECTION_RECTANGLE : Rectangle = new Rectangle(-1, 1, 2, -2);
 		
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
+		private var _diffusePart			: DiffuseShaderPart;
 		private var _projectorPart			: IProjectionShaderPart;
 		
 		private var _lightId				: uint;
@@ -32,6 +35,7 @@ package aerys.minko.render.effect.lighting.offscreen
 		{
 			_lightId				= lightId;	
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
+			_diffusePart			= new DiffuseShaderPart(this);
 			_projectorPart			= new ParaboloidProjectionShaderPart(this, front);
 		}
 		
@@ -49,7 +53,9 @@ package aerys.minko.render.effect.lighting.offscreen
 			var position			: SFloat = _vertexAnimationPart.getAnimatedVertexPosition();
 			var worldPosition		: SFloat = localToWorld(position);
 			var lightPosition		: SFloat = multiply4x4(worldPosition, worldToLight);
-			var clipspacePosition	: SFloat = _projectorPart.projectVector(lightPosition, PROJECTION_RECTANGLE, 0, 50);
+			var clipspacePosition	: SFloat = _projectorPart.projectVector(
+				lightPosition, PROJECTION_RECTANGLE, 0, 50
+			);
 			
 			_lightSpacePosition = interpolate(lightPosition);
 			
@@ -58,7 +64,20 @@ package aerys.minko.render.effect.lighting.offscreen
 		
 		override protected function getPixelColor() : SFloat
 		{
-			var clipspacePosition	: SFloat = _projectorPart.projectVector(_lightSpacePosition, PROJECTION_RECTANGLE, 0, 50);
+			var clipspacePosition	: SFloat = _projectorPart.projectVector(
+				_lightSpacePosition,
+				PROJECTION_RECTANGLE,
+				0,
+				50
+			);
+			
+			if (meshBindings.propertyExists(BasicProperties.ALPHA_THRESHOLD))
+			{
+				var diffuse			: SFloat	= _diffusePart.getDiffuse();
+				var alphaThreshold 	: SFloat 	= meshBindings.getParameter('alphaThreshold', 1);
+				
+				kill(subtract(0.5, lessThan(diffuse.w, alphaThreshold)));
+			}
 			
 			return float4(clipspacePosition.zzz, 1);
 		}

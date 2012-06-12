@@ -17,7 +17,7 @@ package aerys.minko.render.effect.realistic
 	import aerys.minko.type.enum.TriangleCulling;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
-	public class RealisticPass extends Shader
+	public class RealisticShader extends Shader
 	{
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
 		private var _pixelColorPart			: DiffuseShaderPart;
@@ -28,7 +28,7 @@ package aerys.minko.render.effect.realistic
 		private var _priority				: Number;
 		private var _renderTarget			: RenderTarget;
 		
-		public function RealisticPass(priority		: Number		= 0,
+		public function RealisticShader(priority		: Number		= 0,
 									  renderTarget	: RenderTarget	= null)
 		{
 			// init needed shader parts

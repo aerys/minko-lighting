@@ -8,7 +8,7 @@ package aerys.minko.render.effect.realistic
 	{
 		public function RealisticEffect(scene : Scene)
 		{
-			super(scene, new RealisticPass());
+			super(scene, new RealisticShader());
 		}
 	}
 }
