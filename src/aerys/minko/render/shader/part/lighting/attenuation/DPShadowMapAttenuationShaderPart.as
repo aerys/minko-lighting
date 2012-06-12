@@ -31,10 +31,10 @@ package aerys.minko.render.shader.part.lighting.attenuation
 		{
 			// retrieve shadow bias
 			var shadowBias : SFloat;
-			if (meshBindings.propertyExists(LightingProperties.SHADOWS_BIAS))
-				shadowBias = meshBindings.getParameter(LightingProperties.SHADOWS_BIAS, 1);
-			else if (sceneBindings.propertyExists(LightingProperties.SHADOWS_BIAS))
-				shadowBias = sceneBindings.getParameter(LightingProperties.SHADOWS_BIAS, 1);
+			if (meshBindings.propertyExists(LightingProperties.SHADOW_BIAS))
+				shadowBias = meshBindings.getParameter(LightingProperties.SHADOW_BIAS, 1);
+			else if (sceneBindings.propertyExists(LightingProperties.SHADOW_BIAS))
+				shadowBias = sceneBindings.getParameter(LightingProperties.SHADOW_BIAS, 1);
 			else
 				shadowBias = float(DEFAULT_BIAS);
 			

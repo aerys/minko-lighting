@@ -20,7 +20,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 		override public function computeDiffuseInTangentSpace(lightId : uint) : SFloat
 		{
 			// compute light direction
-			var cLocalLightPosition		: SFloat = worldToLocal(getLightParameter(lightId, 'worldPosition', 3));
+			var cLocalLightPosition		: SFloat = worldToLocal(getLightParameter(lightId, 'worldPosition', 4));
 			var vsLocalLightDirection	: SFloat = subtract(vsLocalPosition, cLocalLightPosition);
 			var fsTangentLightDirection	: SFloat = normalize(interpolate(deltaLocalToTangent(vsLocalLightDirection)));
 			
@@ -41,7 +41,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 		override public function computeDiffuseInWorldSpace(lightId : uint) : SFloat
 		{
 			// compute light direction
-			var cLightWorldPosition		: SFloat = getLightParameter(lightId, 'worldPosition', 3);
+			var cLightWorldPosition		: SFloat = getLightParameter(lightId, 'worldPosition', 4);
 			var fsLocalLightDirection	: SFloat = normalize(subtract(cLightWorldPosition, fsWorldPosition));
 			
 			return diffuseFromVectors(lightId, fsLocalLightDirection, fsLocalNormal);
@@ -58,8 +58,8 @@ package aerys.minko.render.shader.part.lighting.contribution
 			var fsTangentCameraDirection			: SFloat = interpolate(deltaLocalToTangent(vsLocalCameraDirection));
 			
 			// compute reflected light direction
-			var cLocalLightPosition					: SFloat = worldToLocal(getLightParameter(lightId, 'worldPosition', 3));
-			var vsLocalLightDirection				: SFloat = normalize(subtract(vsLocalPosition, cLocalLightPosition));
+			var cLocalLightPosition					: SFloat = worldToLocal(getLightParameter(lightId, 'worldPosition', 4));
+			var vsLocalLightDirection				: SFloat = normalize(subtract(vsLocalPosition, cLocalLightPosition.xyz));
 			var fsTangentLightDirection				: SFloat = interpolate(deltaLocalToTangent(vsLocalLightDirection));
 			
 			return specularFromVectors(lightId, fsTangentLightDirection, fsTangentNormal, fsTangentCameraDirection);
@@ -83,7 +83,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 			var fsWorldCameraDirection			: SFloat = normalize(subtract(cWorldCameraPosition, fsWorldPosition));
 			
 			// compute reflected light direction
-			var cWorldLightPosition				: SFloat = getLightParameter(lightId, 'worldPosition', 3);
+			var cWorldLightPosition				: SFloat = getLightParameter(lightId, 'worldPosition', 4);
 			var fsWorldLightDirection			: SFloat = normalize(subtract(fsWorldPosition, cWorldLightPosition));
 			
 			return specularFromVectors(lightId, fsWorldLightDirection, fsWorldNormal, fsWorldCameraDirection);

@@ -5,9 +5,12 @@ package aerys.minko.render.shader.part.lighting
 	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
+	import aerys.minko.render.shader.part.ParallaxMappingShaderPart;
 	import aerys.minko.render.shader.part.ShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.type.enum.NormalMappingType;
+	import aerys.minko.type.enum.SamplerFiltering;
+	import aerys.minko.type.enum.SamplerMipMapping;
 	import aerys.minko.type.enum.TriangleCulling;
 	import aerys.minko.type.stream.format.VertexComponent;
 	
@@ -15,11 +18,42 @@ package aerys.minko.render.shader.part.lighting
 	{
 		use namespace minko_lighting;
 		
-		private var _vertexAnimationShaderPart : VertexAnimationShaderPart;
+		private var _vertexAnimationShaderPart	: VertexAnimationShaderPart;
+		private var _parallaxMappingShaderPart	: ParallaxMappingShaderPart;
+		
+		private function get vertexAnimationShaderPart() : VertexAnimationShaderPart
+		{
+			_vertexAnimationShaderPart ||= new VertexAnimationShaderPart(main);
+			return _vertexAnimationShaderPart;
+		}
+		
+		private function get parallaxMappingShaderPart() : ParallaxMappingShaderPart
+		{
+			_parallaxMappingShaderPart ||= new ParallaxMappingShaderPart(main);
+			return _parallaxMappingShaderPart;
+		}
 		
 		protected function get vsLocalPosition() : SFloat
 		{
-			return _vertexAnimationShaderPart.getAnimatedVertexPosition();
+			return vertexAnimationShaderPart.getAnimatedVertexPosition();
+		}
+		
+		protected function get fsUV() : SFloat
+		{
+			var normalMappingType : uint = meshBindings.getConstant(LightingProperties.NORMAL_MAPPING_TYPE, NormalMappingType.NONE);
+			
+			switch (normalMappingType)
+			{
+				case NormalMappingType.NONE:
+				case NormalMappingType.NORMAL:
+					return interpolate(getVertexAttribute(VertexComponent.UV));
+				
+				case NormalMappingType.PARALLAX:
+					return parallaxMappingShaderPart.getSteepParallaxMappedUV();
+					
+				default:
+					throw new Error('Unknown normal mapping type.');
+			}
 		}
 		
 		protected function get vsWorldPosition() : SFloat
@@ -34,7 +68,7 @@ package aerys.minko.render.shader.part.lighting
 		
 		protected function get vsLocalNormal() : SFloat
 		{
-			var vertexNormal : SFloat = _vertexAnimationShaderPart.getAnimatedVertexNormal();
+			var vertexNormal : SFloat = vertexAnimationShaderPart.getAnimatedVertexNormal();
 			
 			if (meshBindings.getConstant(BasicProperties.TRIANGLE_CULLING, TriangleCulling.BACK) != TriangleCulling.BACK)
 				vertexNormal.negate();
@@ -60,7 +94,7 @@ package aerys.minko.render.shader.part.lighting
 		
 		protected function get vsLocalTangent() : SFloat
 		{
-			var vertexTangent : SFloat = _vertexAnimationShaderPart.getAnimatedVertexTangent();
+			var vertexTangent : SFloat = vertexAnimationShaderPart.getAnimatedVertexTangent();
 			
 			if (meshBindings.getConstant(BasicProperties.TRIANGLE_CULLING, TriangleCulling.BACK) != TriangleCulling.BACK)
 				vertexTangent.negate();
@@ -83,15 +117,12 @@ package aerys.minko.render.shader.part.lighting
 				case NormalMappingType.NONE:
 					return normalize(deltaLocalToTangent(fsLocalNormal));
 				
-				case NormalMappingType.BUMP:
-					var vsUV		: SFloat = getVertexAttribute(VertexComponent.UV);
+				case NormalMappingType.NORMAL:
+				case NormalMappingType.PARALLAX:
 					var fsNormalMap	: SFloat = meshBindings.getTextureParameter(LightingProperties.NORMAL_MAP);
-					var fsPixel		: SFloat = sampleTexture(fsNormalMap, interpolate(vsUV)).scaleBy(2).decrementBy(1);
+					var fsPixel		: SFloat = sampleTexture(fsNormalMap, fsUV).scaleBy(2).decrementBy(1);
 					
-					return fsPixel.rgb;
-				
-				case NormalMappingType.STEEP_PARALLAX:
-					throw new Error('Implement me');
+					return normalize(fsPixel.rgb);
 					
 				default:
 					throw new Error('Invalid normap mapping type value');
@@ -101,8 +132,6 @@ package aerys.minko.render.shader.part.lighting
 		public function LightAwareShaderPart(main : Shader)
 		{
 			super(main);
-			
-			_vertexAnimationShaderPart = new VertexAnimationShaderPart(main);
 		}
 		
 		protected function deltaLocalToTangent(v : SFloat) : SFloat

@@ -33,7 +33,6 @@ package aerys.minko.scene.node.light
 			new Vector4(+1, +1, 1, 1)
 		];
 		
-		private var _position		: Vector4;
 		private var _worldPosition	: Vector4;
 		private var _projection		: Matrix4x4;
 		
@@ -145,7 +144,6 @@ package aerys.minko.scene.node.light
 								   shadowCastingType	: uint		= 0,
 								   shadowMapSize		: uint		= 512)
 		{
-			_position					= new Vector4();
 			_worldPosition				= new Vector4();
 			_projection					= new Matrix4x4();				
 			
@@ -156,7 +154,6 @@ package aerys.minko.scene.node.light
 			this.shininess				= shininess;
 			this.attenuationDistance	= attenuationDistance;
 			
-			setProperty('position',	_position);
 			setProperty('worldPosition', _worldPosition);
 			setProperty('projection', _projection);
 			
@@ -185,7 +182,6 @@ package aerys.minko.scene.node.light
 		{
 			super.transformChangedHandler(transform, propertyName);
 			
-			transform.getTranslation(_position);
 			localToWorld.getTranslation(_worldPosition);
 		}
 		

@@ -5,8 +5,36 @@ package aerys.minko.render.shader.part.lighting.contribution
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.lighting.LightAwareShaderPart;
 
+	/**
+	 * Methods in this class allow to compute light contributions.
+	 * It is extended by InfiniteShaderPart for directional lights, and LocalizedShaderPart for point and spot lights.
+	 * 
+	 * All methods are available in tangent, local and world space.
+	 * 
+	 * - Computing in tangent space is computationally more expensive, both in CPU and GPU, because we need to feed
+	 * more data to the shaders than the other methods but it allows to do both bump and parallax mapping.
+	 * 
+	 * - Doing it in local space is computationally more expensive on the CPU, because the light
+	 * position will need to be converted in the CPU for each mesh and at each frame will produce the lighter shaders.
+	 * 
+	 * Doing as much work on the CPU as possible, and have as short a possible shader would be the way to go
+	 * if adobe's compiler was better than it is. Therefor, minko defaults to computing everything in world space
+	 * which is faster in practical tests.
+	 * 
+	 * The cost of each light will be in O(number of drawcalls) on the CPU.
+	 * However, this is the way that will lead to the smaller shaders, and is therefor recomended when used
+	 * in small scenes with many lights.
+	 * 
+	 * - Computing lights in world space is cheaper on the CPU, because no extra computation is
+	 * needed for each mesh, but will cost one extra matrix multiplication on the GPU (we need the world position
+	 * or every fragment).
+	 * 
+	 * @author Romain Gilliotte
+	 * 
+	 */	
 	public class AbstractContributionShaderPart extends LightAwareShaderPart
 	{
+		
 		public function AbstractContributionShaderPart(main : Shader)
 		{
 			super(main);
@@ -14,9 +42,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 		
 		/**
 		 * Creates the shader subgraph to compute the diffuse value of a given light.
-		 * 
-		 * Computing in tangent space is computationally more expensive, both in CPU and GPU, than the other methods
-		 * but allow to both bump and parallax mapping.
+		 * Computations will be done in tangent space.
 		 * 
 		 * @param lightId The id of the localized light (PointLight or SpotLight)
 		 * @return Shader subgraph representing the diffuse value of this light. 
@@ -28,13 +54,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 		
 		/**
 		 * Creates the shader subgraph to compute the diffuse value of a given light.
-		 * 
-		 * Computing lights in local space is computationally more expensive on the CPU, because the light
-		 * position will need to be converted in the CPU for each mesh and at each frame.
-		 * 
-		 * The cost of each light will be in O(number of meshes) on the CPU.
-		 * However, this is the way that will lead to the smaller shaders, and is therefor recomended when used
-		 * in small scenes with many lights.
+		 * Computation will be done in local space.
 		 * 
 		 * @param lightId The id of the localized light (PointLight or SpotLight)
 		 * @return Shader subgraph representing the diffuse value of this light. 
@@ -46,10 +66,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 		
 		/**
 		 * Creates the shader subgraph to compute the diffuse value of a given light.
-		 * 
-		 * Computing lights in world space is cheaper on the CPU, because no extra computation is
-		 * needed, but will cost one extra matrix multiplication on the GPU (to obtain the world position
-		 * or every fragment). 
+		 * Computation will be done in world space.
 		 * 
 		 * @param lightId The id of the light
 		 * @return Shader subgraph representing the diffuse value of this light. 
@@ -61,22 +78,35 @@ package aerys.minko.render.shader.part.lighting.contribution
 		
 		/**
 		 * Creates the shader subgraph to compute the specular value of a given light.
-		 * 
+		 * Computation will be done in tangent space.
 		 * 
 		 * @param lightId
 		 * @return 
-		 * 
 		 */		
 		public function computeSpecularInTangentSpace(lightId : uint) : SFloat
 		{
 			throw new Error('Must be overriden');
 		}
 		
+		/**
+		 * Creates the shader subgraph to compute the specular value of a given light.
+		 * Computation will be done in local space.
+		 * 
+		 * @param lightId
+		 * @return 
+		 */
 		public function computeSpecularInLocalSpace(lightId : uint) : SFloat
 		{
 			throw new Error('Must be overriden');
 		}
 		
+		/**
+		 * Creates the shader subgraph to compute the specular value of a given light.
+		 * Computation will be done in world space.
+		 * 
+		 * @param lightId
+		 * @return 
+		 */
 		public function computeSpecularInWorldSpace(lightId : uint) : SFloat
 		{
 			throw new Error('Must be overriden');
@@ -96,7 +126,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 											  fsLightDirection	: SFloat,
 											  fsNormal			: SFloat) : SFloat
 		{
-			var fsLambertProduct	: SFloat = saturate(dotProduct3(fsLightDirection, fsNormal));
+			var fsLambertProduct	: SFloat = saturate(negate(dotProduct3(fsLightDirection, fsNormal)));
 			var cDiffuse			: SFloat = getLightParameter(lightId, 'diffuse', 1);
 			
 			if (meshBindings.propertyExists(LightingProperties.DIFFUSE_MULTIPLIER))

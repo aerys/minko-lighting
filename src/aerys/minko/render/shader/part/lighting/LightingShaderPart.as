@@ -37,22 +37,56 @@ package aerys.minko.render.shader.part.lighting
 		private var _smoothConicAttenuationPart		: SmoothConicAttenuationShaderPart;
 		private var _hardConicAttenuationPart		: HardConicAttenuationShaderPart;
 		
+		private function get infinitePart() : InfiniteShaderPart
+		{
+			_infinitePart ||= new InfiniteShaderPart(main);
+			return _infinitePart;
+		}
+		
+		private function get localizedPart() : LocalizedShaderPart
+		{
+			_localizedPart ||= new LocalizedShaderPart(main);
+			return _localizedPart;
+		}
+		
+		private function get distanceAttenuationPart() : DistanceAttenuationShaderPart
+		{
+			_distanceAttenuationPart ||= new DistanceAttenuationShaderPart(main);
+			return _distanceAttenuationPart;
+		}
+		
+		private function get smoothConicAttenuationPart() : SmoothConicAttenuationShaderPart
+		{
+			_smoothConicAttenuationPart ||= new SmoothConicAttenuationShaderPart(main);
+			return _smoothConicAttenuationPart;
+		}
+		
+		private function get hardConicAttenuationPart() : HardConicAttenuationShaderPart
+		{
+			_hardConicAttenuationPart ||= new HardConicAttenuationShaderPart(main);
+			return _hardConicAttenuationPart;
+		}
+		
+		private function get shadowAttenuators() : Vector.<IAttenuationShaderPart>
+		{
+			if (!_shadowAttenuators)
+			{
+				var main : Shader = this.main;
+				
+				_shadowAttenuators = new <IAttenuationShaderPart>[
+					null,
+					new MatrixShadowMapAttenuationShaderPart(main),
+					new DPShadowMapAttenuationShaderPart(main),
+					new CubeShadowMapAttenuationShaderPart(main)
+				];
+			}
+			
+			return _shadowAttenuators
+		}
+		
 		public function LightingShaderPart(main : Shader)
 		{
 			super(main);
-			
-			_infinitePart					= new InfiniteShaderPart(main);
-			_localizedPart					= new LocalizedShaderPart(main);
-			_distanceAttenuationPart		= new DistanceAttenuationShaderPart(main);
-			_smoothConicAttenuationPart		= new SmoothConicAttenuationShaderPart(main);
-			_hardConicAttenuationPart		= new HardConicAttenuationShaderPart(main);
-			
-			_shadowAttenuators = new <IAttenuationShaderPart>[
-				null,
-				new MatrixShadowMapAttenuationShaderPart(main),
-				new DPShadowMapAttenuationShaderPart(main),
-				new CubeShadowMapAttenuationShaderPart(main)
-			];
 		}
 		
 		public function getLightingColor() : SFloat
@@ -61,16 +95,16 @@ package aerys.minko.render.shader.part.lighting
 			lightValue.incrementBy(getStaticLighting());
 			lightValue.incrementBy(getDynamicLighting());
 			
-			return float4(lightValue, 1);
+			return lightValue;
 		}
 		
 		private function getStaticLighting() : SFloat
 		{
 			var contribution : SFloat;
 			
-			if (meshBindings.propertyExists(LightingProperties.LIGHTMAP))
+			if (meshBindings.propertyExists(LightingProperties.LIGHT_MAP))
 			{
-				var lightMap	: SFloat = meshBindings.getTextureParameter(LightingProperties.LIGHTMAP);
+				var lightMap	: SFloat = meshBindings.getTextureParameter(LightingProperties.LIGHT_MAP);
 				var uv			: SFloat = getVertexAttribute(VertexComponent.UV);
 				
 				contribution = sampleTexture(lightMap, interpolate(uv));
@@ -127,28 +161,28 @@ package aerys.minko.render.shader.part.lighting
 			var shadowCasting			: uint		= getLightConstant(lightId, 'shadowCastingType');
 			var meshReceiveShadows		: Boolean	= meshBindings.getConstant(LightingProperties.RECEIVE_SHADOWS, false);
 			var computeShadows			: Boolean	= shadowCasting != ShadowMappingType.NONE && meshReceiveShadows;
-			var normalMappingType	: uint		= meshBindings.getConstant(LightingProperties.NORMAL_MAPPING_TYPE, NormalMappingType.NONE);
+			var normalMappingType		: uint		= meshBindings.getConstant(LightingProperties.NORMAL_MAPPING_TYPE, NormalMappingType.NONE);
 			
 			var contribution			: SFloat	= float(0);
 			
 			if (hasDiffuse)
 			{
 				if (normalMappingType != NormalMappingType.NONE)
-					contribution.incrementBy(_infinitePart.computeDiffuseInTangentSpace(lightId));
+					contribution.incrementBy(infinitePart.computeDiffuseInTangentSpace(lightId));
 				else
-					contribution.incrementBy(_infinitePart.computeDiffuseInWorldSpace(lightId));
+					contribution.incrementBy(infinitePart.computeDiffuseInWorldSpace(lightId));
 			}
 			
 			if (hasSpecular)
 			{
 				if (normalMappingType != NormalMappingType.NONE)
-					contribution.incrementBy(_infinitePart.computeSpecularInTangentSpace(lightId));
+					contribution.incrementBy(infinitePart.computeSpecularInTangentSpace(lightId));
 				else
-					contribution.incrementBy(_infinitePart.computeSpecularInWorldSpace(lightId));
+					contribution.incrementBy(infinitePart.computeSpecularInWorldSpace(lightId));
 			}
 			
 			if (computeShadows)
-				contribution.scaleBy(_shadowAttenuators[shadowCasting].getAttenuation(lightId));
+				contribution.scaleBy(shadowAttenuators[shadowCasting].getAttenuation(lightId));
 			
 			return contribution;
 		}
@@ -168,24 +202,24 @@ package aerys.minko.render.shader.part.lighting
 			if (hasDiffuse)
 			{
 				if (normalMappingType != NormalMappingType.NONE)
-					contribution.incrementBy(_localizedPart.computeDiffuseInTangentSpace(lightId));
+					contribution.incrementBy(localizedPart.computeDiffuseInTangentSpace(lightId));
 				else
-					contribution.incrementBy(_localizedPart.computeDiffuseInWorldSpace(lightId));
+					contribution.incrementBy(localizedPart.computeDiffuseInWorldSpace(lightId));
 			}
 			
 			if (hasSpecular)
 			{
 				if (normalMappingType != NormalMappingType.NONE)
-					contribution.incrementBy(_localizedPart.computeSpecularInTangentSpace(lightId));
+					contribution.incrementBy(localizedPart.computeSpecularInTangentSpace(lightId));
 				else
-					contribution.incrementBy(_localizedPart.computeSpecularInWorldSpace(lightId));
+					contribution.incrementBy(localizedPart.computeSpecularInWorldSpace(lightId));
 			}
 			
 			if (isAttenuated)
-				contribution.scaleBy(_distanceAttenuationPart.getAttenuation(lightId));
+				contribution.scaleBy(distanceAttenuationPart.getAttenuation(lightId));
 			
 			if (computeShadows)
-				contribution.scaleBy(_shadowAttenuators[shadowCasting].getAttenuation(lightId));
+				contribution.scaleBy(shadowAttenuators[shadowCasting].getAttenuation(lightId));
 			
 			return contribution;
 		}
@@ -206,29 +240,29 @@ package aerys.minko.render.shader.part.lighting
 			if (hasDiffuse)
 			{
 				if (normalMappingType != NormalMappingType.NONE)
-					contribution.incrementBy(_localizedPart.computeDiffuseInTangentSpace(lightId));
+					contribution.incrementBy(localizedPart.computeDiffuseInTangentSpace(lightId));
 				else
-					contribution.incrementBy(_localizedPart.computeDiffuseInWorldSpace(lightId));
+					contribution.incrementBy(localizedPart.computeDiffuseInWorldSpace(lightId));
 			}
 			
 			if (hasSpecular)
 			{
 				if (normalMappingType != NormalMappingType.NONE)
-					contribution.incrementBy(_localizedPart.computeSpecularInTangentSpace(lightId));
+					contribution.incrementBy(localizedPart.computeSpecularInTangentSpace(lightId));
 				else
-					contribution.incrementBy(_localizedPart.computeSpecularInWorldSpace(lightId));
+					contribution.incrementBy(localizedPart.computeSpecularInWorldSpace(lightId));
 			}
 			
 			if (isAttenuated)
-				contribution.scaleBy(_distanceAttenuationPart.getAttenuation(lightId));
+				contribution.scaleBy(distanceAttenuationPart.getAttenuation(lightId));
 			
 			if (lightHasSmoothEdge)
-				contribution.scaleBy(_smoothConicAttenuationPart.getAttenuation(lightId));
+				contribution.scaleBy(smoothConicAttenuationPart.getAttenuation(lightId));
 			else
-				contribution.scaleBy(_hardConicAttenuationPart.getAttenuation(lightId));
+				contribution.scaleBy(hardConicAttenuationPart.getAttenuation(lightId));
 			
 			if (computeShadows)
-				contribution.scaleBy(_shadowAttenuators[shadowCasting].getAttenuation(lightId));
+				contribution.scaleBy(shadowAttenuators[shadowCasting].getAttenuation(lightId));
 			
 			return contribution;
 		}

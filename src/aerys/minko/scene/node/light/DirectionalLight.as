@@ -29,9 +29,7 @@ package aerys.minko.scene.node.light
 			new Vector4(+1, +1, 1, 1)
 		];
 		
-		private var _position		: Vector4;
 		private var _worldPosition	: Vector4;
-		private var _direction		: Vector4;
 		private var _worldDirection	: Vector4;
 		private var _worldToScreen	: Matrix4x4;
 		private var _worldToUV		: Matrix4x4;
@@ -113,9 +111,7 @@ package aerys.minko.scene.node.light
 										 shadowCasting	: uint		= 0,
 										 shadowMapSize	: uint		= 512)
 		{
-			_position			= new Vector4();
 			_worldPosition		= new Vector4();
-			_direction			= new Vector4();
 			_worldDirection		= new Vector4();
 			_worldToScreen		= new Matrix4x4();
 			_worldToUV			= new Matrix4x4();
@@ -127,9 +123,7 @@ package aerys.minko.scene.node.light
 			this.specular		= specular;
 			this.shininess		= shininess;
 			
-			setProperty('position', _position);
 			setProperty('worldPosition', _worldPosition);
-			setProperty('direction', _direction);
 			setProperty('worldDirection', _worldDirection);
 			setProperty('worldToScreen', _worldToScreen);
 			setProperty('worldToUV', _worldToUV);
@@ -160,14 +154,11 @@ package aerys.minko.scene.node.light
 		{
 			super.transformChangedHandler(transform, propertyName);
 			
-			// compute position and world position.
-			transform.getTranslation(_position);
+			// compute position
 			localToWorld.getTranslation(_worldPosition);
 			
-			// compute direction and world direction.
-			_direction		= transform.deltaTransformVector(Z_AXIS, _direction);
+			// compute direction
 			_worldDirection	= localToWorld.deltaTransformVector(Z_AXIS, _worldDirection);
-			_direction.normalize();
 			_worldDirection.normalize();
 			
 			// update world to screen/uv

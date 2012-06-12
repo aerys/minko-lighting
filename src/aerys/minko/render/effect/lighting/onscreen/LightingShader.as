@@ -5,7 +5,7 @@ package aerys.minko.render.effect.lighting.onscreen
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
-	import aerys.minko.render.shader.part.DiffuseShaderPart;
+	import aerys.minko.render.shader.part.lighting.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.render.shader.part.lighting.LightingShaderPart;
 	import aerys.minko.render.shader.part.lighting.attenuation.CubeShadowMapAttenuationShaderPart;
@@ -81,7 +81,7 @@ package aerys.minko.render.effect.lighting.onscreen
 			var color		: SFloat	= _pixelColorPart.getDiffuse();
 			var lighting	: SFloat	= _lightingPart.getLightingColor();
 			
-			color.scaleBy(lighting);
+			color = float4(multiply(lighting, color.rgb), color.a);
 			
 			return color;
 		}
