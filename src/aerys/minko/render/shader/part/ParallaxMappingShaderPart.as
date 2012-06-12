@@ -32,7 +32,7 @@ package aerys.minko.render.shader.part
 										  float(DEFAULT_BUMPSCALE);
 			
 			// compute camera direction
-			var cLocalCameraPosition		: SFloat = worldToLocal(this.cameraPosition);
+			var cLocalCameraPosition		: SFloat = worldToLocal(sceneBindings.getParameter('cameraPosition', 4));
 			var vsLocalCameraDirection		: SFloat = subtract(cLocalCameraPosition, vsLocalPosition);
 			var fsTangentCameraDirection	: SFloat = normalize(interpolate(deltaLocalToTangent(vsLocalCameraDirection)));
 			

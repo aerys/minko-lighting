@@ -52,7 +52,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 			var vsTangentLightDirection		: SFloat = deltaLocalToTangent(cLocalLightDirection);
 			var fsTangentLightDirection		: SFloat = normalize(interpolate(vsTangentLightDirection));
 			
-			var cLocalCameraPosition		: SFloat = worldToLocal(this.cameraPosition);
+			var cLocalCameraPosition		: SFloat = worldToLocal(sceneBindings.getParameter('cameraPosition', 4));
 			var vsLocalCameraDirection		: SFloat = subtract(vsLocalPosition, cLocalCameraPosition);
 			var vsTangentCameraDirection	: SFloat = deltaLocalToTangent(vsLocalCameraDirection);
 			var fsTangentCameraDirection	: SFloat = normalize(interpolate(vsTangentCameraDirection));
@@ -65,11 +65,11 @@ package aerys.minko.render.shader.part.lighting.contribution
 		 */		
 		override public function computeSpecularInLocalSpace(lightId:uint):SFloat
 		{
-			var cLocalLightDirection	: SFloat = deltaWorldToLocal(getLightParameter(lightId, 'worldDirection', 3));
+			var cLocalLightDirection	: SFloat = normalize(deltaWorldToLocal(getLightParameter(lightId, 'worldDirection', 3)));
 			
-			var cLocalCameraPosition	: SFloat = worldToLocal(this.cameraPosition);
+			var cLocalCameraPosition	: SFloat = worldToLocal(sceneBindings.getParameter('cameraPosition', 4));
 			var vsLocalCameraDirection	: SFloat = subtract(vsLocalPosition, cLocalCameraPosition);
-			var fsLocalCameraDirection	: SFloat = interpolate(vsLocalCameraDirection);
+			var fsLocalCameraDirection	: SFloat = normalize(interpolate(vsLocalCameraDirection));
 			
 			return specularFromVectors(lightId, cLocalLightDirection, fsLocalNormal, fsLocalCameraDirection);
 		}
@@ -79,13 +79,12 @@ package aerys.minko.render.shader.part.lighting.contribution
 		 */
 		override public function computeSpecularInWorldSpace(lightId : uint) : SFloat
 		{
-			var cWorldCameraPosition			: SFloat = this.cameraPosition;
+			var cWorldLightDirection			: SFloat = getLightParameter(lightId, 'worldDirection', 3);
+			
+			var cWorldCameraPosition			: SFloat = sceneBindings.getParameter('cameraPosition', 4);
 			var fsWorldCameraDirection			: SFloat = normalize(subtract(fsWorldPosition, cWorldCameraPosition));
 			
-			var cLightWorldDirection			: SFloat = getLightParameter(lightId, 'worldDirection', 3);
-			var fsWorldLightReflectedDirection	: SFloat = negate(reflect(cLightWorldDirection, fsWorldNormal));
-			
-			return specularFromVectors(lightId, fsWorldLightReflectedDirection, fsWorldNormal, fsWorldCameraDirection);
+			return specularFromVectors(lightId, cWorldLightDirection, fsWorldNormal, fsWorldCameraDirection);
 		}
 		
 	}

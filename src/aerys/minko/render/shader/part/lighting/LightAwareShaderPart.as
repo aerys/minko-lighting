@@ -89,7 +89,7 @@ package aerys.minko.render.shader.part.lighting
 		
 		protected function get fsWorldNormal() : SFloat
 		{
-			return normalize(interpolate(localToWorld(vsLocalNormal)));
+			return normalize(interpolate(deltaLocalToWorld(vsLocalNormal)));
 		}
 		
 		protected function get vsLocalTangent() : SFloat
