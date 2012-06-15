@@ -223,7 +223,7 @@ package aerys.minko.scene.node.light
 		override public function clone(cloneControllers : Boolean = false) : ISceneNode
 		{
 			var light : DirectionalLight = 
-				new DirectionalLight(color, diffuse, specular, shininess, emissionMask, shadowMapSize);
+				new DirectionalLight(color, diffuse, specular, shininess, emissionMask, shadowCastingType, shadowMapSize);
 			
 			light.name = this.name;
 			light.transform.copyFrom(this.transform);
