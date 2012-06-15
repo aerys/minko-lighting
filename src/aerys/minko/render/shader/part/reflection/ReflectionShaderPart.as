@@ -1,10 +1,9 @@
-package aerys.minko.render.shader.parts.reflection
+package aerys.minko.render.shader.part.reflection
 {
 	import aerys.minko.render.effect.reflection.ReflectionProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
-	import aerys.minko.render.shader.compiler.graph.nodes.leaf.Sampler;
-	import aerys.minko.render.shader.part.ShaderPart;
+	import aerys.minko.render.shader.part.lighting.LightAwareShaderPart;
 	import aerys.minko.render.shader.part.projection.BlinnNewellProjectionShaderPart;
 	import aerys.minko.render.shader.part.projection.ProbeProjectionShaderPart;
 	import aerys.minko.type.enum.ReflectionType;
@@ -15,7 +14,7 @@ package aerys.minko.render.shader.parts.reflection
 	
 	import flash.geom.Rectangle;
 	
-	public class ReflectionShaderPart extends ShaderPart
+	public class ReflectionShaderPart extends LightAwareShaderPart
 	{
 		private var _blinnNewellProjectionPart	: BlinnNewellProjectionShaderPart;
 		private var _probeProjectionPart		: ProbeProjectionShaderPart;
@@ -28,24 +27,18 @@ package aerys.minko.render.shader.parts.reflection
 			_probeProjectionPart		= new ProbeProjectionShaderPart(main);
 		}
 		
-		public function getReflectionColor(position	: SFloat,
-										   uv		: SFloat,
-										   normal	: SFloat) : SFloat
+		public function getReflectionColor() : SFloat
 		{
 			// compute reflected vector
-			var worldPosition		: SFloat = localToWorld(position);
-			var worldNormal			: SFloat = normalize(deltaLocalToWorld(normal))
-			
-			var cameraWorldPosition : SFloat = sceneBindings.getParameter("cameraWorldPosition", 3)
-			var vertexToCamera		: SFloat = normalize(subtract(cameraWorldPosition, worldPosition));
-			var reflected			: SFloat = normalize(interpolate(reflect(vertexToCamera.xyzz, worldNormal.xyzz)));
-			
-			var reflectionType 		: int	 = meshBindings.getConstant(ReflectionProperties.TYPE);
+			var cWorldCameraPosition	: SFloat = this.cameraPosition;
+			var vsWorldVertexToCamera	: SFloat = normalize(subtract(cWorldCameraPosition, vsWorldPosition));
+			var reflected				: SFloat = normalize(interpolate(reflect(vsWorldVertexToCamera.xyzz, vsWorldNormal.xyzz)));
+			var reflectionType 			: int	 = meshBindings.getConstant(ReflectionProperties.TYPE);
 			
 			// retrieve reflection color from reflection map
-			var reflectionMap		: SFloat;
-			var reflectionMapUV		: SFloat;
-			var reflectionColor		: SFloat;
+			var reflectionMap			: SFloat;
+			var reflectionMapUV			: SFloat;
+			var reflectionColor			: SFloat;
 			
 			switch (reflectionType)
 			{

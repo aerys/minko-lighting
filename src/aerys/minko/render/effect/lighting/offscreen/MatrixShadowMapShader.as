@@ -7,6 +7,7 @@ package aerys.minko.render.effect.lighting.offscreen
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.ShaderSettings;
+	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
 	import aerys.minko.type.enum.Blending;
 	import aerys.minko.type.enum.TriangleCulling;
@@ -16,6 +17,7 @@ package aerys.minko.render.effect.lighting.offscreen
 		use namespace minko_lighting;
 		
 		private var _vertexAnimationPart	: VertexAnimationShaderPart;
+		private var _diffusePart			: DiffuseShaderPart;
 		private var _lightId				: uint;
 		private var _clipspacePosition		: SFloat;
 		
@@ -26,6 +28,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			super(renderTarget, priority);
 			
 			_vertexAnimationPart	= new VertexAnimationShaderPart(this);
+			_diffusePart			= new DiffuseShaderPart(this);
 			_lightId				= lightId;
 		}
 		
@@ -53,6 +56,15 @@ package aerys.minko.render.effect.lighting.offscreen
 		override protected function getPixelColor() : SFloat
 		{
 			var iClipspacePosition	: SFloat = interpolate(_clipspacePosition);
+			
+			if (meshBindings.propertyExists(BasicProperties.ALPHA_THRESHOLD))
+			{
+				var diffuse			: SFloat	= _diffusePart.getDiffuse();
+				var alphaThreshold 	: SFloat 	= meshBindings.getParameter('alphaThreshold', 1);
+				
+				kill(subtract(0.5, lessThan(diffuse.w, alphaThreshold)));
+			}
+			
 			return iClipspacePosition.z;
 		}
 	}

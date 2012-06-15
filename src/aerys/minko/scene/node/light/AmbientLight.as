@@ -35,7 +35,6 @@ package aerys.minko.scene.node.light
 		
 		override public function clone(cloneControllers : Boolean = false) : ISceneNode
 		{
-			
 			var light : AmbientLight = new AmbientLight(color, ambient, emissionMask);
 			
 			light.name = this.name;
