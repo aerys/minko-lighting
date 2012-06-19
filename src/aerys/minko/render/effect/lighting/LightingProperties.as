@@ -18,8 +18,8 @@ package aerys.minko.render.effect.lighting
 		public static const SHININESS_MULTIPLIER		: String = 'lightShininessMultiplier';
 		
 		public static const NORMAL_MAPPING_TYPE			: String = 'lightNormalMappingType';
-		public static const PARALLAX_MAPPING_NBSTEPS	: String = 'lightSteepParallaxMappingNbSteps';
-		public static const PARALLAX_MAPPING_BUMP_SCALE	: String = 'lightSteepParallaxMappingBumpScale';
+		public static const PARALLAX_MAPPING_NBSTEPS	: String = 'lightParallaxMappingNbSteps';
+		public static const PARALLAX_MAPPING_BUMP_SCALE	: String = 'lightParallaxMappingBumpScale';
 		
 		public static const SHADOW_BIAS					: String = 'lightShadowBias';
 		public static const CAST_SHADOWS				: String = 'lightCastShadows';
