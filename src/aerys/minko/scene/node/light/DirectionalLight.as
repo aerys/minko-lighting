@@ -222,6 +222,7 @@ package aerys.minko.scene.node.light
 				shadowCastingType,
 				shadowMapSize
 			);
+
 			
 			light.name = this.name;
 			light.transform.copyFrom(this.transform);
