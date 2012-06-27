@@ -87,7 +87,8 @@ package aerys.minko.render.effect.realistic
 
 			// compute and apply lighting
 			var lighting	: SFloat	= _lightingPart.getLightingColor();
-			color = _blendingPart.blend(lighting, color, Blending.LIGHT);
+			
+			color = float4(multiply(color.rgb, lighting), color.a);
 			
 			if (meshBindings.propertyExists(BasicProperties.ALPHA_THRESHOLD))
 			{
