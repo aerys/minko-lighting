@@ -88,7 +88,7 @@ package aerys.minko.render.effect
 			
 			passes.push(_renderingPass);
 			
-			changePasses(passes);
+			setPasses(passes);
 		}
 		
 		private function manageNoShadowing(lightId : uint, passes : Vector.<Shader>) : void
