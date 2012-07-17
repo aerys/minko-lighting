@@ -26,6 +26,12 @@ package aerys.minko.render.shader.part.lighting
 					meshBindings.getConstant('diffuseWrapping', SamplerWrapping.REPEAT)
 				);
 				
+				if (meshBindings.propertyExists('diffuseUVScale'))
+					fsUV.scaleBy(meshBindings.getParameter('diffuseUVScale', 2));
+
+				if (meshBindings.propertyExists('diffuseUVOffset'))
+					fsUV.incrementBy(meshBindings.getParameter('diffuseUVOffset', 2));
+				
 				diffuseColor = sampleTexture(diffuseMap, fsUV);
 			}
 			else if (meshBindings.propertyExists('diffuseColor'))
