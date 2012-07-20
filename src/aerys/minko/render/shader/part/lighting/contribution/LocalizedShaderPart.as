@@ -42,7 +42,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 		{
 			// compute light direction
 			var cLightWorldPosition		: SFloat = getLightParameter(lightId, 'worldPosition', 4);
-			var fsLocalLightDirection	: SFloat = normalize(subtract(cLightWorldPosition, fsWorldPosition));
+			var fsLocalLightDirection	: SFloat = normalize(subtract(fsWorldPosition, cLightWorldPosition));
 			
 			return diffuseFromVectors(lightId, fsLocalLightDirection, fsLocalNormal);
 		}
