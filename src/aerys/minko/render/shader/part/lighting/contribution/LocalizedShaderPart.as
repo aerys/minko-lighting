@@ -54,7 +54,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 		{
 			// compute camera direction
 			var cLocalCameraPosition				: SFloat = worldToLocal(sceneBindings.getParameter('cameraPosition', 4));
-			var vsLocalCameraDirection				: SFloat = normalize(subtract(cLocalCameraPosition, vsLocalPosition));
+			var vsLocalCameraDirection				: SFloat = normalize(subtract(vsLocalPosition, cLocalCameraPosition));
 			var fsTangentCameraDirection			: SFloat = interpolate(deltaLocalToTangent(vsLocalCameraDirection));
 			
 			// compute reflected light direction
@@ -80,7 +80,7 @@ package aerys.minko.render.shader.part.lighting.contribution
 		{
 			// compute camera direction
 			var cWorldCameraPosition			: SFloat = sceneBindings.getParameter('cameraPosition', 4);
-			var fsWorldCameraDirection			: SFloat = normalize(subtract(cWorldCameraPosition, fsWorldPosition));
+			var fsWorldCameraDirection			: SFloat = normalize(subtract(fsWorldPosition, cWorldCameraPosition));
 			
 			// compute reflected light direction
 			var cWorldLightPosition				: SFloat = getLightParameter(lightId, 'worldPosition', 4);
