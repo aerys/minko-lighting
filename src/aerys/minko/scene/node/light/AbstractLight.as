@@ -6,9 +6,9 @@ package aerys.minko.scene.node.light
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.Signal;
-	import aerys.minko.type.data.DataBindings;
-	import aerys.minko.type.data.DataProvider;
-	import aerys.minko.type.data.IDataProvider;
+	import aerys.minko.type.binding.DataBindings;
+	import aerys.minko.type.binding.DataProvider;
+	import aerys.minko.type.binding.IDataProvider;
 	import aerys.minko.type.data.LightDataProvider;
 	import aerys.minko.type.math.Matrix4x4;
 	

@@ -17,7 +17,7 @@ package aerys.minko.render.effect.lighting.onscreen
 	import aerys.minko.type.enum.SamplerMipMapping;
 	import aerys.minko.type.enum.SamplerWrapping;
 	import aerys.minko.type.enum.TriangleCulling;
-	import aerys.minko.type.stream.format.VertexComponent;
+	import aerys.minko.render.geometry.stream.format.VertexComponent;
 	
 	public class LightingShader extends Shader
 	{

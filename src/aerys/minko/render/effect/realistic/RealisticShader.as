@@ -15,7 +15,7 @@ package aerys.minko.render.effect.realistic
 	import aerys.minko.type.enum.DepthTest;
 	import aerys.minko.type.enum.ReflectionType;
 	import aerys.minko.type.enum.TriangleCulling;
-	import aerys.minko.type.stream.format.VertexComponent;
+	import aerys.minko.render.geometry.stream.format.VertexComponent;
 	
 	public class RealisticShader extends Shader
 	{

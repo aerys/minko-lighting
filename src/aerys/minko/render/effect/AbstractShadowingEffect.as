@@ -13,7 +13,7 @@ package aerys.minko.render.effect
 	import aerys.minko.render.resource.texture.TextureResource;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.scene.node.Scene;
-	import aerys.minko.type.data.DataBindings;
+	import aerys.minko.type.binding.DataBindings;
 	
 	import flash.display.BitmapData;
 	
@@ -33,6 +33,11 @@ package aerys.minko.render.effect
 		private var _watchedProperties	: Vector.<String>;
 		
 		private var _updatePasses		: Boolean;
+		
+		public function get scene() : Scene
+		{
+			return _scene;
+		}
 		
 		public function AbstractShadowingEffect(scene 			: Scene, 
 												renderingShader : Shader)

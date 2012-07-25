@@ -14,7 +14,7 @@ package aerys.minko.render.shader.part.lighting
 	import aerys.minko.render.shader.part.lighting.contribution.LocalizedShaderPart;
 	import aerys.minko.type.enum.NormalMappingType;
 	import aerys.minko.type.enum.ShadowMappingType;
-	import aerys.minko.type.stream.format.VertexComponent;
+	import aerys.minko.render.geometry.stream.format.VertexComponent;
 	
 	/**
 	 * This shader part compute the lighting contribution of all lights

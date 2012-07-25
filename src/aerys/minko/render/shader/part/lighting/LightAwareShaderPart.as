@@ -12,7 +12,7 @@ package aerys.minko.render.shader.part.lighting
 	import aerys.minko.type.enum.SamplerFiltering;
 	import aerys.minko.type.enum.SamplerMipMapping;
 	import aerys.minko.type.enum.TriangleCulling;
-	import aerys.minko.type.stream.format.VertexComponent;
+	import aerys.minko.render.geometry.stream.format.VertexComponent;
 	
 	public class LightAwareShaderPart extends ShaderPart
 	{
