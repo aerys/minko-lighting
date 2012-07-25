@@ -1,8 +1,10 @@
 package aerys.minko.render.effect
 {
 	import aerys.minko.ns.minko_lighting;
+	import aerys.minko.render.Effect;
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.Viewport;
+	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.effect.lighting.offscreen.CubeShadowMapShader;
 	import aerys.minko.render.effect.lighting.offscreen.MatrixShadowMapShader;
 	import aerys.minko.render.effect.lighting.offscreen.ParaboloidShadowMapShader;
@@ -14,7 +16,6 @@ package aerys.minko.render.effect
 	import aerys.minko.type.data.DataBindings;
 	
 	import flash.display.BitmapData;
-	import aerys.minko.render.effect.lighting.LightingProperties;
 	
 	public class AbstractShadowingEffect extends Effect
 	{
@@ -56,9 +57,10 @@ package aerys.minko.render.effect
 			}
 		}
 		
-		private function onWatchedPropertyChange(sceneBindings	: DataBindings, 
-												 propertyName	: String, 
-												 newValue		: Object) : void
+		private function propertyChangedHandler(sceneBindings	: DataBindings, 
+												propertyName	: String,
+												oldValue		: Object,
+												newValue		: Object) : void
 		{
 			_updatePasses = true;
 		}
@@ -71,14 +73,14 @@ package aerys.minko.render.effect
 			var renderTarget	: RenderTarget;
 
 			while (_watchedProperties.length != 0)
-				sceneBindings.removeCallback(_watchedProperties.pop(), onWatchedPropertyChange);
+				sceneBindings.removeCallback(_watchedProperties.pop(), propertyChangedHandler);
 			
 			for (var lightId : uint = 0;; ++lightId)
 			{
 				var shadowCastingPropertyName : String = LightingProperties.getNameFor(lightId, 'shadowCastingType');
 				
 				_watchedProperties.push(shadowCastingPropertyName);
-				sceneBindings.addCallback(shadowCastingPropertyName, onWatchedPropertyChange);
+				sceneBindings.addCallback(shadowCastingPropertyName, propertyChangedHandler);
 				
 				if (!sceneBindings.propertyExists(shadowCastingPropertyName))
 					break;

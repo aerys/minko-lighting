@@ -1,7 +1,7 @@
 package aerys.minko.render.shader.part.lighting
 {
 	import aerys.minko.ns.minko_lighting;
-	import aerys.minko.render.effect.basic.BasicProperties;
+	import aerys.minko.render.material.basic.BasicProperties;
 	import aerys.minko.render.effect.lighting.LightingProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;

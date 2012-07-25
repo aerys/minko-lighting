@@ -139,7 +139,7 @@ package aerys.minko.scene.node.light
 			super.addedToSceneHandler(child, scene);
 			
 			scene.bindings.addCallback('screenToWorld', cameraScreenToWorldChangedHandler);
-			cameraScreenToWorldChangedHandler(null, null, null);
+			cameraScreenToWorldChangedHandler(null, null, null, null);
 		}
 		
 		override protected function removedFromSceneHandler(child:ISceneNode, scene:Scene):void
@@ -168,11 +168,12 @@ package aerys.minko.scene.node.light
 		
 		protected function cameraScreenToWorldChangedHandler(sceneBindings	: DataBindings,
 															 propertyName	: String,
-															 screenToWorld	: Matrix4x4) : void
+															 oldValue		: Matrix4x4,
+															 newValue		: Matrix4x4) : void
 		{
-			screenToWorld = Scene(root).bindings.getProperty('screenToWorld') as Matrix4x4;
+			newValue = Scene(root).bindings.getProperty('screenToWorld') as Matrix4x4;
 			
-			if (screenToWorld == null)
+			if (newValue == null)
 			{
 				// No camera on scene, we cannot compute a valid projection matrix.
 				// For now we default to identity
@@ -192,7 +193,7 @@ package aerys.minko.scene.node.light
 				
 				for (var pointId : uint = 0; pointId < 8; ++pointId)
 				{
-					screenToWorld.transformVector(FRUSTUM_POINTS[pointId], TMP_VECTOR);
+					newValue.transformVector(FRUSTUM_POINTS[pointId], TMP_VECTOR);
 					TMP_VECTOR.scaleBy(1 / TMP_VECTOR.w);
 					worldToLocal.transformVector(TMP_VECTOR, TMP_VECTOR);
 					

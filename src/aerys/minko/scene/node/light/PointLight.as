@@ -187,6 +187,7 @@ package aerys.minko.scene.node.light
 		
 		private function cameraScreenToWorldChangedHandler(dataBindings : DataBindings,
 														   propertyName	: String,
+														   oldValue		: Matrix4x4,
 														   newValue		: Matrix4x4) : void
 		{
 			if (!(root is Scene))
