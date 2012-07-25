@@ -217,7 +217,8 @@ package aerys.minko.scene.node.light
 		
 		protected function cameraScreenToWorldChangedHandler(sceneBindings	: DataBindings,
 															 propertyName	: String,
-															 screenToWorld	: Matrix4x4) : void
+															 oldValue		: Matrix4x4,
+															 newValue		: Matrix4x4) : void
 		{
 			updateProjectionMatrix();
 		}
