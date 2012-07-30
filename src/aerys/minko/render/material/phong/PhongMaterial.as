@@ -163,7 +163,7 @@ package aerys.minko.render.material.phong
 									  properties 	: Object = null,
 									  name 			: String = DEFAULT_NAME)
 		{
-			super(properties, name);
+			super(properties, null, name);
 			
 			effect = EFFECTS[scene] || (EFFECTS[scene] = new LightingEffect(scene));
 		}
