@@ -4,7 +4,6 @@ package aerys.minko.render.shader.part
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.lighting.LightAwareShaderPart;
-	import aerys.minko.render.geometry.stream.format.VertexComponent;
 	
 	/**
 	 * 
@@ -21,7 +20,7 @@ package aerys.minko.render.shader.part
 			super(main);
 		}
 		
-		public function getSteepParallaxMappedUV() : SFloat
+		public function getSteepParallaxMappedUV(fsBaseUV : SFloat) : SFloat
 		{
 			// Retrieve attributes, constants, textures, config
 			var numSteps	: uint		= meshBindings.getConstant(LightingProperties.PARALLAX_MAPPING_NBSTEPS, DEFAULT_STEEP_NSTEPS);
@@ -40,7 +39,7 @@ package aerys.minko.render.shader.part
 			var height			: Number = 1.;
 			var step			: Number = 1. / numSteps;
 			
-			var fsOffset		: SFloat = interpolate(getVertexAttribute(VertexComponent.UV).xy);
+			var fsOffset		: SFloat = fsBaseUV;
 			var fsDelta			: SFloat = multiply(divide(fsTangentCameraDirection.xy, fsTangentCameraDirection.z), divide(cBumpScale, numSteps));
 			var fsNb			: SFloat = sampleTexture(fsHeightMap, fsOffset);
 			var fsLoopRunning	: SFloat = float(1);

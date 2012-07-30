@@ -1,8 +1,9 @@
 package aerys.minko.render.shader.part.lighting
 {
 	import aerys.minko.ns.minko_lighting;
-	import aerys.minko.render.material.basic.BasicProperties;
 	import aerys.minko.render.effect.lighting.LightingProperties;
+	import aerys.minko.render.geometry.stream.format.VertexComponent;
+	import aerys.minko.render.material.basic.BasicProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.ParallaxMappingShaderPart;
@@ -12,7 +13,6 @@ package aerys.minko.render.shader.part.lighting
 	import aerys.minko.type.enum.SamplerFiltering;
 	import aerys.minko.type.enum.SamplerMipMapping;
 	import aerys.minko.type.enum.TriangleCulling;
-	import aerys.minko.render.geometry.stream.format.VertexComponent;
 	
 	public class LightAwareShaderPart extends ShaderPart
 	{
@@ -40,16 +40,27 @@ package aerys.minko.render.shader.part.lighting
 		
 		protected function get fsUV() : SFloat
 		{
-			var normalMappingType : uint = meshBindings.getConstant(LightingProperties.NORMAL_MAPPING_TYPE, NormalMappingType.NONE);
+			var result : SFloat = getVertexAttribute(VertexComponent.UV);
+			
+			if (meshBindings.propertyExists('diffuseUVScale'))
+				result.scaleBy(meshBindings.getParameter('diffuseUVScale', 2));
+			
+			if (meshBindings.propertyExists('diffuseUVOffset'))
+				result.incrementBy(meshBindings.getParameter('diffuseUVOffset', 2));
+			
+			result = interpolate(result.xy);
+			
+			var normalMappingType : uint =
+				meshBindings.getConstant(LightingProperties.NORMAL_MAPPING_TYPE, NormalMappingType.NONE);
 			
 			switch (normalMappingType)
 			{
 				case NormalMappingType.NONE:
 				case NormalMappingType.NORMAL:
-					return interpolate(getVertexAttribute(VertexComponent.UV));
+					return result;
 				
 				case NormalMappingType.PARALLAX:
-					return parallaxMappingShaderPart.getSteepParallaxMappedUV();
+					return parallaxMappingShaderPart.getSteepParallaxMappedUV(result);
 					
 				default:
 					throw new Error('Unknown normal mapping type.');
