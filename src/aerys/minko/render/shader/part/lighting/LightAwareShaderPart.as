@@ -38,6 +38,11 @@ package aerys.minko.render.shader.part.lighting
 			return vertexAnimationShaderPart.getAnimatedVertexPosition();
 		}
 		
+		protected function get fsLocalPosition() : SFloat
+		{
+			return interpolate(vsLocalPosition);
+		}
+		
 		protected function get fsUV() : SFloat
 		{
 			var normalMappingType : uint = meshBindings.getConstant(LightingProperties.NORMAL_MAPPING_TYPE, NormalMappingType.NONE);

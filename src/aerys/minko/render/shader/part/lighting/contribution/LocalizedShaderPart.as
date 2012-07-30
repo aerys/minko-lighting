@@ -32,7 +32,10 @@ package aerys.minko.render.shader.part.lighting.contribution
 		 */
 		override public function computeDiffuseInLocalSpace(lightId : uint) : SFloat
 		{
-			throw new Error('Implement me');
+			var cLocalLightPosition		: SFloat = worldToLocal(getLightParameter(lightId, 'worldPosition', 4));
+			var fsLocalLightDirection	: SFloat = normalize(subtract(fsLocalPosition, cLocalLightPosition));
+			
+			return diffuseFromVectors(lightId, fsLocalLightDirection, fsLocalNormal);
 		}
 		
 		/**
@@ -41,10 +44,10 @@ package aerys.minko.render.shader.part.lighting.contribution
 		override public function computeDiffuseInWorldSpace(lightId : uint) : SFloat
 		{
 			// compute light direction
-			var cLightWorldPosition		: SFloat = getLightParameter(lightId, 'worldPosition', 4);
-			var fsLocalLightDirection	: SFloat = normalize(subtract(fsWorldPosition, cLightWorldPosition));
+			var cWorldLightPosition		: SFloat = getLightParameter(lightId, 'worldPosition', 4);
+			var fsWorldLightDirection	: SFloat = normalize(subtract(fsWorldPosition, cWorldLightPosition));
 			
-			return diffuseFromVectors(lightId, fsLocalLightDirection, fsLocalNormal);
+			return diffuseFromVectors(lightId, fsWorldLightDirection, fsWorldNormal);
 		}
 		
 		/**
