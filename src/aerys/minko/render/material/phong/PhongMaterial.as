@@ -1,5 +1,6 @@
 package aerys.minko.render.material.phong
 {
+	import aerys.minko.render.Effect;
 	import aerys.minko.render.effect.lighting.LightingEffect;
 	import aerys.minko.render.material.basic.BasicMaterial;
 	import aerys.minko.render.resource.texture.TextureResource;
@@ -160,17 +161,20 @@ package aerys.minko.render.material.phong
 		}
 		
 		public function PhongMaterial(scene 		: Scene,
-									  properties 	: Object = null,
-									  name 			: String = DEFAULT_NAME)
+									  properties 	: Object 	= null,
+									  effect		: Effect	= null,
+									  name 			: String 	= DEFAULT_NAME)
 		{
-			super(properties, name);
-			
-			effect = EFFECTS[scene] || (EFFECTS[scene] = new LightingEffect(scene));
+			super(
+				properties,
+				effect || (EFFECTS[scene] || (EFFECTS[scene] = new LightingEffect(scene))),
+				name
+			);
 		}
 		
 		override public function clone() : IDataProvider
 		{
-			return new PhongMaterial((effect as LightingEffect).scene, this, name);
+			return new PhongMaterial((effect as LightingEffect).scene, this, effect, name);
 		}
 	}
 }
