@@ -150,7 +150,7 @@ package aerys.minko.scene.node.light
 				throw new Error('Invalid ShadowMappingType.');
 		}
 		
-		override protected function addedToSceneHandler(child:ISceneNode, scene:Scene):void
+		override protected function addedToSceneHandler(child : ISceneNode, scene : Scene) : void
 		{
 			super.addedToSceneHandler(child, scene);
 			
@@ -158,17 +158,16 @@ package aerys.minko.scene.node.light
 			cameraScreenToWorldChangedHandler(null, null, null, null);
 		}
 		
-		override protected function removedFromSceneHandler(child:ISceneNode, scene:Scene):void
+		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene) : void
 		{
 			super.removedFromSceneHandler(child, scene);
 			
 			scene.bindings.removeCallback('screenToWorld', cameraScreenToWorldChangedHandler);
 		}
 		
-		override protected function transformChangedHandler(transform		: Matrix4x4, 
-															propertyName	: String) : void
+		override protected function transformChangedHandler(transform : Matrix4x4) : void
 		{
-			super.transformChangedHandler(transform, propertyName);
+			super.transformChangedHandler(transform);
 			
 			// compute position
 			localToWorld.getTranslation(_worldPosition);

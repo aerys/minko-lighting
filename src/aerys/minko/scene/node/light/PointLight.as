@@ -202,10 +202,9 @@ package aerys.minko.scene.node.light
 				throw new Error('Invalid ShadowMappingType.');
 		}
 		
-		override protected function transformChangedHandler(transform	 : Matrix4x4, 
-															propertyName : String) : void
+		override protected function transformChangedHandler(transform : Matrix4x4) : void
 		{
-			super.transformChangedHandler(transform, propertyName);
+			super.transformChangedHandler(transform);
 			
 			localToWorld.getTranslation(_worldPosition);
 		}
