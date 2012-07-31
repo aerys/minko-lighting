@@ -65,7 +65,7 @@ package aerys.minko.render.effect.lighting.offscreen
 				kill(subtract(0.5, lessThan(diffuse.w, alphaThreshold)));
 			}
 			
-			return iClipspacePosition.z;
+			return pack(iClipspacePosition.z);
 		}
 	}
 }

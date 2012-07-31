@@ -90,7 +90,7 @@ package aerys.minko.render.effect.lighting.offscreen
 			var zFar		: SFloat	= sceneBindings.getParameter(zFarName, 1);
 			
 			// compute distance
-			var distance	: SFloat	= length(_positionFromLight);
+			var distance	: SFloat	= length(_positionFromLight.xyz);
 			
 			if (meshBindings.propertyExists(BasicProperties.ALPHA_THRESHOLD))
 			{
@@ -100,7 +100,7 @@ package aerys.minko.render.effect.lighting.offscreen
 				kill(subtract(0.5, lessThan(diffuse.w, alphaThreshold)));
 			}
 			
-			return divide(subtract(distance, zNear), subtract(zFar, zNear));
+			return pack(divide(subtract(distance, zNear), subtract(zFar, zNear)));
 		}
 	}
 }

@@ -7,7 +7,7 @@ package aerys.minko.render.effect.lighting
 	
 	public class LightingEffect extends AbstractShadowingEffect
 	{
-		public function LightingEffect(scene:Scene)
+		public function LightingEffect(scene : Scene)
 		{
 			super(scene, new LightingShader());
 		}

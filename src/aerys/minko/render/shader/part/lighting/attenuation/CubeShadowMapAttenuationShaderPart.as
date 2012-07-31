@@ -12,7 +12,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 	
 	public class CubeShadowMapAttenuationShaderPart extends LightAwareShaderPart implements IAttenuationShaderPart
 	{
-		private static const DEFAULT_BIAS : Number = 1 / 100;
+		private static const DEFAULT_BIAS : Number = 1 / 10000;
 		
 		public function CubeShadowMapAttenuationShaderPart(main : Shader)
 		{
@@ -36,16 +36,17 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			var zFar				: SFloat = getLightParameter(lightId, 'zFar', 1);
 			var cubeDepthMap		: SFloat = getLightTextureParameter(lightId, 'shadowMapCube', 
 																		SamplerFiltering.NEAREST,
-																		SamplerMipMapping.NEAREST, 
+																		SamplerMipMapping.DISABLE, 
 																		SamplerWrapping.CLAMP, 
 																		SamplerDimension.CUBE);
 			
 			// retrieve precompute depth
 			var positionFromLight	: SFloat = interpolate(multiply4x4(vsWorldPosition, worldToLight));
-			var precomputedDepth	: SFloat = extract(sampleTexture(cubeDepthMap, positionFromLight), Components.stringToComponent('X'));
+			var precomputedDepth	: SFloat = unpack(sampleTexture(cubeDepthMap, positionFromLight));
 			
 			// retrieve real depth
 			var currentDepth		: SFloat = divide(subtract(length(positionFromLight.xyz), zNear), subtract(zFar, zNear));
+			currentDepth = min(subtract(1, shadowBias), currentDepth);
 			
 			return lessThan(currentDepth, add(shadowBias, precomputedDepth));
 		}

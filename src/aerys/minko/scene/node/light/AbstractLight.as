@@ -22,8 +22,6 @@ package aerys.minko.scene.node.light
 		private var _dataProvider	: DataProvider;
 		private var _lightId		: int;
 		
-		private var _shadowMapSize	: uint;
-		
 		public function get color() : uint
 		{
 			return getProperty('color') as uint;
@@ -39,11 +37,6 @@ package aerys.minko.scene.node.light
 			return getProperty('shadowCastingType') as uint; 
 		}
 		
-		public function get shadowMapSize() : uint
-		{
-			return _shadowMapSize;
-		}
-		
 		public function set color(v : uint)	: void
 		{
 			setProperty('color', v);
@@ -57,15 +50,6 @@ package aerys.minko.scene.node.light
 		public function set shadowCastingType(v : uint) : void
 		{
 			throw new Error('Must be overriden');
-		}
-		
-		public function set shadowMapSize(v : uint) : void
-		{
-			if (v == 0)
-				throw new Error();
-			
-			_shadowMapSize		= v;
-			shadowCastingType	= shadowCastingType; // reset shadows.
 		}
 		
 		private function set lightId(v : int) : void
@@ -94,7 +78,6 @@ package aerys.minko.scene.node.light
 		public function AbstractLight(color				: uint,
 									  emissionMask		: uint,
 									  shadowCastingType	: uint,
-									  shadowMapSize		: uint,
 									  type				: uint)
 		{
 			_dataProvider			= new LightDataProvider();
@@ -102,7 +85,6 @@ package aerys.minko.scene.node.light
 			
 			this.color				= color;
 			this.emissionMask		= emissionMask;
-			this.shadowMapSize		= shadowMapSize;
 			this.shadowCastingType	= shadowCastingType;
 			
 			setProperty('type', type);

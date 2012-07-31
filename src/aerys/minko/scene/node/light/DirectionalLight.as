@@ -34,6 +34,7 @@ package aerys.minko.scene.node.light
 		private var _worldToScreen	: Matrix4x4;
 		private var _worldToUV		: Matrix4x4;
 		private var _projection		: Matrix4x4;
+		private var _shadowMapSize	: uint;
 		
 		public function get diffuse() : Number
 		{
@@ -48,6 +49,11 @@ package aerys.minko.scene.node.light
 		public function get shininess() : Number
 		{
 			return getProperty('shininess') as Number;
+		}
+		
+		public function get shadowMapSize() : uint
+		{
+			return _shadowMapSize;
 		}
 		
 		public function set diffuse(v : Number)	: void
@@ -71,10 +77,16 @@ package aerys.minko.scene.node.light
 			setProperty('shininess', v);
 		}
 		
+		public function set shadowMapSize(v : uint) : void
+		{
+			_shadowMapSize = v;
+			
+			this.shadowCastingType = this.shadowCastingType;
+		}
+		
 		override public function set shadowCastingType(v : uint) : void
 		{
-			var shadowMapSize	: uint				= this.shadowMapSize;
-			var shadowMap		: TextureResource	= getProperty('shadowMap') as TextureResource;
+			var shadowMap : TextureResource	= getProperty('shadowMap') as TextureResource;
 			
 			if (shadowMap)
 			{
@@ -89,11 +101,11 @@ package aerys.minko.scene.node.light
 					break;
 				
 				case ShadowMappingType.MATRIX:
-					if (!((shadowMapSize & (~shadowMapSize + 1)) == shadowMapSize
-						&& shadowMapSize <= 2048))
-						throw new Error(shadowMapSize + ' is an invalid size for a shadow map');
+					if (!((_shadowMapSize & (~_shadowMapSize + 1)) == _shadowMapSize
+						&& _shadowMapSize <= 2048))
+						throw new Error(_shadowMapSize + ' is an invalid size for a shadow map');
 					
-					shadowMap = new TextureResource(shadowMapSize, shadowMapSize);
+					shadowMap = new TextureResource(_shadowMapSize, _shadowMapSize);
 					setProperty('shadowMap', shadowMap);
 					setProperty('shadowCastingType', ShadowMappingType.MATRIX);
 					break;
@@ -103,13 +115,17 @@ package aerys.minko.scene.node.light
 			}
 		}
 		
-		public function DirectionalLight(color			: uint		= 0xFFFFFFFF,
-									 	 diffuse		: Number	= .6,
-										 specular		: Number	= .8,
-										 shininess		: Number	= 64,
-										 emissionMask	: uint		= 0x1,
-										 shadowCasting	: uint		= 0,
-										 shadowMapSize	: uint		= 512)
+		public function DirectionalLight(color				: uint		= 0xFFFFFFFF,
+									 	 diffuse			: Number	= .6,
+										 specular			: Number	= .8,
+										 shininess			: Number	= 64,
+										 emissionMask		: uint		= 0x1,
+										 shadowCasting		: uint		= 0,
+										 shadowMapSize		: uint		= 512,
+										 shadowMapZNear		: Number	= 0.1,
+										 shadowMapZFar		: Number	= 1000,
+										 shadowMapWidth		: Number	= 100,
+										 shadowMapHeight	: Number	= 100)
 		{
 			_worldPosition		= new Vector4();
 			_worldDirection		= new Vector4();
@@ -117,7 +133,7 @@ package aerys.minko.scene.node.light
 			_worldToUV			= new Matrix4x4();
 			_projection			= new Matrix4x4();
 			
-			super(color, emissionMask, shadowCasting, shadowMapSize, TYPE);
+			super(color, emissionMask, shadowCasting, TYPE);
 			
 			this.diffuse		= diffuse;
 			this.specular		= specular;
@@ -223,7 +239,6 @@ package aerys.minko.scene.node.light
 				shadowCastingType,
 				shadowMapSize
 			);
-
 			
 			light.name = this.name;
 			light.transform.copyFrom(this.transform);

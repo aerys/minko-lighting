@@ -17,7 +17,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 	 */
 	public class MatrixShadowMapAttenuationShaderPart extends LightAwareShaderPart implements IAttenuationShaderPart
 	{
-		private static const DEFAULT_BIAS : Number = 1 / 256;
+		private static const DEFAULT_BIAS : Number = 1 / 256 / 256;
 		
 		public function MatrixShadowMapAttenuationShaderPart(main : Shader)
 		{
@@ -47,13 +47,14 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			uv = multiply4x4(vsWorldPosition, worldToUV);
 			uv = interpolate(uv);
 			
-			var currentDepth		: SFloat = uv.z;
+			var currentDepth : SFloat = uv.z;
 			uv = divide(uv, uv.w);
 			
-			var precomputedDepth : SFloat = sampleTexture(depthMap, uv.xyyy);
+			var precomputedDepth : SFloat = unpack(sampleTexture(depthMap, uv.xyyy));
+			currentDepth = min(subtract(1, shadowBias), currentDepth);
 			
 			// shadow then current depth is less than shadowBias + precomputed depth
-			return lessThan(currentDepth, add(shadowBias, precomputedDepth.x));
+			return lessEqual(currentDepth, add(shadowBias, precomputedDepth));
 		}
 	}
 }
