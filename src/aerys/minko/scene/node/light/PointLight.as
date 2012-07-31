@@ -177,10 +177,9 @@ package aerys.minko.scene.node.light
 			scene.bindings.removeCallback('screenToWorld', cameraScreenToWorldChangedHandler);
 		}
 		
-		override protected function transformChangedHandler(transform	 : Matrix4x4, 
-															propertyName : String) : void
+		override protected function transformChangedHandler(transform	 : Matrix4x4) : void
 		{
-			super.transformChangedHandler(transform, propertyName);
+			super.transformChangedHandler(transform);
 			
 			localToWorld.getTranslation(_worldPosition);
 		}
