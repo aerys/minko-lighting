@@ -63,13 +63,11 @@ package aerys.minko.render.effect.lighting.onscreen
 		
 		override protected function getPixelColor() : SFloat
 		{
-			
-			
 			var color	 : SFloat = _pixelColorPart.getDiffuse();
 			var lighting : SFloat = _lightingPart.getLightingColor();
 			
 			color = float4(multiply(lighting, color.rgb), color.a);
-			return lighting;
+			
 			return color;
 		}
 	}
