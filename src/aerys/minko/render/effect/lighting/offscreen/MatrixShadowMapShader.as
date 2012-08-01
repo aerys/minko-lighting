@@ -2,13 +2,14 @@ package aerys.minko.render.effect.lighting.offscreen
 {
 	import aerys.minko.ns.minko_lighting;
 	import aerys.minko.render.RenderTarget;
-	import aerys.minko.render.material.basic.BasicProperties;
 	import aerys.minko.render.effect.lighting.LightingProperties;
+	import aerys.minko.render.material.basic.BasicProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.ShaderSettings;
 	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.animation.VertexAnimationShaderPart;
+	import aerys.minko.scene.node.light.SpotLight;
 	import aerys.minko.type.enum.Blending;
 	import aerys.minko.type.enum.TriangleCulling;
 	
@@ -41,13 +42,19 @@ package aerys.minko.render.effect.lighting.offscreen
 		
 		override protected function getVertexPosition() : SFloat
 		{
+			var lightTypeName		: String = LightingProperties.getNameFor(_lightId, 'type');
 			var worldToScreenName	: String = LightingProperties.getNameFor(_lightId, 'worldToScreen');
+			
+			var lightType			: uint	 = sceneBindings.getConstant(lightTypeName);
 			var worldToScreen		: SFloat = sceneBindings.getParameter(worldToScreenName, 16);
 			var vertexPosition		: SFloat = localToWorld(_vertexAnimationPart.getAnimatedVertexPosition());
 			
 			_clipspacePosition = multiply4x4(vertexPosition, worldToScreen);
 			
-			return float4(_clipspacePosition.xy, multiply(_clipspacePosition.z, _clipspacePosition.w), _clipspacePosition.w); 
+			if (lightType == SpotLight.TYPE)
+				return float4(_clipspacePosition.xy, multiply(_clipspacePosition.z, _clipspacePosition.w), _clipspacePosition.w);
+			else
+				return _clipspacePosition;
 		}
 		
 		/**

@@ -4,6 +4,6 @@ package aerys.minko.render.shader.part.lighting.attenuation
 
 	public interface IAttenuationShaderPart
 	{
-		function getAttenuation(lightId : uint) : SFloat
+		function getAttenuation(lightId : uint) : SFloat;
 	}
 }

@@ -48,7 +48,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			var currentDepth		: SFloat = divide(subtract(length(positionFromLight.xyz), zNear), subtract(zFar, zNear));
 			currentDepth = min(subtract(1, shadowBias), currentDepth);
 			
-			return lessThan(currentDepth, add(shadowBias, precomputedDepth));
+			return lessEqual(currentDepth, add(shadowBias, precomputedDepth));
 		}
 	}
 }

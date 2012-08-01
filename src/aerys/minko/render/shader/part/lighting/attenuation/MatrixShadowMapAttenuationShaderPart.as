@@ -4,6 +4,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.lighting.LightAwareShaderPart;
+	import aerys.minko.scene.node.light.DirectionalLight;
 	import aerys.minko.type.enum.SamplerFiltering;
 	import aerys.minko.type.enum.SamplerMipMapping;
 	import aerys.minko.type.enum.SamplerWrapping;
@@ -17,7 +18,7 @@ package aerys.minko.render.shader.part.lighting.attenuation
 	 */
 	public class MatrixShadowMapAttenuationShaderPart extends LightAwareShaderPart implements IAttenuationShaderPart
 	{
-		private static const DEFAULT_BIAS : Number = 1 / 256 / 256;
+		private static const DEFAULT_BIAS : Number = 1 / 500;
 		
 		public function MatrixShadowMapAttenuationShaderPart(main : Shader)
 		{
@@ -26,6 +27,8 @@ package aerys.minko.render.shader.part.lighting.attenuation
 		
 		public function getAttenuation(lightId : uint) : SFloat
 		{
+			var lightType : uint = getLightConstant(lightId, 'type');
+			
 			// retrieve shadow bias
 			var shadowBias : SFloat;
 			if (meshBindings.propertyExists(LightingProperties.SHADOW_BIAS))
@@ -48,13 +51,21 @@ package aerys.minko.render.shader.part.lighting.attenuation
 			uv = interpolate(uv);
 			
 			var currentDepth : SFloat = uv.z;
-			uv = divide(uv, uv.w);
-			
-			var precomputedDepth : SFloat = unpack(sampleTexture(depthMap, uv.xyyy));
+			if (lightType == DirectionalLight.TYPE)
+				currentDepth = divide(currentDepth, uv.w);
 			currentDepth = min(subtract(1, shadowBias), currentDepth);
 			
-			// shadow then current depth is less than shadowBias + precomputed depth
-			return lessEqual(currentDepth, add(shadowBias, precomputedDepth));
+			uv = divide(uv, uv.w);
+			
+			var outsideMap			: SFloat = notEqual(0, dotProduct4(notEqual(uv, saturate(uv)), notEqual(uv, saturate(uv))));
+			var precomputedDepth	: SFloat = unpack(sampleTexture(depthMap, uv.xyyy));
+			
+			// do not shadow when current depth is less than shadowBias + precomputed depth
+			var noShadows : SFloat = lessEqual(currentDepth, add(shadowBias, precomputedDepth));
+			if (lightType == DirectionalLight.TYPE)
+				noShadows = or(outsideMap, noShadows)
+			
+			return noShadows;
 		}
 	}
 }

@@ -15,7 +15,13 @@ package aerys.minko.scene.node.light
 	{
 		public static const TYPE			: uint				= 1;
 		
-		private static const SCREEN_TO_UV	: Matrix4x4			= new Matrix4x4().appendScale(.5, -.5).appendTranslation(.5, .5);
+		private static const SCREEN_TO_UV	: Matrix4x4			= new Matrix4x4(
+			0.5,		0.0,		0.0,	0.0,
+			0.0, 		-0.5,		0.0,	0.0,
+			0.0,		0.0,		1.0,	0.0,
+			0.5, 		0.5,		0.0, 	1.0
+		);
+		
 		private static const Z_AXIS			: Vector4			= new Vector4(0, 0, 1);
 		private static const TMP_VECTOR		: Vector4			= new Vector4();
 		private static const FRUSTUM_POINTS	: Vector.<Vector4>	= new <Vector4>[
@@ -35,6 +41,7 @@ package aerys.minko.scene.node.light
 		private var _worldToUV		: Matrix4x4;
 		private var _projection		: Matrix4x4;
 		private var _shadowMapSize	: uint;
+		private var _shadowMapWidth:Number;
 		
 		public function get diffuse() : Number
 		{
@@ -54,6 +61,16 @@ package aerys.minko.scene.node.light
 		public function get shadowMapSize() : uint
 		{
 			return _shadowMapSize;
+		}
+		
+		public function get shadowMapWidth() : Number
+		{
+			return _shadowMapWidth;
+		}
+		
+		public function get shadowMapMaxZ() : Number
+		{
+			return getProperty('zFar');
 		}
 		
 		public function set diffuse(v : Number)	: void
@@ -82,6 +99,18 @@ package aerys.minko.scene.node.light
 			_shadowMapSize = v;
 			
 			this.shadowCastingType = this.shadowCastingType;
+		}
+		
+		public function set shadowMapWidth(v : Number) : void
+		{
+			_shadowMapWidth = v;
+			updateProjectionMatrix();
+		}
+		
+		public function set shadowMapMaxZ(v : Number) : void
+		{
+			setProperty('zFar', v);
+			updateProjectionMatrix();
 		}
 		
 		override public function set shadowCastingType(v : uint) : void
@@ -122,22 +151,24 @@ package aerys.minko.scene.node.light
 										 emissionMask		: uint		= 0x1,
 										 shadowCasting		: uint		= 0,
 										 shadowMapSize		: uint		= 512,
-										 shadowMapZNear		: Number	= 0.1,
-										 shadowMapZFar		: Number	= 1000,
-										 shadowMapWidth		: Number	= 100,
-										 shadowMapHeight	: Number	= 100)
+										 shadowMapMaxZ		: Number	= 1000,
+										 shadowMapWidth		: Number	= 20,
+										 shadowMapHeight	: Number	= 20)
 		{
 			_worldPosition		= new Vector4();
 			_worldDirection		= new Vector4();
 			_worldToScreen		= new Matrix4x4();
 			_worldToUV			= new Matrix4x4();
 			_projection			= new Matrix4x4();
+			_shadowMapSize		= shadowMapSize;
 			
 			super(color, emissionMask, shadowCasting, TYPE);
 			
 			this.diffuse		= diffuse;
 			this.specular		= specular;
 			this.shininess		= shininess;
+			this.shadowMapMaxZ	= shadowMapMaxZ;
+			this.shadowMapWidth	= shadowMapWidth;
 			
 			setProperty('worldPosition', _worldPosition);
 			setProperty('worldDirection', _worldDirection);
@@ -148,21 +179,6 @@ package aerys.minko.scene.node.light
 			if ([ShadowMappingType.NONE, 
 				ShadowMappingType.MATRIX].indexOf(shadowCasting) == -1)
 				throw new Error('Invalid ShadowMappingType.');
-		}
-		
-		override protected function addedToSceneHandler(child : ISceneNode, scene : Scene) : void
-		{
-			super.addedToSceneHandler(child, scene);
-			
-			scene.bindings.addCallback('screenToWorld', cameraScreenToWorldChangedHandler);
-			cameraScreenToWorldChangedHandler(null, null, null, null);
-		}
-		
-		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene) : void
-		{
-			super.removedFromSceneHandler(child, scene);
-			
-			scene.bindings.removeCallback('screenToWorld', cameraScreenToWorldChangedHandler);
 		}
 		
 		override protected function transformChangedHandler(transform : Matrix4x4) : void
@@ -181,48 +197,16 @@ package aerys.minko.scene.node.light
 			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
-		protected function cameraScreenToWorldChangedHandler(sceneBindings	: DataBindings,
-															 propertyName	: String,
-															 oldValue		: Matrix4x4,
-															 newValue		: Matrix4x4) : void
+		private function updateProjectionMatrix() : void
 		{
-			newValue = Scene(root).bindings.getProperty('screenToWorld') as Matrix4x4;
+			var zFar : Number = this.shadowMapMaxZ;
 			
-			if (newValue == null)
-			{
-				// No camera on scene, we cannot compute a valid projection matrix.
-				// For now we default to identity
-				_projection.identity();
-			}
-			else
-			{
-				// There is a camera in the scene
-				// We convert the frustum into light space, and compute a projection
-				// matrix that contains the whole frustum.
-				var zNear	: Number = Number.POSITIVE_INFINITY;
-				var zFar	: Number = Number.NEGATIVE_INFINITY;
-				var left	: Number = Number.POSITIVE_INFINITY;
-				var right	: Number = Number.NEGATIVE_INFINITY;
-				var bottom	: Number = Number.POSITIVE_INFINITY;
-				var top		: Number = Number.NEGATIVE_INFINITY;
-				
-				for (var pointId : uint = 0; pointId < 8; ++pointId)
-				{
-					newValue.transformVector(FRUSTUM_POINTS[pointId], TMP_VECTOR);
-					TMP_VECTOR.scaleBy(1 / TMP_VECTOR.w);
-					worldToLocal.transformVector(TMP_VECTOR, TMP_VECTOR);
-					
-					if (TMP_VECTOR.x > right)	right	= TMP_VECTOR.x;
-					if (TMP_VECTOR.x < left)	left	= TMP_VECTOR.x;
-					if (TMP_VECTOR.y > top)		top		= TMP_VECTOR.y;
-					if (TMP_VECTOR.y < bottom)	bottom	= TMP_VECTOR.y;
-					if (TMP_VECTOR.z > zFar)	zFar	= TMP_VECTOR.z;
-					if (TMP_VECTOR.z < zNear)	zNear	= TMP_VECTOR.z;
-				}
-				
-				_projection.orthoOffCenter(left, right, bottom, top, zNear, zFar);
-			}
-			
+			_projection.initialize(
+				2 / _shadowMapWidth, 0, 0, 0,
+				0, 2 / _shadowMapWidth, 0, 0,
+				0, 0, 2 / zFar, 0,
+				0, 0, 0, 1
+			);
 			_worldToScreen.lock().copyFrom(worldToLocal).append(_projection).unlock();
 			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
