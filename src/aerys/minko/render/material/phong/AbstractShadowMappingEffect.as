@@ -35,7 +35,7 @@ package aerys.minko.render.material.phong
 		}
 		
 		public function AbstractShadowMappingEffect(scene 			: Scene, 
-												renderingShader : Shader)
+													renderingShader : Shader)
 		{
 			_renderingPass		= renderingShader;
 			_watchedProperties	= new Vector.<String>();
