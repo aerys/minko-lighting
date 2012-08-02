@@ -40,6 +40,15 @@ package aerys.minko.render.material.realistic
 			setProperty(EnvironmentMappingProperties.ENVIRONMENT_MAPPING_TYPE, value);
 		}
 		
+		public function get environmentBlending() : uint
+		{
+			return getProperty(EnvironmentMappingProperties.ENVIRONMENT_BLENDING) as uint;
+		}
+		public function set environmentBlending(value : uint) : void
+		{
+			setProperty(EnvironmentMappingProperties.ENVIRONMENT_BLENDING, value);
+		}
+		
 		public function RealisticMaterial(scene			: Scene,
 										  properties	: Object	= null,
 										  effect		: Effect	= null,
