@@ -1,16 +1,13 @@
 package aerys.minko.scene.node.light
 {
 	import aerys.minko.ns.minko_lighting;
-	import aerys.minko.render.effect.lighting.LightingProperties;
+	import aerys.minko.render.material.phong.PhongProperties;
 	import aerys.minko.scene.node.AbstractSceneNode;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
-	import aerys.minko.type.Signal;
 	import aerys.minko.type.binding.DataBindings;
 	import aerys.minko.type.binding.DataProvider;
-	import aerys.minko.type.binding.IDataProvider;
-	import aerys.minko.type.data.LightDataProvider;
-	import aerys.minko.type.math.Matrix4x4;
+	import aerys.minko.scene.node.data.LightDataProvider;
 	
 	use namespace minko_lighting;
 	
@@ -60,7 +57,7 @@ package aerys.minko.scene.node.light
 			
 			for (var propertyName : String in _dataProvider.dataDescriptor)
 			{
-				propertyNames.push(LightingProperties.getPropertyFor(propertyName));
+				propertyNames.push(PhongProperties.getPropertyFor(propertyName));
 				propertyValues.push(_dataProvider.getProperty(propertyName));
 				++numProperties;
 			}
@@ -70,7 +67,7 @@ package aerys.minko.scene.node.light
 			
 			for (var propertyId : uint = 0; propertyId < numProperties; ++propertyId)
 				_dataProvider.setProperty(
-					LightingProperties.getNameFor(v, propertyNames[propertyId]), 
+					PhongProperties.getNameFor(v, propertyNames[propertyId]), 
 					propertyValues[propertyId]
 				);
 		}
@@ -94,14 +91,14 @@ package aerys.minko.scene.node.light
 		
 		protected final function getProperty(name : String) : *
 		{
-			var propertyName : String = LightingProperties.getNameFor(_lightId, name);
+			var propertyName : String = PhongProperties.getNameFor(_lightId, name);
 			
 			return _dataProvider.getProperty(propertyName);
 		}
 		
 		protected final function setProperty(name : String, value : Object) : void
 		{
-			var propertyName : String = LightingProperties.getNameFor(_lightId, name);
+			var propertyName : String = PhongProperties.getNameFor(_lightId, name);
 			
 			_dataProvider.setProperty(propertyName, value);
 		}
