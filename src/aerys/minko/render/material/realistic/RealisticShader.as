@@ -2,14 +2,14 @@ package aerys.minko.render.material.realistic
 {
 	import aerys.minko.render.RenderTarget;
 	import aerys.minko.render.material.basic.BasicProperties;
-	import aerys.minko.render.material.environment.EnvironmentMappingShader;
+	import aerys.minko.render.material.basic.BasicShader;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.part.BlendingShaderPart;
 	import aerys.minko.render.shader.part.DiffuseShaderPart;
 	import aerys.minko.render.shader.part.environment.EnvironmentMappingShaderPart;
 	import aerys.minko.render.shader.part.phong.PhongShaderPart;
 	
-	public class RealisticShader extends EnvironmentMappingShader
+	public class RealisticShader extends BasicShader
 	{
 		private var _diffuse			: DiffuseShaderPart;
 		private var _phong				: PhongShaderPart;
