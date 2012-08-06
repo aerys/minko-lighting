@@ -69,15 +69,15 @@ package aerys.minko.render.shader.part.phong.attenuation
 			var quality		: uint		= getLightConstant(lightId, 'shadowMapQuality');
 			if (quality != ShadowMappingQuality.HARD)
 			{
-				var invertSize	: SFloat	= reciprocal(getLightParameter(lightId, 'shadowMapSize', 1));
-				if ((quality & 1) == 1)
-					invertSize.scaleBy(2);
-				quality >>= 1;
+				var invertSize	: SFloat			= divide(
+					getLightParameter(lightId, 'shadowMapSamplingDistance', 1),
+					getLightParameter(lightId, 'shadowMapSize', 1)
+				);
 				
 				var uvs 		: Vector.<SFloat>	= new <SFloat>[];
 				var uvDelta		: SFloat;
 				
-				if (quality > 0)
+				if (quality >= ShadowMappingQuality.LOW)
 				{
 					uvDelta = multiply(float3(-1, 0, 1), invertSize);
 					uvs.push(
@@ -88,7 +88,16 @@ package aerys.minko.render.shader.part.phong.attenuation
 					);
 				}
 				
-				if (quality > 1)
+				if (quality >= ShadowMappingQuality.MEDIUM)
+				{
+					uvDelta = multiply(float3(-2, 0, 2), invertSize);
+					uvs.push(
+						add(uv.xyxy, uvDelta.xyyx),	// (-2, 0), (0, -2)
+						add(uv.xyxy, uvDelta.yzzy)	// ( 0, 2), (2, 0)
+					);
+				}
+				
+				if (quality >= ShadowMappingQuality.HARD)
 				{
 					uvDelta = multiply(float4(-2, -1, 1, 2), invertSize);
 					uvs.push(
@@ -96,15 +105,6 @@ package aerys.minko.render.shader.part.phong.attenuation
 						add(uv.xyxy, uvDelta.zwwz),	// ( 1,  2), ( 2,  1)
 						add(uv.xyxy, uvDelta.wyzx),	// ( 2, -1), ( 1, -2)
 						add(uv.xyxy, uvDelta.xyyx)	// (-2, -1), (-1, -2)
-					);
-				}
-				
-				if (quality > 2)
-				{
-					uvDelta = multiply(float3(-2, 0, 2), invertSize);
-					uvs.push(
-						add(uv.xyxy, uvDelta.xyyx),	// (-2, 0), (0, -2)
-						add(uv.xyxy, uvDelta.yzzy)	// ( 0, 2), (2, 0)
 					);
 				}
 				

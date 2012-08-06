@@ -91,6 +91,11 @@ package aerys.minko.scene.node.light
 			return getProperty('shadowMapQuality');
 		}
 		
+		public function get shadowMapSamplingDistance() : uint
+		{
+			return getProperty('shadowMapSamplingDistance');
+		}
+		
 		public function set diffuse(v : Number)	: void
 		{
 			setProperty('diffuse', v);
@@ -193,19 +198,25 @@ package aerys.minko.scene.node.light
 			setProperty('shadowMapQuality', v);
 		}
 		
-		public function SpotLight(color					: uint		= 0xFFFFFFFF,
-								  diffuse				: Number	= .6,
-								  specular				: Number	= .8,
-								  shininess				: Number	= 64,
-								  attenuationDistance	: Number	= 0,
-								  outerRadius			: Number	= 1.57079632679,
-								  innerRadius			: Number	= 0,
-								  emissionMask			: uint		= 0x1,
-								  shadowCastingType		: uint		= 0,
-								  shadowMapSize			: uint		= 512,
-								  shadowMapZNear		: Number	= 0.1,
-								  shadowMapZFar			: Number	= 1000,
-								  shadowMapQuality		: uint		= 0)
+		public function set shadowMapSamplingDistance(v : uint) : void
+		{
+			setProperty('shadowMapSamplingDistance', v);
+		}
+		
+		public function SpotLight(color						: uint		= 0xFFFFFFFF,
+								  diffuse					: Number	= .6,
+								  specular					: Number	= .8,
+								  shininess					: Number	= 64,
+								  attenuationDistance		: Number	= 0,
+								  outerRadius				: Number	= 1.57079632679,
+								  innerRadius				: Number	= 0,
+								  emissionMask				: uint		= 0x1,
+								  shadowCastingType			: uint		= 0,
+								  shadowMapSize				: uint		= 512,
+								  shadowMapZNear			: Number	= 0.1,
+								  shadowMapZFar				: Number	= 1000,
+								  shadowMapQuality			: uint		= 0,
+								  shadowMapSamplingDistance	: uint		= 1)
 		{
 			_worldDirection = new Vector4();
 			_worldPosition	= new Vector4();
@@ -215,16 +226,17 @@ package aerys.minko.scene.node.light
 			
 			super(color, emissionMask, shadowCastingType, TYPE)
 			
-			this.diffuse				= diffuse;
-			this.specular				= specular;
-			this.shininess				= shininess;
-			this.innerRadius			= innerRadius;
-			this.outerRadius			= outerRadius;
-			this.attenuationDistance	= attenuationDistance;
-			this.shadowMapZNear			= shadowMapZNear;
-			this.shadowMapZFar			= shadowMapZFar;
-			this.shadowMapSize			= shadowMapSize;
-			this.shadowMapQuality		= shadowMapQuality;
+			this.diffuse					= diffuse;
+			this.specular					= specular;
+			this.shininess					= shininess;
+			this.innerRadius				= innerRadius;
+			this.outerRadius				= outerRadius;
+			this.attenuationDistance		= attenuationDistance;
+			this.shadowMapZNear				= shadowMapZNear;
+			this.shadowMapZFar				= shadowMapZFar;
+			this.shadowMapSize				= shadowMapSize;
+			this.shadowMapQuality			= shadowMapQuality;
+			this.shadowMapSamplingDistance	= shadowMapSamplingDistance;
 			
 			setProperty('worldDirection', _worldDirection);
 			setProperty('worldPosition', _worldPosition);
