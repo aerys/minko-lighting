@@ -40,7 +40,6 @@ package aerys.minko.scene.node.light
 		private var _projection		: Matrix4x4;
 		private var _worldToScreen	: Matrix4x4;
 		private var _worldToUV		: Matrix4x4;
-		private var _shadowMapSize	: uint;
 		
 		public function get diffuse() : Number
 		{
@@ -74,7 +73,7 @@ package aerys.minko.scene.node.light
 		
 		public function get shadowMapSize() : uint
 		{
-			return _shadowMapSize;
+			return getProperty('shadowMapSize') as uint;
 		}
 		
 		public function get shadowMapZNear() : Number
@@ -85,6 +84,11 @@ package aerys.minko.scene.node.light
 		public function get shadowMapZFar() : Number
 		{
 			return getProperty('zFar');
+		}
+		
+		public function get shadowMapQuality() : uint
+		{
+			return getProperty('shadowMapQuality');
 		}
 		
 		public function set diffuse(v : Number)	: void
@@ -136,7 +140,7 @@ package aerys.minko.scene.node.light
 		
 		public function set shadowMapSize(v : uint) : void
 		{
-			_shadowMapSize = v;
+			setProperty('shadowMapSize', v);
 			this.shadowCastingType = this.shadowCastingType;
 		}
 		
@@ -184,6 +188,11 @@ package aerys.minko.scene.node.light
 			updateProjectionMatrix();
 		}
 		
+		public function set shadowMapQuality(v : uint) : void
+		{
+			setProperty('shadowMapQuality', v);
+		}
+		
 		public function SpotLight(color					: uint		= 0xFFFFFFFF,
 								  diffuse				: Number	= .6,
 								  specular				: Number	= .8,
@@ -195,14 +204,14 @@ package aerys.minko.scene.node.light
 								  shadowCastingType		: uint		= 0,
 								  shadowMapSize			: uint		= 512,
 								  shadowMapZNear		: Number	= 0.1,
-								  shadowMapZFar			: Number	= 1000)
+								  shadowMapZFar			: Number	= 1000,
+								  shadowMapQuality		: uint		= 0)
 		{
 			_worldDirection = new Vector4();
 			_worldPosition	= new Vector4();
 			_projection		= new Matrix4x4();
 			_worldToScreen	= new Matrix4x4();
 			_worldToUV		= new Matrix4x4();
-			_shadowMapSize	= shadowMapSize;
 			
 			super(color, emissionMask, shadowCastingType, TYPE)
 			
@@ -214,6 +223,8 @@ package aerys.minko.scene.node.light
 			this.attenuationDistance	= attenuationDistance;
 			this.shadowMapZNear			= shadowMapZNear;
 			this.shadowMapZFar			= shadowMapZFar;
+			this.shadowMapSize			= shadowMapSize;
+			this.shadowMapQuality		= shadowMapQuality;
 			
 			setProperty('worldDirection', _worldDirection);
 			setProperty('worldPosition', _worldPosition);

@@ -40,8 +40,7 @@ package aerys.minko.scene.node.light
 		private var _worldToScreen	: Matrix4x4;
 		private var _worldToUV		: Matrix4x4;
 		private var _projection		: Matrix4x4;
-		private var _shadowMapSize	: uint;
-		private var _shadowMapWidth:Number;
+		private var _shadowMapWidth	: Number;
 		
 		public function get diffuse() : Number
 		{
@@ -60,7 +59,7 @@ package aerys.minko.scene.node.light
 		
 		public function get shadowMapSize() : uint
 		{
-			return _shadowMapSize;
+			return getProperty('shadowMapSize');
 		}
 		
 		public function get shadowMapWidth() : Number
@@ -71,6 +70,11 @@ package aerys.minko.scene.node.light
 		public function get shadowMapMaxZ() : Number
 		{
 			return getProperty('zFar');
+		}
+		
+		public function get shadowMapQuality() : uint
+		{
+			return getProperty('shadowMapQuality');
 		}
 		
 		public function set diffuse(v : Number)	: void
@@ -96,7 +100,7 @@ package aerys.minko.scene.node.light
 		
 		public function set shadowMapSize(v : uint) : void
 		{
-			_shadowMapSize = v;
+			setProperty('shadowMapSize', v);
 			
 			this.shadowCastingType = this.shadowCastingType;
 		}
@@ -115,7 +119,8 @@ package aerys.minko.scene.node.light
 		
 		override public function set shadowCastingType(v : uint) : void
 		{
-			var shadowMap : TextureResource	= getProperty('shadowMap') as TextureResource;
+			var shadowMap		: TextureResource	= getProperty('shadowMap') as TextureResource;
+			var shadowMapSize	: uint				= this.shadowMapSize;
 			
 			if (shadowMap)
 			{
@@ -130,11 +135,11 @@ package aerys.minko.scene.node.light
 					break;
 				
 				case ShadowMappingType.MATRIX:
-					if (!((_shadowMapSize & (~_shadowMapSize + 1)) == _shadowMapSize
-						&& _shadowMapSize <= 2048))
-						throw new Error(_shadowMapSize + ' is an invalid size for a shadow map');
+					if (!((shadowMapSize & (~shadowMapSize + 1)) == shadowMapSize
+						&& shadowMapSize <= 2048))
+						throw new Error(shadowMapSize + ' is an invalid size for a shadow map');
 					
-					shadowMap = new TextureResource(_shadowMapSize, _shadowMapSize);
+					shadowMap = new TextureResource(shadowMapSize, shadowMapSize);
 					setProperty('shadowMap', shadowMap);
 					setProperty('shadowCastingType', ShadowMappingType.MATRIX);
 					break;
@@ -142,6 +147,11 @@ package aerys.minko.scene.node.light
 				default: 
 					throw new ArgumentError('Invalid shadow casting type.');
 			}
+		}
+		
+		public function set shadowMapQuality(v : uint) : void
+		{
+			setProperty('shadowMapQuality', v);
 		}
 		
 		public function DirectionalLight(color				: uint		= 0xFFFFFFFF,
@@ -153,22 +163,23 @@ package aerys.minko.scene.node.light
 										 shadowMapSize		: uint		= 512,
 										 shadowMapMaxZ		: Number	= 1000,
 										 shadowMapWidth		: Number	= 20,
-										 shadowMapHeight	: Number	= 20)
+										 shadowMapQuality	: uint		= 0)
 		{
 			_worldPosition		= new Vector4();
 			_worldDirection		= new Vector4();
 			_worldToScreen		= new Matrix4x4();
 			_worldToUV			= new Matrix4x4();
 			_projection			= new Matrix4x4();
-			_shadowMapSize		= shadowMapSize;
 			
 			super(color, emissionMask, shadowCasting, TYPE);
 			
-			this.diffuse		= diffuse;
-			this.specular		= specular;
-			this.shininess		= shininess;
-			this.shadowMapMaxZ	= shadowMapMaxZ;
-			this.shadowMapWidth	= shadowMapWidth;
+			this.diffuse			= diffuse;
+			this.specular			= specular;
+			this.shininess			= shininess;
+			this.shadowMapMaxZ		= shadowMapMaxZ;
+			this.shadowMapWidth		= shadowMapWidth;
+			this.shadowMapSize		= shadowMapSize;
+			this.shadowMapQuality	= shadowMapQuality;
 			
 			setProperty('worldPosition', _worldPosition);
 			setProperty('worldDirection', _worldDirection);
