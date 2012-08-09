@@ -220,7 +220,7 @@ package aerys.minko.scene.node.light
 			_projection.initialize(fd, 0, 0, 0, 0, fd, 0, 0, 0, 0, m33, 1, 0, 0, m43, 0);
 		}
 		
-		override public function clone(cloneControllers : Boolean = false) : ISceneNode
+		override public function clone() : ISceneNode
 		{
 			var light : PointLight = new PointLight(
 				color, diffuse, specular, shininess, 

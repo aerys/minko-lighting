@@ -234,7 +234,7 @@ package aerys.minko.scene.node.light
 			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
-		override public function clone(cloneControllers : Boolean = false) : ISceneNode
+		override public function clone() : ISceneNode
 		{
 			var light : DirectionalLight = new DirectionalLight(
 				color,
