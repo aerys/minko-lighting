@@ -3,6 +3,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.ns.minko_math;
 	import aerys.minko.ns.minko_scene;
 	import aerys.minko.render.resource.texture.TextureResource;
+	import aerys.minko.scene.node.AbstractSceneNode;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.binding.DataBindings;
@@ -277,7 +278,7 @@ package aerys.minko.scene.node.light
 			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
-		override minko_scene function cloneNode() : ISceneNode
+		override minko_scene function cloneNode() : AbstractSceneNode
 		{
 			var light : SpotLight = new SpotLight(
 				color, diffuse, specular, shininess, 

@@ -4,6 +4,7 @@ package aerys.minko.scene.node.light
 	import aerys.minko.render.resource.texture.CubeTextureResource;
 	import aerys.minko.render.resource.texture.ITextureResource;
 	import aerys.minko.render.resource.texture.TextureResource;
+	import aerys.minko.scene.node.AbstractSceneNode;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.binding.DataBindings;
@@ -223,7 +224,7 @@ package aerys.minko.scene.node.light
 			_projection.initialize(fd, 0, 0, 0, 0, fd, 0, 0, 0, 0, m33, 1, 0, 0, m43, 0);
 		}
 		
-		override minko_scene function cloneNode() : ISceneNode
+		override minko_scene function cloneNode() : AbstractSceneNode
 		{
 			var light : PointLight = new PointLight(
 				color, diffuse, specular, shininess, 
