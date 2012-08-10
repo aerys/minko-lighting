@@ -1,8 +1,11 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko_scene;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.type.enum.ShadowMappingType;
 
+	use namespace minko_scene;
+	
 	public class AmbientLight extends AbstractLight
 	{
 		public static const TYPE : uint = 0;
@@ -34,7 +37,7 @@ package aerys.minko.scene.node.light
 			this.ambient = ambient;
 		}
 		
-		override public function clone() : ISceneNode
+		override minko_scene function cloneNode() : ISceneNode
 		{
 			var light : AmbientLight = new AmbientLight(color, ambient, emissionMask);
 			

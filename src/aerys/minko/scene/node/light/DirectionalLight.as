@@ -1,5 +1,6 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko_scene;
 	import aerys.minko.render.resource.texture.TextureResource;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
@@ -8,6 +9,8 @@ package aerys.minko.scene.node.light
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 
+	use namespace minko_scene;
+	
 	/**
 	 * @author Romain Gilliotte
 	 */
@@ -234,7 +237,7 @@ package aerys.minko.scene.node.light
 			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
-		override public function clone() : ISceneNode
+		override minko_scene function cloneNode() : ISceneNode
 		{
 			var light : DirectionalLight = new DirectionalLight(
 				color,

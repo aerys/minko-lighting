@@ -1,5 +1,6 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko_scene;
 	import aerys.minko.render.resource.texture.CubeTextureResource;
 	import aerys.minko.render.resource.texture.ITextureResource;
 	import aerys.minko.render.resource.texture.TextureResource;
@@ -10,6 +11,8 @@ package aerys.minko.scene.node.light
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 
+	use namespace minko_scene;
+	
 	public class PointLight extends AbstractLight
 	{
 		public static const TYPE : uint = 2;
@@ -220,7 +223,7 @@ package aerys.minko.scene.node.light
 			_projection.initialize(fd, 0, 0, 0, 0, fd, 0, 0, 0, 0, m33, 1, 0, 0, m43, 0);
 		}
 		
-		override public function clone() : ISceneNode
+		override minko_scene function cloneNode() : ISceneNode
 		{
 			var light : PointLight = new PointLight(
 				color, diffuse, specular, shininess, 
