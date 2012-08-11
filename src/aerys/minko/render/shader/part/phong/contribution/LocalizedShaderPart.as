@@ -51,15 +51,14 @@ package aerys.minko.render.shader.part.phong.contribution
 		 */
 		override public function computeSpecularInTangentSpace(lightId : uint) : SFloat
 		{
+			// compute light direction
+			var cLocalLightPosition			: SFloat = worldToLocal(getLightParameter(lightId, 'worldPosition', 4));
+			var vsLocalLightDirection		: SFloat = subtract(vsLocalPosition, cLocalLightPosition.xyz);
+			var fsTangentLightDirection		: SFloat = normalize(interpolate(deltaLocalToTangent(vsLocalLightDirection)));
 			// compute camera direction
-			var cLocalCameraPosition				: SFloat = worldToLocal(sceneBindings.getParameter('cameraPosition', 4));
-			var vsLocalCameraDirection				: SFloat = normalize(subtract(vsLocalPosition, cLocalCameraPosition));
-			var fsTangentCameraDirection			: SFloat = interpolate(deltaLocalToTangent(vsLocalCameraDirection));
-			
-			// compute reflected light direction
-			var cLocalLightPosition					: SFloat = worldToLocal(getLightParameter(lightId, 'worldPosition', 4));
-			var vsLocalLightDirection				: SFloat = normalize(subtract(vsLocalPosition, cLocalLightPosition.xyz));
-			var fsTangentLightDirection				: SFloat = interpolate(deltaLocalToTangent(vsLocalLightDirection));
+			var cLocalCameraPosition		: SFloat = worldToLocal(sceneBindings.getParameter('cameraPosition', 4));
+			var vsLocalCameraDirection		: SFloat = subtract(vsLocalPosition, cLocalCameraPosition);
+			var fsTangentCameraDirection	: SFloat = normalize(interpolate(deltaLocalToTangent(vsLocalCameraDirection)));
 			
 			return specularFromVectors(lightId, fsTangentLightDirection, fsTangentNormal, fsTangentCameraDirection);
 		}
@@ -77,13 +76,12 @@ package aerys.minko.render.shader.part.phong.contribution
 		 */
 		override public function computeSpecularInWorldSpace(lightId : uint) : SFloat
 		{
+			// compute light direction
+			var cWorldLightPosition		: SFloat = getLightParameter(lightId, 'worldPosition', 4);
+			var fsWorldLightDirection	: SFloat = normalize(subtract(fsWorldPosition, cWorldLightPosition));
 			// compute camera direction
-			var cWorldCameraPosition			: SFloat = sceneBindings.getParameter('cameraPosition', 4);
-			var fsWorldCameraDirection			: SFloat = normalize(subtract(fsWorldPosition, cWorldCameraPosition));
-			
-			// compute reflected light direction
-			var cWorldLightPosition				: SFloat = getLightParameter(lightId, 'worldPosition', 4);
-			var fsWorldLightDirection			: SFloat = normalize(subtract(fsWorldPosition, cWorldLightPosition));
+			var cWorldCameraPosition	: SFloat = sceneBindings.getParameter('cameraPosition', 4);
+			var fsWorldCameraDirection	: SFloat = normalize(subtract(fsWorldPosition, cWorldCameraPosition));
 			
 			return specularFromVectors(lightId, fsWorldLightDirection, fsWorldNormal, fsWorldCameraDirection);
 		}

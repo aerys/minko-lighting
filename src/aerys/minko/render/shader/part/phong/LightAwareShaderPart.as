@@ -84,12 +84,7 @@ package aerys.minko.render.shader.part.phong
 		
 		protected function get vsLocalNormal() : SFloat
 		{
-			var vertexNormal : SFloat = vertexAnimationShaderPart.getAnimatedVertexNormal();
-			
-			if (meshBindings.getConstant(BasicProperties.TRIANGLE_CULLING, TriangleCulling.BACK) != TriangleCulling.BACK)
-				vertexNormal.negate();
-			
-			return vertexNormal;
+			return vertexAnimationShaderPart.getAnimatedVertexNormal();
 		}
 		
 		protected function get vsWorldNormal() : SFloat

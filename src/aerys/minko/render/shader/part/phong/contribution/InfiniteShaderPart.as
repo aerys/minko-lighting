@@ -77,10 +77,9 @@ package aerys.minko.render.shader.part.phong.contribution
 		 */
 		override public function computeSpecularInWorldSpace(lightId : uint) : SFloat
 		{
-			var cWorldLightDirection			: SFloat = getLightParameter(lightId, 'worldDirection', 3);
-			
-			var cWorldCameraPosition			: SFloat = sceneBindings.getParameter('cameraPosition', 4);
-			var fsWorldCameraDirection			: SFloat = normalize(subtract(fsWorldPosition, cWorldCameraPosition));
+			var cWorldLightDirection	: SFloat = getLightParameter(lightId, 'worldDirection', 3);
+			var cWorldCameraPosition	: SFloat = sceneBindings.getParameter('cameraPosition', 4);
+			var fsWorldCameraDirection	: SFloat = normalize(subtract(fsWorldPosition, cWorldCameraPosition));
 			
 			return specularFromVectors(lightId, cWorldLightDirection, fsWorldNormal, fsWorldCameraDirection);
 		}
