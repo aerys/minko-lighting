@@ -67,11 +67,11 @@ package aerys.minko.render.material.phong
 		
 		private function updatePasses() : void
 		{
-			var passes			: Vector.<Shader>	= new Vector.<Shader>;
+			var passes			: Vector.<Shader>	= new <Shader>[];
 			var sceneBindings	: DataBindings		= _scene.bindings;
-			var shader			: Shader;
-			var renderTarget	: RenderTarget;
-
+			var shader			: Shader			= null;
+			var renderTarget	: RenderTarget		= null;
+			
 			while (_watchedProperties.length != 0)
 				sceneBindings.removeCallback(_watchedProperties.pop(), propertyChangedHandler);
 			
