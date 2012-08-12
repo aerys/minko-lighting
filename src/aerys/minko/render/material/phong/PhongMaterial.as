@@ -53,11 +53,11 @@ package aerys.minko.render.material.phong
 		
 		public function get ambientMultiplier() : Number
 		{
-			return getProperty(PhongProperties.LIGHTMAP_MULTIPLIER) as Number;
+			return getProperty(PhongProperties.AMBIENT_MULTIPLIER) as Number;
 		}
 		public function set ambientMultiplier(value : Number) : void
 		{
-			setProperty(PhongProperties.LIGHTMAP_MULTIPLIER, value);
+			setProperty(PhongProperties.AMBIENT_MULTIPLIER, value);
 		}
 		
 		public function get diffuseMultiplier() : Number
