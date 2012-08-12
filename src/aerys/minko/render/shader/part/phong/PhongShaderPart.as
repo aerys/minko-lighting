@@ -92,6 +92,7 @@ package aerys.minko.render.shader.part.phong
 		public function getLightingColor() : SFloat
 		{
 			var lightValue : SFloat = float3(0, 0, 0);
+			
 			lightValue.incrementBy(getStaticLighting());
 			lightValue.incrementBy(getDynamicLighting());
 			
