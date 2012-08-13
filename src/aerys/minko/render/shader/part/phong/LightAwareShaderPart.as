@@ -130,7 +130,11 @@ package aerys.minko.render.shader.part.phong
 				
 				case NormalMappingType.NORMAL:
 				case NormalMappingType.PARALLAX:
-					var fsNormalMap	: SFloat = meshBindings.getTextureParameter(PhongProperties.NORMAL_MAP);
+					var fsNormalMap	: SFloat = meshBindings.getTextureParameter(
+						PhongProperties.NORMAL_MAP,
+						SamplerFiltering.LINEAR,
+						SamplerMipMapping.LINEAR
+					);
 					var fsPixel		: SFloat = sampleTexture(fsNormalMap, fsUV).scaleBy(2).decrementBy(1);
 					
 					return normalize(fsPixel.rgb);
