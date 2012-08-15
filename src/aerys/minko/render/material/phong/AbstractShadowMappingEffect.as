@@ -101,8 +101,9 @@ package aerys.minko.render.material.phong
 		private function manageMatrixShadowing(lightId : uint, passes : Vector.<Shader>) : void
 		{
 			var textureResource : TextureResource	= getLightProperty(lightId, 'shadowMap');
-			var renderTarget	: RenderTarget		= 
-				new RenderTarget(textureResource.width, textureResource.height, textureResource, 0, 0xffffffff);
+			var renderTarget	: RenderTarget		= new RenderTarget(
+				textureResource.width, textureResource.height, textureResource, 0, 0xffffffff
+			);
 			
 			passes.push(new MatrixShadowMapShader(lightId, lightId + 1, renderTarget));
 		}
