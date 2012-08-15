@@ -1,8 +1,12 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko_scene;
+	import aerys.minko.scene.node.AbstractSceneNode;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.type.enum.ShadowMappingType;
 
+	use namespace minko_scene;
+	
 	public class AmbientLight extends AbstractLight
 	{
 		public static const TYPE : uint = 0;
@@ -21,6 +25,7 @@ package aerys.minko.scene.node.light
 		{
 			if (v != ShadowMappingType.NONE)
 				throw new Error('An ambient light cannot emit shadows.');
+			
 			setProperty('shadowCastingType', ShadowMappingType.NONE);
 		}
 		
@@ -28,12 +33,12 @@ package aerys.minko.scene.node.light
 									 ambient		: Number	= .4,
 									 emissionMask	: uint		= 0x1)
 		{
-			super(color, emissionMask, ShadowMappingType.NONE, 512, TYPE);
+			super(color, emissionMask, ShadowMappingType.NONE, TYPE);
 			
 			this.ambient = ambient;
 		}
 		
-		override public function clone(cloneControllers : Boolean = false) : ISceneNode
+		override minko_scene function cloneNode() : AbstractSceneNode
 		{
 			var light : AmbientLight = new AmbientLight(color, ambient, emissionMask);
 			

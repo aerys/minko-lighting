@@ -1,10 +1,9 @@
 package aerys.minko.render.shader.part
 {
-	import aerys.minko.render.effect.lighting.LightingProperties;
+	import aerys.minko.render.material.phong.PhongProperties;
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
-	import aerys.minko.render.shader.part.lighting.LightAwareShaderPart;
-	import aerys.minko.type.stream.format.VertexComponent;
+	import aerys.minko.render.shader.part.phong.LightAwareShaderPart;
 	
 	/**
 	 * 
@@ -21,15 +20,15 @@ package aerys.minko.render.shader.part
 			super(main);
 		}
 		
-		public function getSteepParallaxMappedUV() : SFloat
+		public function getSteepParallaxMappedUV(fsBaseUV : SFloat) : SFloat
 		{
 			// Retrieve attributes, constants, textures, config
-			var numSteps	: uint		= meshBindings.getConstant(LightingProperties.PARALLAX_MAPPING_NBSTEPS, DEFAULT_STEEP_NSTEPS);
+			var numSteps	: uint		= meshBindings.getConstant(PhongProperties.PARALLAX_MAPPING_NBSTEPS, DEFAULT_STEEP_NSTEPS);
 			
-			var fsHeightMap	: SFloat	= meshBindings.getTextureParameter(LightingProperties.HEIGHT_MAP);
-			var cBumpScale	: SFloat	= meshBindings.propertyExists(LightingProperties.PARALLAX_MAPPING_BUMP_SCALE) ? 
-										  meshBindings.getParameter(LightingProperties.PARALLAX_MAPPING_BUMP_SCALE, 1) : 
-										  float(DEFAULT_BUMPSCALE);
+			var fsHeightMap	: SFloat	= meshBindings.getTextureParameter(PhongProperties.HEIGHT_MAP);
+			var cBumpScale	: SFloat	= meshBindings.propertyExists(PhongProperties.PARALLAX_MAPPING_BUMP_SCALE)
+				? meshBindings.getParameter(PhongProperties.PARALLAX_MAPPING_BUMP_SCALE, 1)
+				: float(DEFAULT_BUMPSCALE);
 			
 			// compute camera direction
 			var cLocalCameraPosition		: SFloat = worldToLocal(sceneBindings.getParameter('cameraPosition', 4));
@@ -40,7 +39,7 @@ package aerys.minko.render.shader.part
 			var height			: Number = 1.;
 			var step			: Number = 1. / numSteps;
 			
-			var fsOffset		: SFloat = interpolate(getVertexAttribute(VertexComponent.UV).xy);
+			var fsOffset		: SFloat = fsBaseUV;
 			var fsDelta			: SFloat = multiply(divide(fsTangentCameraDirection.xy, fsTangentCameraDirection.z), divide(cBumpScale, numSteps));
 			var fsNb			: SFloat = sampleTexture(fsHeightMap, fsOffset);
 			var fsLoopRunning	: SFloat = float(1);

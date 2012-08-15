@@ -1,13 +1,17 @@
 package aerys.minko.scene.node.light
 {
+	import aerys.minko.ns.minko_scene;
 	import aerys.minko.render.resource.texture.TextureResource;
+	import aerys.minko.scene.node.AbstractSceneNode;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
-	import aerys.minko.type.data.DataBindings;
+	import aerys.minko.type.binding.DataBindings;
 	import aerys.minko.type.enum.ShadowMappingType;
 	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Vector4;
 
+	use namespace minko_scene;
+	
 	/**
 	 * @author Romain Gilliotte
 	 */
@@ -15,7 +19,13 @@ package aerys.minko.scene.node.light
 	{
 		public static const TYPE			: uint				= 1;
 		
-		private static const SCREEN_TO_UV	: Matrix4x4			= new Matrix4x4().appendScale(.5, -.5).appendTranslation(.5, .5);
+		private static const SCREEN_TO_UV	: Matrix4x4			= new Matrix4x4(
+			0.5,		0.0,		0.0,	0.0,
+			0.0, 		-0.5,		0.0,	0.0,
+			0.0,		0.0,		1.0,	0.0,
+			0.5, 		0.5,		0.0, 	1.0
+		);
+		
 		private static const Z_AXIS			: Vector4			= new Vector4(0, 0, 1);
 		private static const TMP_VECTOR		: Vector4			= new Vector4();
 		private static const FRUSTUM_POINTS	: Vector.<Vector4>	= new <Vector4>[
@@ -34,6 +44,7 @@ package aerys.minko.scene.node.light
 		private var _worldToScreen	: Matrix4x4;
 		private var _worldToUV		: Matrix4x4;
 		private var _projection		: Matrix4x4;
+		private var _shadowMapWidth	: Number;
 		
 		public function get diffuse() : Number
 		{
@@ -48,6 +59,31 @@ package aerys.minko.scene.node.light
 		public function get shininess() : Number
 		{
 			return getProperty('shininess') as Number;
+		}
+		
+		public function get shadowMapSize() : uint
+		{
+			return getProperty('shadowMapSize');
+		}
+		
+		public function get shadowMapWidth() : Number
+		{
+			return _shadowMapWidth;
+		}
+		
+		public function get shadowMapMaxZ() : Number
+		{
+			return getProperty('zFar');
+		}
+		
+		public function get shadowMapQuality() : uint
+		{
+			return getProperty('shadowMapQuality');
+		}
+		
+		public function get shadowMapSamplingDistance() : uint
+		{
+			return getProperty('shadowMapSamplingDistance');
 		}
 		
 		public function set diffuse(v : Number)	: void
@@ -71,10 +107,29 @@ package aerys.minko.scene.node.light
 			setProperty('shininess', v);
 		}
 		
+		public function set shadowMapSize(v : uint) : void
+		{
+			setProperty('shadowMapSize', v);
+			
+			this.shadowCastingType = this.shadowCastingType;
+		}
+		
+		public function set shadowMapWidth(v : Number) : void
+		{
+			_shadowMapWidth = v;
+			updateProjectionMatrix();
+		}
+		
+		public function set shadowMapMaxZ(v : Number) : void
+		{
+			setProperty('zFar', v);
+			updateProjectionMatrix();
+		}
+		
 		override public function set shadowCastingType(v : uint) : void
 		{
-			var shadowMapSize	: uint				= this.shadowMapSize;
 			var shadowMap		: TextureResource	= getProperty('shadowMap') as TextureResource;
+			var shadowMapSize	: uint				= this.shadowMapSize;
 			
 			if (shadowMap)
 			{
@@ -103,13 +158,27 @@ package aerys.minko.scene.node.light
 			}
 		}
 		
-		public function DirectionalLight(color			: uint		= 0xFFFFFFFF,
-									 	 diffuse		: Number	= .6,
-										 specular		: Number	= .8,
-										 shininess		: Number	= 64,
-										 emissionMask	: uint		= 0x1,
-										 shadowCasting	: uint		= 0,
-										 shadowMapSize	: uint		= 512)
+		public function set shadowMapQuality(v : uint) : void
+		{
+			setProperty('shadowMapQuality', v);
+		}
+		
+		public function set shadowMapSamplingDistance(v : uint) : void
+		{
+			setProperty('shadowMapSamplingDistance', v);
+		}
+		
+		public function DirectionalLight(color						: uint		= 0xFFFFFFFF,
+									 	 diffuse					: Number	= .6,
+										 specular					: Number	= .8,
+										 shininess					: Number	= 64,
+										 emissionMask				: uint		= 0x1,
+										 shadowCasting				: uint		= 0,
+										 shadowMapSize				: uint		= 512,
+										 shadowMapMaxZ				: Number	= 1000,
+										 shadowMapWidth				: Number	= 20,
+										 shadowMapQuality			: uint		= 0,
+										 shadowMapSamplingDistance	: uint		= 1)
 		{
 			_worldPosition		= new Vector4();
 			_worldDirection		= new Vector4();
@@ -117,11 +186,16 @@ package aerys.minko.scene.node.light
 			_worldToUV			= new Matrix4x4();
 			_projection			= new Matrix4x4();
 			
-			super(color, emissionMask, shadowCasting, shadowMapSize, TYPE);
+			super(color, emissionMask, shadowCasting, TYPE);
 			
-			this.diffuse		= diffuse;
-			this.specular		= specular;
-			this.shininess		= shininess;
+			this.diffuse					= diffuse;
+			this.specular					= specular;
+			this.shininess					= shininess;
+			this.shadowMapMaxZ				= shadowMapMaxZ;
+			this.shadowMapWidth				= shadowMapWidth;
+			this.shadowMapSize				= shadowMapSize;
+			this.shadowMapQuality			= shadowMapQuality;
+			this.shadowMapSamplingDistance	= shadowMapSamplingDistance;
 			
 			setProperty('worldPosition', _worldPosition);
 			setProperty('worldDirection', _worldDirection);
@@ -134,25 +208,9 @@ package aerys.minko.scene.node.light
 				throw new Error('Invalid ShadowMappingType.');
 		}
 		
-		override protected function addedToSceneHandler(child:ISceneNode, scene:Scene):void
+		override protected function transformChangedHandler(transform : Matrix4x4) : void
 		{
-			super.addedToSceneHandler(child, scene);
-			
-			scene.bindings.addCallback('screenToWorld', cameraScreenToWorldChangedHandler);
-			cameraScreenToWorldChangedHandler(null, null, null);
-		}
-		
-		override protected function removedFromSceneHandler(child:ISceneNode, scene:Scene):void
-		{
-			super.removedFromSceneHandler(child, scene);
-			
-			scene.bindings.removeCallback('screenToWorld', cameraScreenToWorldChangedHandler);
-		}
-		
-		override protected function transformChangedHandler(transform		: Matrix4x4, 
-															propertyName	: String) : void
-		{
-			super.transformChangedHandler(transform, propertyName);
+			super.transformChangedHandler(transform);
 			
 			// compute position
 			localToWorld.getTranslation(_worldPosition);
@@ -166,52 +224,21 @@ package aerys.minko.scene.node.light
 			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
-		protected function cameraScreenToWorldChangedHandler(sceneBindings	: DataBindings,
-															 propertyName	: String,
-															 screenToWorld	: Matrix4x4) : void
+		private function updateProjectionMatrix() : void
 		{
-			screenToWorld = Scene(root).bindings.getProperty('screenToWorld') as Matrix4x4;
+			var zFar : Number = this.shadowMapMaxZ;
 			
-			if (screenToWorld == null)
-			{
-				// No camera on scene, we cannot compute a valid projection matrix.
-				// For now we default to identity
-				_projection.identity();
-			}
-			else
-			{
-				// There is a camera in the scene
-				// We convert the frustum into light space, and compute a projection
-				// matrix that contains the whole frustum.
-				var zNear	: Number = Number.POSITIVE_INFINITY;
-				var zFar	: Number = Number.NEGATIVE_INFINITY;
-				var left	: Number = Number.POSITIVE_INFINITY;
-				var right	: Number = Number.NEGATIVE_INFINITY;
-				var bottom	: Number = Number.POSITIVE_INFINITY;
-				var top		: Number = Number.NEGATIVE_INFINITY;
-				
-				for (var pointId : uint = 0; pointId < 8; ++pointId)
-				{
-					screenToWorld.transformVector(FRUSTUM_POINTS[pointId], TMP_VECTOR);
-					TMP_VECTOR.scaleBy(1 / TMP_VECTOR.w);
-					worldToLocal.transformVector(TMP_VECTOR, TMP_VECTOR);
-					
-					if (TMP_VECTOR.x > right)	right	= TMP_VECTOR.x;
-					if (TMP_VECTOR.x < left)	left	= TMP_VECTOR.x;
-					if (TMP_VECTOR.y > top)		top		= TMP_VECTOR.y;
-					if (TMP_VECTOR.y < bottom)	bottom	= TMP_VECTOR.y;
-					if (TMP_VECTOR.z > zFar)	zFar	= TMP_VECTOR.z;
-					if (TMP_VECTOR.z < zNear)	zNear	= TMP_VECTOR.z;
-				}
-				
-				_projection.orthoOffCenter(left, right, bottom, top, zNear, zFar);
-			}
-			
+			_projection.initialize(
+				2 / _shadowMapWidth, 0, 0, 0,
+				0, 2 / _shadowMapWidth, 0, 0,
+				0, 0, 2 / zFar, 0,
+				0, 0, 0, 1
+			);
 			_worldToScreen.lock().copyFrom(worldToLocal).append(_projection).unlock();
 			_worldToUV.lock().copyFrom(_worldToScreen).append(SCREEN_TO_UV).unlock();
 		}
 		
-		override public function clone(cloneControllers : Boolean = false) : ISceneNode
+		override minko_scene function cloneNode() : AbstractSceneNode
 		{
 			var light : DirectionalLight = new DirectionalLight(
 				color,
@@ -222,7 +249,6 @@ package aerys.minko.scene.node.light
 				shadowCastingType,
 				shadowMapSize
 			);
-
 			
 			light.name = this.name;
 			light.transform.copyFrom(this.transform);
