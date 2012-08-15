@@ -32,11 +32,13 @@ package aerys.minko.render.material.phong
 			_lightId				= lightId;
 		}
 		
-		override protected function initializeSettings(passConfig : ShaderSettings) : void
+		override protected function initializeSettings(settings : ShaderSettings) : void
 		{
-			passConfig.blending			= Blending.NORMAL;
-			passConfig.enabled			= meshBindings.getConstant(PhongProperties.CAST_SHADOWS, true);
-			passConfig.triangleCulling	= meshBindings.getConstant(BasicProperties.TRIANGLE_CULLING, TriangleCulling.BACK);
+			super.initializeSettings(settings);
+			
+			settings.blending			= Blending.NORMAL;
+			settings.enabled			= meshBindings.getConstant(PhongProperties.CAST_SHADOWS, true);
+			settings.triangleCulling	= meshBindings.getConstant(BasicProperties.TRIANGLE_CULLING, TriangleCulling.BACK);
 		}
 		
 		override protected function getVertexPosition() : SFloat
