@@ -5,9 +5,9 @@ package aerys.minko.render.material.phong
 	
 	public class PhongEffect extends AbstractShadowMappingEffect
 	{
-		public function PhongEffect(scene : Scene)
+		public function PhongEffect(scene : Scene, shader : Shader = null)
 		{
-			super(scene, new PhongShader());
+			super(scene, shader || new PhongShader());
 		}
 	}
 }
