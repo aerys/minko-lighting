@@ -43,9 +43,10 @@ package aerys.minko.render.shader.part.phong.attenuation
 			// retrieve depthmap and projection matrix
 			var worldToUV	: SFloat = getLightParameter(lightId, 'worldToUV', 16);
 			var depthMap	: SFloat = getLightTextureParameter(lightId, 'shadowMap', 
-				SamplerFiltering.LINEAR, 
+				SamplerFiltering.NEAREST, 
 				SamplerMipMapping.DISABLE, 
-				SamplerWrapping.CLAMP);
+				SamplerWrapping.CLAMP
+			);
 			
 			// read expected depth from shadow map, and compute current depth
 			var uv : SFloat;
