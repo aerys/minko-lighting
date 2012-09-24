@@ -1,41 +1,160 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.scene.action.LightAction;
-	import aerys.minko.scene.data.IWorldData;
-	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.TransformData;
-	import aerys.minko.scene.node.AbstractScene;
-	import aerys.minko.type.Factory;
+	import aerys.minko.ns.minko_lighting;
+	import aerys.minko.render.material.phong.PhongProperties;
+	import aerys.minko.scene.node.AbstractSceneNode;
+	import aerys.minko.scene.node.ISceneNode;
+	import aerys.minko.scene.node.Scene;
+	import aerys.minko.type.binding.DataBindings;
+	import aerys.minko.type.binding.DataProvider;
+	import aerys.minko.scene.node.data.LightDataProvider;
 	
-	public class AbstractLight extends AbstractScene implements ILight
+	use namespace minko_lighting;
+	
+	public class AbstractLight extends AbstractSceneNode
 	{
-		protected static const LIGHT_DATA : Factory	= Factory.getFactory(LightData);
+		private static const TYPE_STRINGS : Vector.<String> = 
+			new <String>['AmbientLight', 'DirectionalLight', 'PointLight', 'SpotLight'];
 		
-		protected var _color	: uint;
-		protected var _group	: uint;
+		private var _dataProvider	: DataProvider;
+		private var _lightId		: int;
 		
-		public function get color()	: uint	{ return _color; }
-		public function get group() : uint	{ return _group; }
-		
-		public function set color(v : uint) : void 	{ _color = v; }
-		public function set group(v : uint) : void	{ _group = v; }
-		
-		public function get isSingle() : Boolean
+		public function get color() : uint
 		{
-			return false;
+			return getProperty('color') as uint;
 		}
 		
-		public function getLightData(transformData : TransformData) : LightData
+		public function get emissionMask() : uint
 		{
-			throw new Error();
+			return getProperty('emissionMask') as uint;
 		}
 		
-		public function AbstractLight(color : uint, group : uint)
+		public function get shadowCastingType() : uint
 		{
-			_color = color;
-			_group = group;
+			return getProperty('shadowCastingType') as uint; 
+		}
+		
+		public function set color(v : uint)	: void
+		{
+			setProperty('color', v);
+		}
+		
+		public function set emissionMask(v : uint) : void
+		{
+			setProperty('emissionMask', v);
+		}
+		
+		public function set shadowCastingType(v : uint) : void
+		{
+			throw new Error('Must be overriden');
+		}
+		
+		private function set lightId(v : int) : void
+		{
+			var numProperties	: uint				= 0;
+			var propertyNames	: Vector.<String>	= new Vector.<String>();
+			var propertyValues	: Vector.<Object>	= new Vector.<Object>();
 			
-			actions[0] = new LightAction();
+			for (var propertyName : String in _dataProvider.dataDescriptor)
+			{
+				propertyNames.push(PhongProperties.getPropertyFor(propertyName));
+				propertyValues.push(_dataProvider.getProperty(propertyName));
+				++numProperties;
+			}
+			
+			_dataProvider.removeAllProperties();
+			_lightId = v;
+			
+			for (var propertyId : uint = 0; propertyId < numProperties; ++propertyId)
+				_dataProvider.setProperty(
+					PhongProperties.getNameFor(v, propertyNames[propertyId]), 
+					propertyValues[propertyId]
+				);
+		}
+		
+		public function AbstractLight(color				: uint,
+									  emissionMask		: uint,
+									  shadowCastingType	: uint,
+									  type				: uint)
+		{
+			_dataProvider			= new LightDataProvider();
+			_lightId				= -1;
+			
+			this.color				= color;
+			this.emissionMask		= emissionMask;
+			this.shadowCastingType	= shadowCastingType;
+			
+			setProperty('type', type);
+			setProperty('localToWorld', localToWorld);
+			setProperty('worldToLocal', worldToLocal);
+		}
+		
+		protected final function getProperty(name : String) : *
+		{
+			var propertyName : String = PhongProperties.getNameFor(_lightId, name);
+			
+			return _dataProvider.getProperty(propertyName);
+		}
+		
+		protected final function setProperty(name : String, value : Object) : void
+		{
+			var propertyName : String = PhongProperties.getNameFor(_lightId, name);
+			
+			_dataProvider.setProperty(propertyName, value);
+		}
+		
+		protected final function removeProperty(name : String) : void
+		{
+			if (_dataProvider.getProperty(name) !== null)
+				_dataProvider.removeProperty(name);
+		}
+		
+		override protected function addedToSceneHandler(child : ISceneNode, scene : Scene):void
+		{
+			// this happens AFTER being added to scene
+			super.addedToSceneHandler(child, scene);
+			sortLights(scene);
+		}
+		
+		override protected function removedFromSceneHandler(child : ISceneNode, scene : Scene):void
+		{
+			// This happens AFTER being removed from scene.
+			super.removedFromSceneHandler(child, scene);
+			sortLights(scene);
+		}
+		
+		private static function sortLights(scene : Scene) : void
+		{
+			var sceneBindings	: DataBindings			= scene.bindings;
+			var lights			: Vector.<ISceneNode>	= scene.getDescendantsByType(AbstractLight);
+			var numLights		: uint					= lights.length;
+			var lightId			: uint;
+			
+			// remove all lights from scene bindings.
+			var numProviders	: uint					= sceneBindings.numProviders;
+			for (var providerId : int = numProviders - 1; providerId >= 0; --providerId)
+			{
+				var provider : DataProvider = sceneBindings.getProviderAt(providerId) as DataProvider;
+				if (provider is LightDataProvider)
+					sceneBindings.removeProvider(provider);
+			}
+			
+			// sorting allow to limit the number of shaders that will be generated
+			// if (add|remov)ing many lights all the time (add order won't matter anymore).
+			lights.sort(compare);
+			
+			// update all descriptors.
+			for (lightId = 0; lightId < numLights; ++lightId)
+				AbstractLight(lights[lightId]).lightId = lightId;
+			
+			// put back all lights into scene bindings.
+			for (lightId = 0; lightId < numLights; ++lightId)
+				sceneBindings.addProvider(AbstractLight(lights[lightId])._dataProvider);
+		}
+		
+		private static function compare(light1 : AbstractLight, light2 : AbstractLight) : int
+		{
+			return Object(light1).constructor.TYPE - Object(light2).constructor.TYPE;
 		}
 	}
 }

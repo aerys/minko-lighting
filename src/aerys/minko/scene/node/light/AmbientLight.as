@@ -1,45 +1,51 @@
 package aerys.minko.scene.node.light
 {
-	import aerys.minko.ns.minko;
-	import aerys.minko.scene.data.IWorldData;
-	import aerys.minko.scene.data.LightData;
-	import aerys.minko.scene.data.TransformData;
+	import aerys.minko.ns.minko_scene;
+	import aerys.minko.scene.node.AbstractSceneNode;
+	import aerys.minko.scene.node.ISceneNode;
+	import aerys.minko.type.enum.ShadowMappingType;
 
-	use namespace minko;
+	use namespace minko_scene;
 	
 	public class AmbientLight extends AbstractLight
 	{
-		protected var _ambient : Number;
+		public static const TYPE : uint = 0;
 		
 		public function get ambient() : Number
 		{
-			return _ambient; 
+			return getProperty('ambient') as Number;
 		}
 		
-		public function AmbientLight(color		: uint		= 0xFFFFFF, 
-									 ambient	: Number	= .4,
-									 group		: uint		= 0x1)
+		public function set ambient(v : Number)	: void
 		{
-			super(color, group);
-			
-			_ambient = ambient;
+			setProperty('ambient', v);
 		}
 		
-		override public function getLightData(transformData : TransformData) : LightData
+		override public function set shadowCastingType(v : uint) : void
 		{
-			if (isNaN(_ambient) || _ambient == 0)
-				return null;
+			if (v != ShadowMappingType.NONE)
+				throw new Error('An ambient light cannot emit shadows.');
 			
-			var ld : LightData = LIGHT_DATA.create(true) as LightData;
+			setProperty('shadowCastingType', ShadowMappingType.NONE);
+		}
+		
+		public function AmbientLight(color			: uint		= 0xFFFFFFFF, 
+									 ambient		: Number	= .4,
+									 emissionMask	: uint		= 0x1)
+		{
+			super(color, emissionMask, ShadowMappingType.NONE, TYPE);
 			
-			ld.reset();
-			ld._type			= LightData.TYPE_AMBIENT;
-			ld._group			= _group;
-			ld._color			= _color;
-			ld._ambient			= _ambient;
-			ld._shadowMapSize	= 0;
+			this.ambient = ambient;
+		}
+		
+		override minko_scene function cloneNode() : AbstractSceneNode
+		{
+			var light : AmbientLight = new AmbientLight(color, ambient, emissionMask);
 			
-			return ld;
+			light.name = this.name;
+			light.transform.copyFrom(this.transform);
+			
+			return light;
 		}
 	}
 }
