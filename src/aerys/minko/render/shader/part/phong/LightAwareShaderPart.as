@@ -55,8 +55,9 @@ package aerys.minko.render.shader.part.phong
 			
 			result = interpolate(result.xy);
 			
-			var normalMappingType : uint =
-				meshBindings.getConstant(PhongProperties.NORMAL_MAPPING_TYPE, NormalMappingType.NONE);
+			var normalMappingType : uint = meshBindings.getConstant(
+				PhongProperties.NORMAL_MAPPING_TYPE, NormalMappingType.NONE
+			);
 			
 			switch (normalMappingType)
 			{
