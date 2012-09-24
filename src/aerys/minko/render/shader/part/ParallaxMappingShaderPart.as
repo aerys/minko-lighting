@@ -4,6 +4,8 @@ package aerys.minko.render.shader.part
 	import aerys.minko.render.shader.SFloat;
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.phong.LightAwareShaderPart;
+	import aerys.minko.type.enum.SamplerFiltering;
+	import aerys.minko.type.enum.SamplerMipMapping;
 	
 	/**
 	 * 
@@ -25,10 +27,12 @@ package aerys.minko.render.shader.part
 			// Retrieve attributes, constants, textures, config
 			var numSteps	: uint		= meshBindings.getConstant(PhongProperties.PARALLAX_MAPPING_NBSTEPS, DEFAULT_STEEP_NSTEPS);
 			
-			var fsHeightMap	: SFloat	= meshBindings.getTextureParameter(PhongProperties.HEIGHT_MAP);
-			var cBumpScale	: SFloat	= meshBindings.propertyExists(PhongProperties.PARALLAX_MAPPING_BUMP_SCALE)
-				? meshBindings.getParameter(PhongProperties.PARALLAX_MAPPING_BUMP_SCALE, 1)
-				: float(DEFAULT_BUMPSCALE);
+			var fsHeightMap	: SFloat	= meshBindings.getTextureParameter(
+				PhongProperties.HEIGHT_MAP, SamplerFiltering.LINEAR, SamplerMipMapping.LINEAR
+			);
+			var cBumpScale	: SFloat	= meshBindings.getParameter(
+				PhongProperties.PARALLAX_MAPPING_BUMP_SCALE, 1, DEFAULT_BUMPSCALE
+			);
 			
 			// compute camera direction
 			var cLocalCameraPosition		: SFloat = worldToLocal(sceneBindings.getParameter('cameraPosition', 4));
@@ -41,7 +45,7 @@ package aerys.minko.render.shader.part
 			
 			var fsOffset		: SFloat = fsBaseUV;
 			var fsDelta			: SFloat = multiply(divide(fsTangentCameraDirection.xy, fsTangentCameraDirection.z), divide(cBumpScale, numSteps));
-			var fsNb			: SFloat = sampleTexture(fsHeightMap, fsOffset);
+			var fsNb			: SFloat = null;
 			var fsLoopRunning	: SFloat = float(1);
 			
 			// iterate on height map
