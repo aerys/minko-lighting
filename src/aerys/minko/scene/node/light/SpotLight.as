@@ -251,12 +251,12 @@ package aerys.minko.scene.node.light
 			if ([ShadowMappingType.NONE, 
 				ShadowMappingType.MATRIX].indexOf(shadowCastingType) == -1)
 				throw new Error('Invalid ShadowMappingType.');
+			
+			transform.changed.add(transformChangedHandler);
 		}
 		
-		override protected function transformChangedHandler(transform : Matrix4x4) : void
+		protected function transformChangedHandler(transform : Matrix4x4) : void
 		{
-			super.transformChangedHandler(transform);
-			
 			_worldPosition	= localToWorld.getTranslation(_worldPosition);
 			_worldDirection	= localToWorld.deltaTransformVector(Vector4.Z_AXIS, _worldDirection);
 			_worldDirection.normalize();

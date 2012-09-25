@@ -204,12 +204,12 @@ package aerys.minko.scene.node.light
 				 ShadowMappingType.DUAL_PARABOLOID,
 				 ShadowMappingType.CUBE].indexOf(shadowCastingType) == -1)
 				throw new Error('Invalid ShadowMappingType.');
+			
+			transform.changed.add(transformChangedHandler);
 		}
 		
-		override protected function transformChangedHandler(transform : Matrix4x4) : void
+		protected function transformChangedHandler(transform : Matrix4x4) : void
 		{
-			super.transformChangedHandler(transform);
-			
 			localToWorld.getTranslation(_worldPosition);
 		}
 		

@@ -203,15 +203,14 @@ package aerys.minko.scene.node.light
 			setProperty('worldToUV', _worldToUV);
 			setProperty('projection', _projection);
 			
-			if ([ShadowMappingType.NONE, 
-				ShadowMappingType.MATRIX].indexOf(shadowCasting) == -1)
+			if ([ShadowMappingType.NONE, ShadowMappingType.MATRIX].indexOf(shadowCasting) == -1)
 				throw new Error('Invalid ShadowMappingType.');
+			
+			transform.changed.add(transformChangedHandler);
 		}
 		
-		override protected function transformChangedHandler(transform : Matrix4x4) : void
+		protected function transformChangedHandler(transform : Matrix4x4) : void
 		{
-			super.transformChangedHandler(transform);
-			
 			// compute position
 			localToWorld.getTranslation(_worldPosition);
 			
