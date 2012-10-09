@@ -8,8 +8,8 @@ package aerys.minko.render.material.phong
 	
 	public class PhongShader extends BasicShader
 	{
-		private var _pixelColorPart	: LightAwareDiffuseShaderPart;
-		private var _lightingPart	: PhongShaderPart;
+		private var _diffuse	: LightAwareDiffuseShaderPart;
+		private var _phong		: PhongShaderPart;
 		
 		public function PhongShader(renderTarget	: RenderTarget	= null,
 									priority		: Number		= 0.)
@@ -17,14 +17,14 @@ package aerys.minko.render.material.phong
 			super(renderTarget, priority);
 			
 			// init shader parts
-			_pixelColorPart	= new LightAwareDiffuseShaderPart(this);
-			_lightingPart	= new PhongShaderPart(this);
+			_diffuse	= new LightAwareDiffuseShaderPart(this);
+			_phong		= new PhongShaderPart(this);
 		}
 		
 		override protected function getPixelColor() : SFloat
 		{
-			var color	 : SFloat = _pixelColorPart.getDiffuseColor();
-			var lighting : SFloat = _lightingPart.getLightingColor();
+			var color	 : SFloat = _diffuse.getDiffuseColor();
+			var lighting : SFloat = _phong.getLightingColor();
 			
 			color = float4(multiply(lighting, color.rgb), color.a);
 			
