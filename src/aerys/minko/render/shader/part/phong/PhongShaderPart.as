@@ -125,7 +125,7 @@ package aerys.minko.render.shader.part.phong
 			var receptionMask	: uint		= meshBindings.getConstant(PhongProperties.RECEPTION_MASK, 1);
 			var dynamicLighting : SFloat	= float3(0, 0, 0);
 			
-			for (var lightId : uint = 0;; ++lightId)
+			for (var lightId : uint = 0; ; ++lightId)
 			{
 				if (!lightPropertyExists(lightId, 'emissionMask'))
 					break;
