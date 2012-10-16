@@ -18,9 +18,12 @@ Demos
 Examples
 -------
 
+Code samples are available in a separate github repository: [minko-examples](https://github.com/aerys/minko-examples) in [the aerys.minko.example.lighting package](https://github.com/aerys/minko-examples/tree/master/src/aerys/minko/example/lighting).
+
 [![Spot Light](http://static.aerys.in:8080/minko/images/vignette_minko_spotlight.jpg)](http://static.aerys.in:8080/minko/examples/SpotLightExample.html)
 [![Point Light](http://static.aerys.in:8080/minko/images/vignette_minko_pointlight.jpg)](http://static.aerys.in:8080/minko/examples/PointLightExample.html)
 [![Directional Light](http://static.aerys.in:8080/minko/images/vignette_minko_directionallight.jpg)](http://static.aerys.in:8080/minko/examples/DirectionalLightExample.html)
+[![Parallax And Normal Mapping](http://static.aerys.in:8080/minko/images/vignette_minko_parallaxmapping.jpg)](http://static.aerys.in:8080/minko/examples/NormalMappingExample.html)
 
 Contribute
 ----------
