@@ -1,11 +1,13 @@
 Minko Lighting
 ==============
 
-
 Description
 -----------
 
-Lighting extension for Minko.
+A powerful and flexible lighting engine for [Minko](http://aerys.in/minko) with the following features:
+* Directional, spot, point and ambient lights
+* Environment mapping
+* Shadow mapping
 
 Demos
 -----
