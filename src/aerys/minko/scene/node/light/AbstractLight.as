@@ -5,9 +5,9 @@ package aerys.minko.scene.node.light
 	import aerys.minko.scene.node.AbstractSceneNode;
 	import aerys.minko.scene.node.ISceneNode;
 	import aerys.minko.scene.node.Scene;
+	import aerys.minko.scene.node.data.LightDataProvider;
 	import aerys.minko.type.binding.DataBindings;
 	import aerys.minko.type.binding.DataProvider;
-	import aerys.minko.scene.node.data.LightDataProvider;
 	
 	use namespace minko_lighting;
 	
@@ -34,6 +34,11 @@ package aerys.minko.scene.node.light
 			return getProperty('shadowCastingType') as uint; 
 		}
 		
+		public function get enabled() : Boolean
+		{
+			return getProperty('enabled') as Boolean; 
+		}
+		
 		public function set color(v : uint)	: void
 		{
 			setProperty('color', v);
@@ -47,6 +52,11 @@ package aerys.minko.scene.node.light
 		public function set shadowCastingType(v : uint) : void
 		{
 			throw new Error('Must be overriden');
+		}
+		
+		public function set enabled(v : Boolean) : void
+		{
+			setProperty('enabled', v);
 		}
 		
 		private function set lightId(v : int) : void
@@ -87,6 +97,7 @@ package aerys.minko.scene.node.light
 			setProperty('type', type);
 			setProperty('localToWorld', localToWorld);
 			setProperty('worldToLocal', worldToLocal);
+			setProperty('enabled', true);
 		}
 		
 		protected final function getProperty(name : String) : *
@@ -139,7 +150,7 @@ package aerys.minko.scene.node.light
 					sceneBindings.removeProvider(provider);
 			}
 			
-			// sorting allow to limit the number of shaders that will be generated
+			// sorting allows to limit the number of shaders that will be generated
 			// if (add|remov)ing many lights all the time (add order won't matter anymore).
 			lights.sort(compare);
 			

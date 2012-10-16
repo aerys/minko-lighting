@@ -134,6 +134,13 @@ package aerys.minko.render.shader.part.phong
 				
 				if ((emissionMask & receptionMask) != 0)
 				{
+					var isEnabled : Boolean = lightPropertyExists(lightId, 'enabled')
+										   && getLightConstant(lightId, 'enabled');
+					if (!isEnabled)
+					{
+						continue;
+					}
+					
 					var color			: SFloat	= getLightParameter(lightId, 'color', 4);
 					var type			: uint		= getLightConstant(lightId, 'type')
 					var contribution	: SFloat	= LIGHT_TYPE_TO_FACTORY[type](lightId);
