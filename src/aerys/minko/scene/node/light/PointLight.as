@@ -205,7 +205,7 @@ package aerys.minko.scene.node.light
 				 ShadowMappingType.CUBE].indexOf(shadowCastingType) == -1)
 				throw new Error('Invalid ShadowMappingType.');
 			
-			transform.changed.add(transformChangedHandler);
+			localToWorld.changed.add(transformChangedHandler);
 		}
 		
 		protected function transformChangedHandler(transform : Matrix4x4) : void
