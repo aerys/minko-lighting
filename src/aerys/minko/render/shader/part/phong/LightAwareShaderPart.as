@@ -47,11 +47,11 @@ package aerys.minko.render.shader.part.phong
 		{
 			var result : SFloat = getVertexAttribute(VertexComponent.UV);
 			
-			if (meshBindings.propertyExists('diffuseUVScale'))
-				result.scaleBy(meshBindings.getParameter('diffuseUVScale', 2));
+			if (meshBindings.propertyExists(BasicProperties.UV_SCALE))
+				result.scaleBy(meshBindings.getParameter(BasicProperties.UV_SCALE, 2));
 			
-			if (meshBindings.propertyExists('diffuseUVOffset'))
-				result.incrementBy(meshBindings.getParameter('diffuseUVOffset', 2));
+			if (meshBindings.propertyExists(BasicProperties.UV_OFFSET))
+				result.incrementBy(meshBindings.getParameter(BasicProperties.UV_OFFSET, 2));
 			
 			result = interpolate(result.xy);
 			
