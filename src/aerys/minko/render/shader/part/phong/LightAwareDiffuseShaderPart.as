@@ -17,6 +17,7 @@ package aerys.minko.render.shader.part.phong
 		public function getDiffuseColor() : SFloat
 		{
 			var diffuseColor : SFloat	= null;
+			var uv			 : SFloat	= fsUV;
 			
 			if (meshBindings.propertyExists(BasicProperties.DIFFUSE_MAP))
 			{
@@ -27,7 +28,7 @@ package aerys.minko.render.shader.part.phong
 					meshBindings.getConstant(BasicProperties.DIFFUSE_WRAPPING, SamplerWrapping.REPEAT)
 				);
 				
-				diffuseColor = sampleTexture(diffuseMap, fsUV);
+				diffuseColor = sampleTexture(diffuseMap, uv);
 			}
 			else if (meshBindings.propertyExists(BasicProperties.DIFFUSE_COLOR))
 			{
@@ -38,7 +39,14 @@ package aerys.minko.render.shader.part.phong
 				diffuseColor = float4(0., 0., 0., 1.);
 			}
 			
-			// Apply HLSA modifiers
+			if (meshBindings.propertyExists(BasicProperties.ALPHA_MAP))
+			{
+				var alphaMap 	: SFloat 	= meshBindings.getTextureParameter(BasicProperties.ALPHA_MAP);
+				var alphaSample	: SFloat	= sampleTexture(alphaMap, uv);
+				
+				diffuseColor = float4(diffuseColor.rgb, alphaSample.a);					
+			}
+			
 			if (meshBindings.propertyExists(BasicProperties.DIFFUSE_TRANSFORM))
 			{
 				diffuseColor = multiply4x4(
@@ -47,7 +55,6 @@ package aerys.minko.render.shader.part.phong
 				);
 			}
 			
-			// kill transparent pixels
 			if (meshBindings.propertyExists(BasicProperties.ALPHA_THRESHOLD))
 			{
 				var alphaThreshold : SFloat = meshBindings.getParameter(
