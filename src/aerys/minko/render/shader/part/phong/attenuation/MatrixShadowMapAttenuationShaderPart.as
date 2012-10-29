@@ -54,8 +54,6 @@ package aerys.minko.render.shader.part.phong.attenuation
 			uv = interpolate(uv);
 			
 			var currentDepth : SFloat = uv.z;
-			if (lightType == DirectionalLight.TYPE)
-				currentDepth = divide(currentDepth, uv.w);
 			currentDepth = min(subtract(1, shadowBias), currentDepth);
 			
 			uv = divide(uv, uv.w);
@@ -125,10 +123,6 @@ package aerys.minko.render.shader.part.phong.attenuation
 				
 				noShadows.scaleBy(1 / (2 * numSamples + 1));
 			}
-			
-			// do not shadow when current depth is less than shadowBias + precomputed depth
-			if (lightType == DirectionalLight.TYPE)
-				noShadows = or(outsideMap, noShadows)
 			
 			return noShadows;
 		}
