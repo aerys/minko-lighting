@@ -160,6 +160,16 @@ package aerys.minko.render.shader.part.phong.contribution
 			if (meshBindings.propertyExists(PhongProperties.SPECULAR_MULTIPLIER))
 				cLightSpecular.scaleBy(meshBindings.getParameter(PhongProperties.SPECULAR_MULTIPLIER, 1));
 			
+			if (meshBindings.propertyExists(PhongProperties.SPECULAR_MAP))
+			{
+				var fsSpecularSample 	: SFloat	= sampleTexture(
+					meshBindings.getTextureParameter(PhongProperties.SPECULAR_MAP),
+					fsUV
+				);
+				
+				cLightSpecular.scaleBy(fsSpecularSample);
+			}
+			
 			if (meshBindings.propertyExists(PhongProperties.SHININESS_MULTIPLIER))
 				cLightShininess.scaleBy(meshBindings.getParameter(PhongProperties.SHININESS_MULTIPLIER, 1));
 			
