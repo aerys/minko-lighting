@@ -167,7 +167,7 @@ package aerys.minko.render.shader.part.phong.contribution
 					fsUV
 				);
 				
-				cLightSpecular.scaleBy(fsSpecularSample);
+				cLightSpecular.scaleBy(fsSpecularSample.x);
 			}
 			
 			if (meshBindings.propertyExists(PhongProperties.SHININESS_MULTIPLIER))
