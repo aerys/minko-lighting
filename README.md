@@ -43,4 +43,4 @@ Code samples are available in a separate github repository: [minko-examples](htt
 Contribute
 ----------
 
-`minko-lighting` is LGPL-licensed.  Make sure you tell us everything that's wrong!
+`minko-lighting` is MIT-licensed.  Make sure you tell us everything that's wrong!
